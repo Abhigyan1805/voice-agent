@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hinglish Voice Agent</title>
+<style>
+  :root {
+    --bg: #f6f4ef; --panel: #ffffff; --ink: #1d1b16; --muted: #6b665c; --line: #e2ddd2;
+    --accent: #c2410c; --accent-soft: #fde6d8; --user: #eef2f7; --ok: #15803d; --warn: #b45309;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #15140f; --panel: #1f1d17; --ink: #f0ede6; --muted: #a39d90; --line: #34312a;
+      --accent: #fb923c; --accent-soft: #3a2416; --user: #232a33; --ok: #4ade80; --warn: #fbbf24; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.5 "Noto Sans", "Noto Sans Devanagari", system-ui, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+  header h1 { font-size: 1.35rem; margin: 0 0 4px; letter-spacing: -0.01em; }
+  header p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+  .bar { display: flex; gap: 12px; align-items: center; margin: 20px 0 12px; flex-wrap: wrap; }
+  button { font: inherit; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+    padding: 8px 14px; border-radius: 999px; cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button:disabled { opacity: 0.5; cursor: default; }
+  .status { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.9rem; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--line); transition: background .15s, transform .15s; }
+  .dot.listening { background: var(--ok); }
+  .dot.speech { background: var(--accent); transform: scale(1.35); }
+  .dot.thinking { background: var(--warn); }
+  #log { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px;
+    min-height: 280px; display: flex; flex-direction: column; gap: 10px; }
+  .msg { padding: 8px 12px; border-radius: 12px; max-width: 88%; white-space: pre-wrap; word-wrap: break-word; }
+  .msg.user { background: var(--user); align-self: flex-end; }
+  .msg.agent { background: var(--accent-soft); align-self: flex-start; }
+  .msg .meta { display: block; font-size: 0.75rem; color: var(--muted); margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .msg .tool { display: block; font-size: 0.8rem; color: var(--muted); font-family: ui-monospace, monospace; }
+  .msg.cut { opacity: 0.7; }
+  .msg.cut::after { content: " ✂ interrupted"; font-size: 0.75rem; color: var(--muted); }
+  form { display: flex; gap: 8px; margin-top: 12px; }
+  input[type=text] { flex: 1; min-width: 0; font: inherit; padding: 9px 12px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+  .hint { color: var(--muted); font-size: 0.85rem; margin-top: 14px; }
+  .empty { color: var(--muted); margin: auto; text-align: center; font-size: 0.95rem; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Hinglish voice agent</h1>
+    <p>Speak Hindi, English or a mix. The answer starts playing after the first sentence is ready; talk over it to interrupt.</p>
+  </header>
+  <div class="bar">
+    <button id="mic" class="primary">Start microphone</button>
+    <button id="stop" disabled>Stop speaking</button>
+    <button id="reset">New conversation</button>
+    <span class="status"><span id="dot" class="dot"></span><span id="state">idle</span></span>
+  </div>
+  <div id="log"><div class="empty" id="empty">Try “आज कौन सा दिन है?”, “23 गुणा 47 कितना होता है?” or “What can you do?”</div></div>
+  <form id="form"><input id="text" type="text" placeholder="…or type a question" autocomplete="off"><button>Send</button></form>
+  <p class="hint">Everything runs locally on CPU except the language model. Timings under each answer: speech-to-text, LLM first token, time to first audio after you stopped speaking.</p>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const log = $("log");
+let ws, audioCtx, micStream, workletNode, nextTime = 0, sources = [], pendingAudio = null;
+let currentAgent = null, currentTurn = -1, endOfSpeechAt = 0;
+
+function setState(cls, text) { $("dot").className = "dot " + cls; $("state").textContent = text; }
+function bubble(kind, text) {
+  $("empty")?.remove();
+  const el = document.createElement("div"); el.className = "msg " + kind;
+  el.append(document.createTextNode(text)); log.append(el); el.scrollIntoView({block: "end"}); return el;
+}
+function addMeta(el, text, cls = "meta") { const s = document.createElement("span"); s.className = cls; s.textContent = text; el.append(s); }
+
+function connect() {
+  ws = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws`);
+  ws.binaryType = "arraybuffer";
+  ws.onopen = () => setState(micStream ? "listening" : "", micStream ? "listening" : "connected");
+  ws.onclose = () => { setState("", "disconnected, retrying…"); setTimeout(connect, 1500); };
+  ws.onmessage = (e) => {
+    if (e.data instanceof ArrayBuffer) { if (pendingAudio) playPcm(e.data, pendingAudio.sample_rate); pendingAudio = null; return; }
+    const m = JSON.parse(e.data);
+    if (m.type === "vad") {
+      if (m.state === "speech") { setState("speech", "hearing you"); }
+      else { endOfSpeechAt = performance.now(); setState("thinking", "thinking"); }
+    } else if (m.type === "interrupt") {
+      stopPlayback(); if (currentAgent) currentAgent.classList.add("cut");
+    } else if (m.type === "transcript") {
+      currentTurn = m.turn; bubble("user", (m.text || "(nothing recognised)") + (m.lang ? `  ·${m.lang}` : ""));
+      currentAgent = bubble("agent", "");
+    } else if (m.type === "tool" && m.turn === currentTurn && currentAgent) {
+      addMeta(currentAgent, `⚙ ${m.name}(${JSON.stringify(m.args)}) → ${JSON.stringify(m.result).slice(0, 90)}`, "tool");
+      currentAgent.append(document.createTextNode(""));
+    } else if (m.type === "token" && m.turn === currentTurn && currentAgent) {
+      currentAgent.firstChild.textContent += m.text;
+    } else if (m.type === "sentence") {
+      if (m.turn === currentTurn) { pendingAudio = m; setState("speech", "speaking"); }
+    } else if (m.type === "metrics" && m.turn === currentTurn && currentAgent) {
+      const f = (x) => x == null ? "–" : x.toFixed(2) + "s";
+      const e2e = m.time_to_first_audio_s == null ? null : m.time_to_first_audio_s + (m.endpoint_delay_s || 0);
+      addMeta(currentAgent, `stt ${f(m.stt_s)} · llm first token ${f(m.llm_first_token_s)} · tts ${f(m.tts_first_audio_s)} · first audio ${f(e2e)}${m.endpoint_delay_s ? " (incl. " + m.endpoint_delay_s.toFixed(2) + "s end-of-speech wait)" : ""}${m.tools.length ? " · tools: " + m.tools.join(", ") : ""}${m.cached ? " · cached" : ""}`);
+      if (!m.sentences) setState(micStream ? "listening" : "", micStream ? "listening" : "connected");
+    } else if (m.type === "error") { bubble("agent", "⚠ " + m.message); }
+  };
+}
+
+function ensureCtx() { if (!audioCtx) audioCtx = new AudioContext(); if (audioCtx.state === "suspended") audioCtx.resume(); return audioCtx; }
+
+function playPcm(buf, rate) {
+  const ctx = ensureCtx(); const i16 = new Int16Array(buf); const f32 = new Float32Array(i16.length);
+  for (let i = 0; i < i16.length; i++) f32[i] = i16[i] / 32768;
+  const ab = ctx.createBuffer(1, f32.length, rate); ab.copyToChannel(f32, 0);
+  const src = ctx.createBufferSource(); src.buffer = ab; src.connect(ctx.destination);
+  nextTime = Math.max(nextTime, ctx.currentTime + 0.03); src.start(nextTime); nextTime += ab.duration + 0.12;
+  sources.push(src); $("stop").disabled = false;
+  src.onended = () => {
+    sources = sources.filter((s) => s !== src);
+    if (!sources.length) { $("stop").disabled = true; ws?.readyState === 1 && ws.send(JSON.stringify({type: "playback_done"}));
+      setState(micStream ? "listening" : "", micStream ? "listening" : "connected"); }
+  };
+}
+function stopPlayback() { sources.forEach((s) => { try { s.stop(); } catch {} }); sources = []; nextTime = 0; $("stop").disabled = true; }
+
+const workletCode = `
+class Down extends AudioWorkletProcessor {
+  constructor() { super(); this.ratio = sampleRate / 16000; this.acc = []; this.pos = 0; }
+  process(inputs) {
+    const ch = inputs[0][0]; if (!ch) return true;
+    for (let i = 0; i < ch.length; i++) { this.pos += 1; if (this.pos >= this.ratio) { this.pos -= this.ratio; this.acc.push(ch[i]); } }
+    if (this.acc.length >= 512) { const out = new Int16Array(this.acc.length);
+      for (let i = 0; i < out.length; i++) out[i] = Math.max(-1, Math.min(1, this.acc[i])) * 32767;
+      this.port.postMessage(out.buffer, [out.buffer]); this.acc = []; }
+    return true;
+  }
+}
+registerProcessor("down16k", Down);`;
+
+async function startMic() {
+  const ctx = ensureCtx();
+  micStream = await navigator.mediaDevices.getUserMedia({audio: {echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1}});
+  await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([workletCode], {type: "application/javascript"})));
+  const srcNode = ctx.createMediaStreamSource(micStream);
+  workletNode = new AudioWorkletNode(ctx, "down16k");
+  workletNode.port.onmessage = (e) => { if (ws?.readyState === 1) ws.send(e.data); };
+  srcNode.connect(workletNode);
+  $("mic").textContent = "Stop microphone"; setState("listening", "listening");
+}
+function stopMic() {
+  micStream?.getTracks().forEach((t) => t.stop()); workletNode?.disconnect(); micStream = null;
+  $("mic").textContent = "Start microphone"; setState("", "connected");
+}
+
+$("mic").onclick = () => (micStream ? stopMic() : startMic().catch((e) => bubble("agent", "⚠ microphone: " + e.message)));
+$("stop").onclick = () => { stopPlayback(); ws.send(JSON.stringify({type: "stop"})); };
+$("reset").onclick = () => { stopPlayback(); ws.send(JSON.stringify({type: "reset"})); log.innerHTML = ""; };
+$("form").onsubmit = (e) => { e.preventDefault(); ensureCtx(); const t = $("text").value.trim(); if (!t) return;
+  stopPlayback(); ws.send(JSON.stringify({type: "text", text: t})); $("text").value = ""; setState("thinking", "thinking"); };
+connect();
+</script>
+</body>
+</html>

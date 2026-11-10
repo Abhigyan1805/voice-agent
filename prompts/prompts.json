@@ -1,0 +1,22 @@
+[
+  {"id": "hi-calc-1", "lang": "hi", "category": "tool:calculator", "voice": "hi_IN-pratham-medium", "text": "तेईस गुणा सैंतालीस कितना होता है?"},
+  {"id": "hi-calc-2", "lang": "hi", "category": "tool:calculator", "voice": "hi_IN-rohan-medium", "text": "बारह सौ पचास का अठारह प्रतिशत कितना होगा?"},
+  {"id": "hx-calc-3", "lang": "hinglish", "category": "tool:calculator", "voice": "hi_IN-pratham-medium", "text": "मेरा बिल चार हज़ार रुपये है, इसे पाँच दोस्तों में split करो तो हर एक का share कितना होगा?"},
+  {"id": "en-calc-4", "lang": "en", "category": "tool:calculator", "voice": "en_US-ryan-medium", "text": "What is the square root of one hundred and forty four, plus seventeen?"},
+  {"id": "hi-time-1", "lang": "hi", "category": "tool:datetime", "voice": "hi_IN-rohan-medium", "text": "आज कौन सा दिन है?"},
+  {"id": "hx-time-2", "lang": "hinglish", "category": "tool:datetime", "voice": "hi_IN-pratham-medium", "text": "अभी time क्या हो रहा है?"},
+  {"id": "en-time-3", "lang": "en", "category": "tool:datetime", "voice": "en_US-ryan-medium", "text": "What is today's date?"},
+  {"id": "hi-kb-1", "lang": "hi", "category": "tool:knowledge", "voice": "hi_IN-rohan-medium", "text": "एम्बुलेंस बुलाने के लिए कौन सा नंबर मिलाना चाहिए?"},
+  {"id": "hx-kb-2", "lang": "hinglish", "category": "tool:knowledge", "voice": "hi_IN-pratham-medium", "text": "अगर मेरे साथ online fraud हो जाए तो मैं किस helpline पर call करूँ?"},
+  {"id": "hi-kb-3", "lang": "hi", "category": "tool:knowledge", "voice": "hi_IN-rohan-medium", "text": "तुम क्या क्या कर सकते हो?"},
+  {"id": "en-kb-4", "lang": "en", "category": "tool:knowledge", "voice": "en_US-ryan-medium", "text": "How do you work? Which speech recognition model do you use?"},
+  {"id": "hi-gen-1", "lang": "hi", "category": "general", "voice": "hi_IN-pratham-medium", "text": "भारत की राजधानी क्या है?"},
+  {"id": "hi-gen-2", "lang": "hi", "category": "general", "voice": "hi_IN-rohan-medium", "text": "गर्मियों में शरीर में पानी की कमी से कैसे बचें?"},
+  {"id": "hx-gen-3", "lang": "hinglish", "category": "general", "voice": "hi_IN-pratham-medium", "text": "मुझे interview के लिए कुछ quick tips दो।"},
+  {"id": "hx-gen-4", "lang": "hinglish", "category": "general", "voice": "hi_IN-rohan-medium", "text": "Python सीखने के लिए सबसे अच्छा तरीका क्या है?"},
+  {"id": "hi-gen-5", "lang": "hi", "category": "general", "voice": "hi_IN-pratham-medium", "text": "ताजमहल किसने बनवाया था?"},
+  {"id": "hx-gen-6", "lang": "hinglish", "category": "general", "voice": "hi_IN-rohan-medium", "text": "अच्छी नींद के लिए रात को phone कब बंद करना चाहिए?"},
+  {"id": "en-gen-7", "lang": "en", "category": "general", "voice": "en_US-ryan-medium", "text": "Can you suggest a simple vegetarian dinner I can cook in twenty minutes?"},
+  {"id": "en-gen-8", "lang": "en", "category": "general", "voice": "en_US-ryan-medium", "text": "Why is the sky blue?"},
+  {"id": "hi-gen-9", "lang": "hi", "category": "general", "voice": "hi_IN-pratham-medium", "text": "दिवाली क्यों मनाई जाती है?"}
+]

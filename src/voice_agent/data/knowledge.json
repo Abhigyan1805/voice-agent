@@ -1,0 +1,42 @@
+[
+  {
+    "title": "What this assistant can do",
+    "keywords": ["capabilities", "what can you do", "help", "features", "तुम क्या कर सकते हो", "आप क्या कर सकते हैं", "मदद", "क्षमता"],
+    "text": "I am a voice assistant that understands Hindi, English and mixed Hinglish speech. I can answer general questions, do exact calculations with a calculator tool, tell the current date and time, and look up facts in a small local knowledge base. You can interrupt me while I am speaking."
+  },
+  {
+    "title": "How this assistant works",
+    "keywords": ["how do you work", "architecture", "pipeline", "speech recognition", "तुम कैसे काम करते हो", "कैसे काम", "पाइपलाइन"],
+    "text": "Your voice is cut into turns by a Silero voice-activity detector, transcribed by a Whisper-small model fine-tuned for Hindi and run in int8 with CTranslate2, answered by a small cloud language model that can call tools, and spoken back sentence by sentence with Piper text-to-speech voices. Everything except the language model runs on a laptop CPU."
+  },
+  {
+    "title": "Speech recognition model",
+    "keywords": ["whisper", "asr", "fine-tuned", "lora", "model", "मॉडल", "व्हिस्पर", "स्पीच रिकग्निशन"],
+    "text": "The speech recogniser is OpenAI Whisper-small fine-tuned with LoRA on the Google FLEURS Hindi data set (adapter Dratinia/whisper-small-hindi-lora), merged and converted to an int8 CTranslate2 model of about 250 MB that runs about two times faster than fp32 on CPU."
+  },
+  {
+    "title": "Who built this assistant",
+    "keywords": ["who made you", "creator", "author", "किसने बनाया", "तुम्हें किसने बनाया", "बनाने वाला"],
+    "text": "This assistant was built by Abhigyan Kumar Singh as an open portfolio project on top of the author's own fine-tuned Hindi Whisper model."
+  },
+  {
+    "title": "National emergency number 112",
+    "keywords": ["emergency", "112", "help number", "आपातकाल", "इमरजेंसी", "आपातकालीन नंबर", "हेल्पलाइन"],
+    "text": "112 is India's single national emergency number under the Emergency Response Support System. It connects to police, fire and ambulance services and works from any phone."
+  },
+  {
+    "title": "Police, fire and ambulance numbers",
+    "keywords": ["police", "fire", "ambulance", "100", "101", "102", "108", "पुलिस", "फायर", "आग", "एम्बुलेंस", "दमकल"],
+    "text": "In India the police number is 100, the fire service is 101, and ambulance services are reached on 102 or 108 depending on the state. 112 also reaches all of them."
+  },
+  {
+    "title": "Child and women helplines",
+    "keywords": ["child", "childline", "1098", "women", "181", "बच्चे", "चाइल्डलाइन", "महिला", "महिला हेल्पलाइन"],
+    "text": "Childline, for children in need of care and protection, is 1098. The women helpline is 181 in most states."
+  },
+  {
+    "title": "Cyber crime helpline",
+    "keywords": ["cyber", "fraud", "scam", "1930", "online fraud", "साइबर", "धोखाधड़ी", "ठगी", "फ्रॉड"],
+    "text": "To report online financial fraud or cyber crime in India, call 1930 or file a complaint at cybercrime.gov.in."
+  }
+]
