@@ -49,6 +49,7 @@ class TurnInfo:
     requests: int = 0
     cached: bool = False
     tool_calls: list[str] = field(default_factory=list)
+    model: str | None = None
     retries: int = 0
     retry_codes: list[int] = field(default_factory=list)
 
@@ -59,6 +60,10 @@ class LLMError(RuntimeError):
 
 class RateLimited(LLMError):
     pass
+
+
+class Overloaded(LLMError):
+    """HTTP 503: the provider is shedding load for this model ("high demand")."""
 
 
 # ------------------------------------------------------------------ HTTP + cache
@@ -81,8 +86,15 @@ class _SSE:
         return hashlib.sha256(blob.encode()).hexdigest()[:32]
 
     def stream(
-        self, url: str, headers: dict, body: dict, info: TurnInfo, cancel: threading.Event | None
+        self,
+        url: str,
+        headers: dict,
+        body: dict,
+        info: TurnInfo,
+        cancel: threading.Event | None,
+        max_retries: int | None = None,
     ) -> Iterator[dict]:
+        max_retries = self.max_retries if max_retries is None else max_retries
         key = self._key(url, body)
         path = self.cache_dir / f"{key}.json"
         info.requests += 1
@@ -92,12 +104,12 @@ class _SSE:
             return
         recorded: list[dict] = []
         delay = 1.0
-        for attempt in range(self.max_retries + 1):
+        for attempt in range(max_retries + 1):
             with self.client.stream("POST", url, headers=headers, json=body) as resp:
                 if resp.status_code in (429, 500, 502, 503, 504):
                     resp.read()
-                    if attempt == self.max_retries:
-                        cls = RateLimited if resp.status_code == 429 else LLMError
+                    if attempt == max_retries:
+                        cls = RateLimited if resp.status_code == 429 else Overloaded if resp.status_code == 503 else LLMError
                         raise cls(f"HTTP {resp.status_code} after {attempt} retries")
                     retry_after = resp.headers.get("retry-after")
                     wait = float(retry_after) if retry_after and retry_after.isdigit() else delay
@@ -130,21 +142,38 @@ class _SSE:
 
 
 class GeminiClient:
+    """Gemini over REST/SSE. If the primary model is overloaded (HTTP 503 after two retries), the
+    turn falls back to the next model in ``fallbacks`` and stays there for ``sticky_s`` seconds."""
+
     name = "gemini"
 
-    def __init__(self, model: str = "gemini-3.1-flash-lite", api_key: str | None = None, cache: bool = True):
-        self.model = model
+    def __init__(
+        self,
+        model: str = "gemini-3.5-flash-lite",
+        api_key: str | None = None,
+        cache: bool = True,
+        fallbacks: tuple[str, ...] = ("gemini-3.1-flash-lite", "gemini-3.5-flash-lite"),
+        sticky_s: float = 300.0,
+    ):
+        self.primary = model
+        self.models = [model] + [m for m in fallbacks if m != model]
         self.api_key = api_key or os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
         if not self.api_key:
             raise LLMError("GOOGLE_API_KEY is not set")
         self.http = _SSE(cache=cache)
         self.info = TurnInfo()
+        self.sticky_s = sticky_s
+        self._active, self._since = model, 0.0
 
-    def _body(self, system: str, contents: list[dict]) -> dict:
+    @property
+    def model(self) -> str:
+        return self._active
+
+    def _body(self, model: str, system: str, contents: list[dict]) -> dict:
         gen: dict[str, Any] = {"temperature": 0.4, "maxOutputTokens": 400}
-        if self.model.startswith("gemini-3"):
+        if model.startswith("gemini-3"):
             gen["thinkingConfig"] = {"thinkingLevel": "minimal"}
-        elif self.model.startswith("gemini-2.5"):
+        elif model.startswith("gemini-2.5"):
             gen["thinkingConfig"] = {"thinkingBudget": 0}
         return {
             "systemInstruction": {"parts": [{"text": system}]},
@@ -152,6 +181,36 @@ class GeminiClient:
             "tools": [{"functionDeclarations": toolbox.gemini_declarations()}],
             "generationConfig": gen,
         }
+
+    def _url(self, model: str) -> str:
+        return f"https://generativelanguage.googleapis.com/v1beta/models/{model}:streamGenerateContent?alt=sse"
+
+    def _first_request(self, headers, system, contents, cancel) -> tuple[str, Iterator[dict]]:
+        """Pick the model for this turn: try the active one, fall back on 503 before any output."""
+        if self._active != self.primary and time.time() - self._since > self.sticky_s:
+            self._active = self.primary  # give the primary another chance
+        order = [self._active] + [m for m in self.models if m != self._active]
+        for n, model in enumerate(order):
+            stream = self.http.stream(
+                self._url(model), headers, self._body(model, system, contents), self.info, cancel,
+                max_retries=2 if n < len(order) - 1 else None,
+            )
+            try:
+                first = next(stream, None)
+            except Overloaded:
+                if n == len(order) - 1:
+                    raise
+                continue
+            if model != self._active:
+                self._active, self._since = model, time.time()
+
+            def chain(first=first, stream=stream):
+                if first is not None:
+                    yield first
+                yield from stream
+
+            return model, chain()
+        raise LLMError("no Gemini model available")
 
     def turn(
         self, system: str, history: list[dict], user_text: str, cancel: threading.Event | None = None
@@ -161,12 +220,17 @@ class GeminiClient:
             {"role": "model" if m["role"] == "assistant" else "user", "parts": [{"text": m["text"]}]} for m in history
         ]
         contents.append({"role": "user", "parts": [{"text": user_text}]})
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:streamGenerateContent?alt=sse"
         headers = {"x-goog-api-key": self.api_key, "Content-Type": "application/json"}
+        model = None
         for _ in range(MAX_TOOL_ROUNDS + 1):
             model_parts: list[dict] = []
             calls: list[dict] = []
-            for chunk in self.http.stream(url, headers, self._body(system, contents), self.info, cancel):
+            if model is None:
+                model, chunks = self._first_request(headers, system, contents, cancel)
+                self.info.model = model
+            else:  # tool follow-ups stay on the same model (thought signatures are model-specific)
+                chunks = self.http.stream(self._url(model), headers, self._body(model, system, contents), self.info, cancel)
+            for chunk in chunks:
                 for cand in chunk.get("candidates", [])[:1]:
                     for part in cand.get("content", {}).get("parts", []):
                         model_parts.append(part)  # replayed verbatim: keeps thoughtSignature
@@ -333,7 +397,7 @@ def make_client(provider: str = "auto", model: str | None = None, cache: bool = 
     if provider == "auto":
         provider = "gemini" if (os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")) else "offline"
     if provider == "gemini":
-        return GeminiClient(model=model or "gemini-3.1-flash-lite", cache=cache)
+        return GeminiClient(model=model or "gemini-3.5-flash-lite", cache=cache)
     if provider in ("openai", "deepseek"):
         return OpenAICompatClient(model=model or "deepseek-chat", cache=cache)
     if provider == "offline":

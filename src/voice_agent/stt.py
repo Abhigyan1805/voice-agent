@@ -15,8 +15,11 @@ from pathlib import Path
 
 import numpy as np
 
-# Same cap as the training repo; a spoken question is far shorter.
-MAX_NEW_TOKENS = 200
+# Devanagari costs roughly one Whisper token per character, so a 15 s Hindi sentence can need
+# 300+ tokens. Same cap as the fine-tuning repo; generation stops at the end token long before
+# this for a short spoken question, so the cap costs nothing there.
+MAX_NEW_TOKENS = 440
+MAX_LENGTH = 448  # Whisper's decoder context
 LANGS = ("hi", "en")
 
 
@@ -84,7 +87,7 @@ class WhisperSTT:
             enc,
             [prompt],
             beam_size=1,
-            max_length=len(prompt) + MAX_NEW_TOKENS,
+            max_length=min(MAX_LENGTH, len(prompt) + MAX_NEW_TOKENS),
             suppress_blank=True,
             suppress_tokens=suppress,
         )[0]

@@ -50,9 +50,47 @@ class SpeechAudio:
     sample_rate: int = 22_050
 
 
+class SpeculativeSTT:
+    """Transcribe in a background thread, started at a VAD pause before the turn is confirmed.
+
+    If the VAD then ends the turn with the same audio (``SpeechEnd.pause_id`` matches), the turn
+    reuses this transcript and only waits for whatever decode time is left; if the user kept
+    talking, the job is simply dropped.
+    """
+
+    def __init__(self, stt, audio: np.ndarray, pause_id: int, language: str | None = "auto"):
+        self.pause_id = pause_id
+        self.text: str | None = None
+        self.language: str | None = None
+        self.compute_s = 0.0
+        self.error: BaseException | None = None
+        self._done = threading.Event()
+
+        def work() -> None:
+            t = time.perf_counter()
+            try:
+                self.text = stt.transcribe(audio, language=language)
+                self.language = getattr(stt, "last_language", None)
+            except BaseException as e:  # re-raised in result()
+                self.error = e
+            finally:
+                self.compute_s = time.perf_counter() - t
+                self._done.set()
+
+        threading.Thread(target=work, name="speculative-stt", daemon=True).start()
+
+    def result(self) -> str:
+        self._done.wait()
+        if self.error is not None:
+            raise self.error
+        return self.text or ""
+
+
 @dataclass
 class TurnMetrics:
-    stt_s: float | None = None
+    stt_s: float | None = None  # STT time on the critical path (after end of turn)
+    stt_compute_s: float | None = None  # full decode time (differs from stt_s when speculative)
+    stt_speculative: bool = False
     llm_first_token_s: float | None = None  # from LLM request start
     llm_first_sentence_s: float | None = None  # from LLM request start
     tts_first_audio_s: float | None = None  # synthesis time of the first sentence
@@ -65,6 +103,7 @@ class TurnMetrics:
     reply_audio_s: float = 0.0
     cached: bool = False
     llm_requests: int = 0
+    llm_model: str | None = None
     llm_retries: int = 0
     interrupted: bool = False
     error: str | None = None
@@ -107,16 +146,22 @@ class VoicePipeline:
         audio: np.ndarray | None = None,
         text: str | None = None,
         cancel: threading.Event | None = None,
+        speculative: SpeculativeSTT | None = None,
     ) -> Iterator[Event]:
         cancel = cancel or threading.Event()
         m = TurnMetrics()
         t0 = time.perf_counter()
 
-        if text is None:
+        if speculative is not None:
+            text = speculative.result()
+            m.stt_s = time.perf_counter() - t0
+            m.stt_compute_s = speculative.compute_s
+            m.stt_speculative = True
+        elif text is None:
             if audio is None:
                 raise ValueError("give audio or text")
             text = self.stt.transcribe(audio, language=self.stt_language)
-            m.stt_s = time.perf_counter() - t0
+            m.stt_s = m.stt_compute_s = time.perf_counter() - t0
         else:
             m.stt_s = 0.0
         m.transcript = text
@@ -201,6 +246,7 @@ class VoicePipeline:
         m.cached = bool(info and info.cached)
         m.llm_requests = info.requests if info else 0
         m.llm_retries = info.retries if info else 0
+        m.llm_model = getattr(info, "model", None)
         m.reply = "".join(reply).strip()
         m.total_s = time.perf_counter() - t0
         yield TurnDone(m)

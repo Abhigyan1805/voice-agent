@@ -55,11 +55,12 @@
     <button id="mic" class="primary">Start microphone</button>
     <button id="stop" disabled>Stop speaking</button>
     <button id="reset">New conversation</button>
+    <label class="status" title="Talking over the agent stops it. Use headphones, or the agent may hear itself and stop."><input type="checkbox" id="bargein" checked> allow interrupting</label>
     <span class="status"><span id="dot" class="dot"></span><span id="state">idle</span></span>
   </div>
   <div id="log"><div class="empty" id="empty">Try “आज कौन सा दिन है?”, “23 गुणा 47 कितना होता है?” or “What can you do?”</div></div>
   <form id="form"><input id="text" type="text" placeholder="…or type a question" autocomplete="off"><button>Send</button></form>
-  <p class="hint">Everything runs locally on CPU except the language model. Timings under each answer: speech-to-text, LLM first token, time to first audio after you stopped speaking.</p>
+  <p class="hint">Use headphones for interrupting; on laptop speakers the agent can hear itself, so untick “allow interrupting”. Everything runs locally on CPU except the language model. Timings under each answer: speech-to-text, LLM first token, time to first audio after you stopped speaking.</p>
 </main>
 <script>
 const $ = (id) => document.getElementById(id);
@@ -144,7 +145,9 @@ async function startMic() {
   await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([workletCode], {type: "application/javascript"})));
   const srcNode = ctx.createMediaStreamSource(micStream);
   workletNode = new AudioWorkletNode(ctx, "down16k");
-  workletNode.port.onmessage = (e) => { if (ws?.readyState === 1) ws.send(e.data); };
+  // Half-duplex when interrupting is off: don't send the mic while the agent is speaking
+  // (browser echo cancellation does not always cancel Web Audio playback on laptop speakers).
+  workletNode.port.onmessage = (e) => { if (ws?.readyState === 1 && ($("bargein").checked || !sources.length)) ws.send(e.data); };
   srcNode.connect(workletNode);
   $("mic").textContent = "Stop microphone"; setState("listening", "listening");
 }

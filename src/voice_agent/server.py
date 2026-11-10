@@ -19,7 +19,6 @@ from __future__ import annotations
 import asyncio
 import json
 import threading
-import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -27,8 +26,8 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 
 from .audio import float_to_pcm16, pcm16_to_float
-from .pipeline import SpeechAudio, Token, ToolUse, Transcript, TurnDone
-from .vad import SileroScorer, SpeechEnd, SpeechStart, VadSegmenter
+from .pipeline import SpeculativeSTT, SpeechAudio, Token, ToolUse, Transcript, TurnDone
+from .vad import SileroScorer, SpeechEnd, SpeechPause, SpeechStart, VadSegmenter
 
 STATIC = Path(__file__).parent / "static"
 
@@ -63,7 +62,7 @@ def create_app(pipeline=None, filler: bool = False, scorer_factory=SileroScorer)
         loop = asyncio.get_running_loop()
         out: asyncio.Queue = asyncio.Queue()
         vad = VadSegmenter(scorer_factory())
-        session = {"cancel": None, "busy": False, "speaking": False, "turn": 0, "stream_t0": time.perf_counter()}
+        session = {"cancel": None, "busy": False, "speaking": False, "turn": 0, "spec": None}
         pipe.agent.reset()
 
         def emit(msg) -> None:
@@ -72,17 +71,18 @@ def create_app(pipeline=None, filler: bool = False, scorer_factory=SileroScorer)
             except RuntimeError:  # the socket's event loop is gone (client left mid-turn)
                 pass
 
-        def run_turn(turn_id: int, cancel: threading.Event, audio=None, text=None, endpoint_delay=None) -> None:
+        def run_turn(turn_id, cancel, audio=None, text=None, endpoint_delay=None, speculative=None) -> None:
             with model_lock:
                 if cancel.is_set():
                     return
                 try:
-                    for ev in pipe.run_turn(audio=audio, text=text, cancel=cancel):
+                    for ev in pipe.run_turn(audio=audio, text=text, cancel=cancel, speculative=speculative):
                         if cancel.is_set() and not isinstance(ev, TurnDone):
                             continue
                         if isinstance(ev, Transcript):
+                            lang = speculative.language if speculative else getattr(pipe.stt, "last_language", None)
                             emit({"type": "transcript", "turn": turn_id, "text": ev.text,
-                                  "lang": getattr(pipe.stt, "last_language", None) if text is None else None})
+                                  "lang": lang if text is None else None})
                         elif isinstance(ev, Token):
                             emit({"type": "token", "turn": turn_id, "text": ev.text})
                         elif isinstance(ev, ToolUse):
@@ -102,13 +102,13 @@ def create_app(pipeline=None, filler: bool = False, scorer_factory=SileroScorer)
                     if session["turn"] == turn_id:
                         session["busy"] = False
 
-        def start_turn(audio=None, text=None, endpoint_delay=None) -> None:
+        def start_turn(audio=None, text=None, endpoint_delay=None, speculative=None) -> None:
             interrupt()
             session["turn"] += 1
             cancel = threading.Event()
             session.update(cancel=cancel, busy=True)
             threading.Thread(
-                target=run_turn, args=(session["turn"], cancel, audio, text, endpoint_delay), daemon=True
+                target=run_turn, args=(session["turn"], cancel, audio, text, endpoint_delay, speculative), daemon=True
             ).start()
 
         def interrupt() -> bool:
@@ -139,10 +139,18 @@ def create_app(pipeline=None, filler: bool = False, scorer_factory=SileroScorer)
                         if isinstance(ev, SpeechStart):
                             barged = interrupt()
                             emit({"type": "vad", "state": "speech", "barge_in": barged})
+                        elif isinstance(ev, SpeechPause):
+                            # start transcribing now; reused if the turn really ends here
+                            if ev.audio.size >= 0.3 * 16_000:
+                                session["spec"] = SpeculativeSTT(pipe.stt, ev.audio, ev.pause_id, pipe.stt_language)
                         elif isinstance(ev, SpeechEnd):
                             emit({"type": "vad", "state": "silence", "duration": round(ev.duration, 2)})
+                            spec, session["spec"] = session["spec"], None
+                            if spec is not None and spec.pause_id != ev.pause_id:
+                                spec = None
                             if ev.duration >= 0.3:
-                                start_turn(audio=ev.audio, endpoint_delay=round(ev.t_detected - ev.t_end, 3))
+                                start_turn(audio=ev.audio, endpoint_delay=round(ev.t_detected - ev.t_end, 3),
+                                           speculative=spec)
                 elif msg.get("text"):
                     data = json.loads(msg["text"])
                     kind = data.get("type")

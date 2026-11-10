@@ -92,11 +92,24 @@ class VadConfig:
     pre_roll_ms: float = 320.0
     tail_ms: float = 96.0  # silence kept after the last speech frame
     max_utterance_s: float = 20.0
+    # Emit SpeechPause after this much silence (before end_silence_ms) so a caller can start
+    # transcribing speculatively; None disables it.
+    pause_ms: float | None = 160.0
 
 
 @dataclass
 class SpeechStart:
     t: float  # seconds of stream time at which speech began (start of the first speech frame)
+
+
+@dataclass
+class SpeechPause:
+    """The user may have finished: the audio so far, cut exactly as SpeechEnd would cut it if no
+    more speech arrives. ``pause_id`` matches the following SpeechEnd's ``pause_id`` only then."""
+
+    pause_id: int
+    t_end: float
+    audio: np.ndarray = field(repr=False)
 
 
 @dataclass
@@ -106,13 +119,14 @@ class SpeechEnd:
     t_detected: float  # stream time at which the end was declared (t_end + hangover)
     audio: np.ndarray = field(repr=False)
     forced: bool = False  # True when max_utterance_s cut the turn
+    pause_id: int | None = None  # id of the SpeechPause whose audio is identical to this one
 
     @property
     def duration(self) -> float:
         return len(self.audio) / SAMPLE_RATE
 
 
-VadEvent = SpeechStart | SpeechEnd
+VadEvent = SpeechStart | SpeechPause | SpeechEnd
 
 
 class VadSegmenter:
@@ -136,6 +150,8 @@ class VadSegmenter:
         self._silence_run = 0
         self._speech_start_frame = 0
         self._last_speech_frame = 0
+        self._pause_count = getattr(self, "_pause_count", 0)
+        self._valid_pause: int | None = None
 
     @property
     def in_speech(self) -> bool:
@@ -185,24 +201,35 @@ class VadSegmenter:
         if p >= cfg.end_threshold:
             self._silence_run = 0
             self._last_speech_frame = idx
+            self._valid_pause = None  # the user kept talking: the speculative cut is stale
         else:
             self._silence_run += 1
+            if cfg.pause_ms is not None and self._silence_run == self._ms(cfg.pause_ms):
+                self._pause_count += 1
+                self._valid_pause = self._pause_count
+                yield SpeechPause(self._pause_count, self._t(self._last_speech_frame + 1), self._cut_audio())
         if self._silence_run >= self._ms(cfg.end_silence_ms):
             yield self._close(forced=False)
         elif len(self._utt) * FRAME / SAMPLE_RATE >= cfg.max_utterance_s:
             yield self._close(forced=True)
 
-    def _close(self, forced: bool) -> SpeechEnd:
+    def _cut_audio(self) -> np.ndarray:
+        """Utterance so far, keeping only tail_ms of the trailing silence."""
         tail = self._ms(self.cfg.tail_ms)
         keep = len(self._utt) - max(0, self._silence_run - tail)
-        audio = np.concatenate(self._utt[:keep]) if keep > 0 else np.zeros(0, dtype=np.float32)
+        return np.concatenate(self._utt[:keep]) if keep > 0 else np.zeros(0, dtype=np.float32)
+
+    def _close(self, forced: bool) -> SpeechEnd:
+        audio = self._cut_audio()
         ev = SpeechEnd(
             t_start=self._t(self._speech_start_frame),
             t_end=self._t(self._last_speech_frame + 1),
             t_detected=self._t(self._frames_seen),
             audio=audio,
             forced=forced,
+            pause_id=None if forced else self._valid_pause,
         )
+        self._valid_pause = None
         self._in_speech = False
         self._utt = []
         self._silence_run = 0

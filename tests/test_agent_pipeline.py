@@ -7,8 +7,17 @@ import time
 import numpy as np
 
 from voice_agent.agent import Agent
-from voice_agent.llm import GeminiClient, OfflineClient, OpenAICompatClient, TextDelta, ToolEvent, TurnInfo, _SSE
-from voice_agent.pipeline import SpeechAudio, Token, ToolUse, Transcript, TurnDone, VoicePipeline
+from voice_agent.llm import (
+    GeminiClient,
+    OfflineClient,
+    OpenAICompatClient,
+    Overloaded,
+    TextDelta,
+    ToolEvent,
+    TurnInfo,
+    _SSE,
+)
+from voice_agent.pipeline import SpeculativeSTT, SpeechAudio, Token, ToolUse, Transcript, TurnDone, VoicePipeline
 
 
 class FakeSSE:
@@ -18,10 +27,14 @@ class FakeSSE:
         self.responses = list(responses)
         self.bodies = []
 
-    def stream(self, url, headers, body, info, cancel):
+    def stream(self, url, headers, body, info, cancel, max_retries=None):
         info.requests += 1
         self.bodies.append(json.loads(json.dumps(body)))
-        for chunk in self.responses.pop(0):
+        self.urls = getattr(self, "urls", []) + [url]
+        chunks = self.responses.pop(0)
+        if isinstance(chunks, Exception):
+            raise chunks
+        for chunk in chunks:
             if cancel is not None and cancel.is_set():
                 return
             yield chunk
@@ -44,6 +57,17 @@ def test_gemini_tool_round_trip_replays_signature_and_id():
     fr = second[2]["parts"][0]["functionResponse"]
     assert fr["id"] == "c1" and fr["response"]["result"] == 1081
     assert client.info.requests == 2 and client.info.tool_calls == ["calculator"]
+
+
+def test_gemini_falls_back_when_primary_overloaded_and_keeps_model_for_tool_round():
+    client = GeminiClient(model="m-primary", fallbacks=("m-backup",), api_key="test", cache=False)
+    call = {"functionCall": {"name": "calculator", "args": {"expression": "2+2"}}}
+    client.http = FakeSSE([Overloaded("503"), [gem(call)], [gem({"text": "4."})]])
+    text = "".join(e.text for e in client.turn("sys", [], "2+2?") if isinstance(e, TextDelta))
+    assert text == "4."
+    assert ["m-primary" in u for u in client.http.urls] == [True, False, False]
+    assert all("m-backup" in u for u in client.http.urls[1:])
+    assert client.info.model == "m-backup" and client.model == "m-backup"  # sticky for the next turn
 
 
 def test_gemini_history_roles():
@@ -208,3 +232,22 @@ def test_filler_spoken_during_tool_call():
     m = events[-1].metrics
     assert m.time_to_filler_audio_s is not None and m.time_to_filler_audio_s <= m.time_to_first_audio_s
     assert m.sentences == 3  # filler is not counted as an answer sentence
+
+
+def test_speculative_transcript_is_reused():
+    class SlowSTT(FakeSTT):
+        calls = 0
+
+        def transcribe(self, audio, language=None):
+            SlowSTT.calls += 1
+            time.sleep(0.2)
+            return "हैलो"
+
+    stt = SlowSTT()
+    job = SpeculativeSTT(stt, np.zeros(10, dtype=np.float32), pause_id=1)
+    time.sleep(0.25)  # the VAD hangover elapses while the decode runs
+    pipe = VoicePipeline(stt, Agent(SlowClient(delay=0)), FakeTTS())
+    events = list(pipe.run_turn(speculative=job))
+    m = events[-1].metrics
+    assert SlowSTT.calls == 1 and m.transcript == "हैलो" and m.stt_speculative
+    assert m.stt_s < 0.1 <= m.stt_compute_s
