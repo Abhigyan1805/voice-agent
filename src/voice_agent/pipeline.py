@@ -105,6 +105,8 @@ class TurnMetrics:
     llm_requests: int = 0
     llm_model: str | None = None
     llm_retries: int = 0
+    llm_prompt_tokens: int = 0
+    llm_completion_tokens: int = 0
     interrupted: bool = False
     error: str | None = None
     reply: str = ""
@@ -247,6 +249,8 @@ class VoicePipeline:
         m.llm_requests = info.requests if info else 0
         m.llm_retries = info.retries if info else 0
         m.llm_model = getattr(info, "model", None)
+        m.llm_prompt_tokens = getattr(info, "prompt_tokens", 0)
+        m.llm_completion_tokens = getattr(info, "completion_tokens", 0)
         m.reply = "".join(reply).strip()
         m.total_s = time.perf_counter() - t0
         yield TurnDone(m)

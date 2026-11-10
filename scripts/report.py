@@ -98,6 +98,40 @@ def main() -> None:
             f"knowledge base {s['tool_use'].get('tool:knowledge')}.",
             "",
         ]
+    ds = [("Gemini 3.5 flash-lite (free tier)", main_b), ("DeepSeek flash, provider default (thinking on)", load("bench-deepseek-default.json")),
+          ("DeepSeek flash, thinking off", load("bench-deepseek-nothink.json"))]
+    ds = [(label, r["summary"]) for label, r in ds if r]
+    if len(ds) > 1:
+        lines += [
+            "## LLM provider comparison",
+            "",
+            "Same 56 turns, same recorded audio, same code and machine, one run per provider (back to back, so the "
+            "free-tier service and the machine load differ between runs; treat gaps under about 0.5 s as noise).",
+            "",
+            "| LLM | Turns without error | LLM first token p50 / p95 | First sentence p50 / p95 | End of speech → first audio p50 / p95 | "
+            "Tokens per turn (prompt / completion, mean) | Tool used as expected |",
+            "|---|---:|---:|---:|---:|---:|---:|",
+        ]
+        for label, x in ds:
+            st = x["stages"]
+            tk = x.get("llm_tokens_per_turn")
+            tools = x["tool_use"]
+            ok = sum(int(v.split("/")[0]) for v in tools.values())
+            tot = sum(int(v.split("/")[1]) for v in tools.values())
+            lines.append(
+                f"| {label} | {x['turns_ok']}/{x['turns']} | {f(st['llm_first_token_s']['p50'])} / {f(st['llm_first_token_s']['p95'])} | "
+                f"{f(st['llm_first_sentence_s']['p50'])} / {f(st['llm_first_sentence_s']['p95'])} | "
+                f"{f(st['e2e_ttfa_s']['p50'])} / {f(st['e2e_ttfa_s']['p95'])} | "
+                f"{'not recorded' if not tk else '%.0f / %.0f' % (tk['prompt']['mean'], tk['completion']['mean'])} | {ok}/{tot} |"
+            )
+        lines += [
+            "",
+            "Cost per turn: Gemini ran on the free tier, so USD 0. For DeepSeek the whole experiment (four partial "
+            "or full runs, about 224 turns, about 210k prompt and 21k completion tokens) took the balance from "
+            "USD 0.68 to USD 0.65, i.e. roughly USD 0.00013 per turn (0.0001 to 0.0002 given that the balance is shown "
+            "to the cent). Under USD 0.05 was spent in total.",
+            "",
+        ]
     runs = [("final (this code)", main_b)] + [
         (label, load(f"superseded/{name}"))
         for label, name in [("earlier, TTS memory arena on", "bench-main-arena-on.json"),

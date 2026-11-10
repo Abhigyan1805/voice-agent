@@ -52,6 +52,8 @@ class TurnInfo:
     model: str | None = None
     retries: int = 0
     retry_codes: list[int] = field(default_factory=list)
+    prompt_tokens: int = 0  # summed over every request of the turn (billing view)
+    completion_tokens: int = 0  # includes reasoning tokens
 
 
 class LLMError(RuntimeError):
@@ -230,7 +232,9 @@ class GeminiClient:
                 self.info.model = model
             else:  # tool follow-ups stay on the same model (thought signatures are model-specific)
                 chunks = self.http.stream(self._url(model), headers, self._body(model, system, contents), self.info, cancel)
+            req_usage: dict = {}
             for chunk in chunks:
+                req_usage = chunk.get("usageMetadata") or req_usage
                 for cand in chunk.get("candidates", [])[:1]:
                     for part in cand.get("content", {}).get("parts", []):
                         model_parts.append(part)  # replayed verbatim: keeps thoughtSignature
@@ -238,6 +242,8 @@ class GeminiClient:
                             calls.append(part["functionCall"])
                         elif part.get("text") and not part.get("thought"):
                             yield TextDelta(part["text"])
+            self.info.prompt_tokens += req_usage.get("promptTokenCount", 0)
+            self.info.completion_tokens += req_usage.get("candidatesTokenCount", 0) + req_usage.get("thoughtsTokenCount", 0)
             if cancel is not None and cancel.is_set():
                 return
             if not calls:
@@ -261,8 +267,11 @@ class GeminiClient:
 class OpenAICompatClient:
     name = "openai"
 
-    def __init__(self, model: str = "deepseek-chat", base_url: str | None = None, api_key: str | None = None, cache=True):
+    def __init__(self, model: str = "deepseek-flash", base_url: str | None = None, api_key: str | None = None, cache=True,
+                 thinking: str | None = None):
         self.model = model
+        # "on"/"off" sets DeepSeek's ``thinking`` switch; unset leaves the provider default.
+        self.thinking = (thinking or os.environ.get("VOICE_AGENT_LLM_THINKING") or "").lower() or None
         self.base_url = (base_url or os.environ.get("DEEPSEEK_BASE_URL") or "https://api.deepseek.com").rstrip("/")
         self.api_key = api_key or os.environ.get("DEEPSEEK_API_KEY") or os.environ.get("OPENAI_API_KEY")
         if not self.api_key:
@@ -285,9 +294,15 @@ class OpenAICompatClient:
                 "stream": True,
                 "temperature": 0.4,
                 "max_tokens": 400,
+                "stream_options": {"include_usage": True},
             }
+            if self.thinking in ("on", "off"):
+                body["thinking"] = {"type": "enabled" if self.thinking == "on" else "disabled"}
             text, calls = "", {}
             for chunk in self.http.stream(url, headers, body, self.info, cancel):
+                if chunk.get("usage"):
+                    self.info.prompt_tokens += chunk["usage"].get("prompt_tokens", 0)
+                    self.info.completion_tokens += chunk["usage"].get("completion_tokens", 0)
                 for choice in chunk.get("choices", [])[:1]:
                     delta = choice.get("delta", {})
                     if delta.get("content"):
@@ -399,7 +414,7 @@ def make_client(provider: str = "auto", model: str | None = None, cache: bool = 
     if provider == "gemini":
         return GeminiClient(model=model or "gemini-3.5-flash-lite", cache=cache)
     if provider in ("openai", "deepseek"):
-        return OpenAICompatClient(model=model or "deepseek-chat", cache=cache)
+        return OpenAICompatClient(model=model or "deepseek-flash", cache=cache)
     if provider == "offline":
         return OfflineClient()
     raise ValueError(f"unknown LLM provider {provider!r}")

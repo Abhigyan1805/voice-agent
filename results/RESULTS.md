@@ -36,6 +36,18 @@ Speculative STT was used on 56/56 turns and took a median 0.384 s (min 0.377, ma
 
 Language ID (Hindi vs English, from the single encoder pass): English prompts 10/10, Hindi and Hinglish prompts 46/46. Expected tool used: calculator 8/8, date/time 6/6, knowledge base 8/8.
 
+## LLM provider comparison
+
+Same 56 turns, same recorded audio, same code and machine, one run per provider (back to back, so the free-tier service and the machine load differ between runs; treat gaps under about 0.5 s as noise).
+
+| LLM | Turns without error | LLM first token p50 / p95 | First sentence p50 / p95 | End of speech → first audio p50 / p95 | Tokens per turn (prompt / completion, mean) | Tool used as expected |
+|---|---:|---:|---:|---:|---:|---:|
+| Gemini 3.5 flash-lite (free tier) | 56/56 | 2.99 s / 6.02 s | 3.20 s / 6.46 s | 7.43 s / 17.11 s | not recorded | 22/22 |
+| DeepSeek flash, provider default (thinking on) | 51/56 | 2.11 s / 3.22 s | 2.34 s / 3.48 s | 5.90 s / 11.65 s | 1271 / 218 | 21/22 |
+| DeepSeek flash, thinking off | 56/56 | 0.88 s / 1.97 s | 1.18 s / 2.10 s | 4.17 s / 9.44 s | 1095 / 78 | 16/22 |
+
+Cost per turn: Gemini ran on the free tier, so USD 0. For DeepSeek the whole experiment (four partial or full runs, about 224 turns, about 210k prompt and 21k completion tokens) took the balance from USD 0.68 to USD 0.65, i.e. roughly USD 0.00013 per turn (0.0001 to 0.0002 given that the balance is shown to the cent). Under USD 0.05 was spent in total.
+
 ## Run-to-run variation
 
 Three full runs of the same 56 turns on the same machine. The earlier two predate the TTS memory fix (arena off), which changes memory, not speed. LLM first-token time, which depends on the free-tier service, moves the most.

@@ -99,6 +99,7 @@ def main() -> None:
     ap.add_argument("--fleurs-offset", type=int, default=300)
     ap.add_argument("--provider", default="gemini")
     ap.add_argument("--model", default=None)
+    ap.add_argument("--thinking", choices=["on", "off"], default=None, help="DeepSeek reasoning switch")
     ap.add_argument("--rpm", type=int, default=12)
     ap.add_argument("--tag", default="main")
     ap.add_argument("--filler", action="store_true")
@@ -109,6 +110,8 @@ def main() -> None:
                     help="do not start STT at the VAD pause; transcribe only after end of turn")
     args = ap.parse_args()
 
+    if args.thinking:
+        os.environ["VOICE_AGENT_LLM_THINKING"] = args.thinking
     load_env_file()
     from voice_agent.factory import build_pipeline
 
@@ -217,7 +220,10 @@ def main() -> None:
         "tag": args.tag,
         "cpu": cpu_model(),
         "threads_stt": s.stt_threads,
-        "llm": {"provider": pipe.agent.client.name, "model": pipe.agent.client.model},
+        "llm": {"provider": pipe.agent.client.name, "model": pipe.agent.client.model,
+                "thinking": getattr(pipe.agent.client, "thinking", None)},
+        "llm_tokens_per_turn": {"prompt": stats("llm_prompt_tokens", rows), "completion": stats("llm_completion_tokens", rows)},
+        "llm_requests_per_turn": stats("llm_requests", rows),
         "stt_model": str(s.stt_model.name),
         "tts_voices": [Path(s.tts_hindi).stem, Path(s.tts_english).stem],
         "rounds": args.rounds,
