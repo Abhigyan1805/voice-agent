@@ -1,0 +1,87 @@
+{
+ "hi_IN-priyamvada-medium": {
+  "sentences": 10,
+  "rtf": 0.049,
+  "mean_synth_s_per_sentence": 0.181,
+  "roundtrip_cer": 16.71,
+  "roundtrip_wer": 30.77,
+  "examples": [
+   {
+    "text": "आज मौसम बहुत अच्छा है।",
+    "heard": "आज मौसम बहुत अच्छा है।"
+   },
+   {
+    "text": "तेईस गुणा सैंतालीस का जवाब एक हज़ार इक्यासी है।",
+    "heard": "23 गुना 47 का जवाब 1,082 है।"
+   },
+   {
+    "text": "साइबर धोखाधड़ी होने पर तुरंत उन्नीस सौ तीस पर कॉल करें।",
+    "heard": "साइबर धोखाध़ी होने पर तुरंत 1930 पर कॉल करें."
+   }
+  ]
+ },
+ "hi_IN-pratham-medium": {
+  "sentences": 10,
+  "rtf": 0.052,
+  "mean_synth_s_per_sentence": 0.16,
+  "roundtrip_cer": 15.04,
+  "roundtrip_wer": 24.18,
+  "examples": [
+   {
+    "text": "आज मौसम बहुत अच्छा है।",
+    "heard": "आज मौसम बहुत अच्छा है."
+   },
+   {
+    "text": "तेईस गुणा सैंतालीस का जवाब एक हज़ार इक्यासी है।",
+    "heard": "30 गुणा 47 का जवाब 1,181 है।"
+   },
+   {
+    "text": "साइबर धोखाधड़ी होने पर तुरंत उन्नीस सौ तीस पर कॉल करें।",
+    "heard": "साइबर धुखाध़ी होने पर तुरंत 1937 पर कौर करें."
+   }
+  ]
+ },
+ "hi_IN-rohan-medium": {
+  "sentences": 10,
+  "rtf": 0.05,
+  "mean_synth_s_per_sentence": 0.184,
+  "roundtrip_cer": 16.47,
+  "roundtrip_wer": 28.57,
+  "examples": [
+   {
+    "text": "आज मौसम बहुत अच्छा है।",
+    "heard": "आज मौसम बहुत अच्छा है।"
+   },
+   {
+    "text": "तेईस गुणा सैंतालीस का जवाब एक हज़ार इक्यासी है।",
+    "heard": "30 गुणा 47 का ज़वार 1,181 है."
+   },
+   {
+    "text": "साइबर धोखाधड़ी होने पर तुरंत उन्नीस सौ तीस पर कॉल करें।",
+    "heard": "साइबर धोखाधी होने पर तुरंत 1930 पर कोल करें."
+   }
+  ]
+ },
+ "en_US-lessac-medium": {
+  "sentences": 5,
+  "rtf": 0.061,
+  "mean_synth_s_per_sentence": 0.15,
+  "roundtrip_cer": 22.49,
+  "roundtrip_wer": 27.91,
+  "examples": [
+   {
+    "text": "The answer is one thousand and eighty one.",
+    "heard": "The answer is 1,000 and 81."
+   },
+   {
+    "text": "Today is Tuesday, the tenth of November.",
+    "heard": "Today is Tuesday, 10th of November."
+   },
+   {
+    "text": "I can help you in Hindi and in English.",
+    "heard": "I can help you in Hindi and in English."
+   }
+  ]
+ },
+ "peak_rss_mb": 856.1
+}

@@ -23,6 +23,7 @@ from voice_agent.audio import resample  # noqa: E402
 from voice_agent.config import MODELS_DIR, Settings  # noqa: E402
 from voice_agent.fleurs import normalize  # noqa: E402
 from voice_agent.stt import WhisperSTT  # noqa: E402
+from voice_agent.tts import load_voice  # noqa: E402
 
 HINDI = [
     "आज मौसम बहुत अच्छा है।",
@@ -47,7 +48,6 @@ ENGLISH = [
 
 def main() -> None:
     import jiwer
-    from piper import PiperVoice
 
     stt = WhisperSTT(Settings().stt_model)
     voices = {
@@ -61,7 +61,7 @@ def main() -> None:
         path = MODELS_DIR / "piper" / f"{name}.onnx"
         if not path.exists():
             continue
-        v = PiperVoice.load(str(path))
+        v = load_voice(path)  # same loader as the agent (memory arena off)
         v.synthesize(sentences[0])  # warm-up
         synth_s, audio_s, hyps = 0.0, 0.0, []
         first = []

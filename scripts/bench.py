@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import platform
 import resource
 import statistics
@@ -194,6 +195,9 @@ def main() -> None:
                 "endpoint_delay_s": round(endpoint, 3),
                 **m,
                 "e2e_ttfa_s": round(e2e, 4) if e2e is not None else None,
+                # other processes share this machine; record how busy it was during the turn
+                "loadavg_1m": round(os.getloadavg()[0], 2),
+                "mem_available_mb": _mem_available_mb(),
             }
             rows.append(row)
             print(
@@ -224,6 +228,9 @@ def main() -> None:
         "errors": [r["error"] for r in rows if r["error"]],
         "llm_models_used": {m: sum(r["llm_model"] == m for r in rows) for m in sorted({str(r["llm_model"]) for r in rows})},
         "model_load_s": round(load_s, 2),
+        "logical_cpus": os.cpu_count(),
+        "loadavg_1m_during_turns": stats("loadavg_1m", rows),
+        "mem_available_mb_during_turns": stats("mem_available_mb", rows),
         "peak_rss_mb": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1),
         "stages": {k: stats(k) for k in ("vad_cpu_ms_per_frame", "endpoint_delay_s", "stt_s", "stt_compute_s",
                                          "llm_first_token_s",
@@ -261,6 +268,16 @@ def main() -> None:
         json.dumps({"summary": summary, "turns": rows}, ensure_ascii=False, indent=1), encoding="utf-8"
     )
     print(json.dumps(summary, ensure_ascii=False, indent=1))
+
+
+def _mem_available_mb() -> int | None:
+    try:
+        for line in Path("/proc/meminfo").read_text().splitlines():
+            if line.startswith("MemAvailable:"):
+                return int(line.split()[1]) // 1024
+    except OSError:
+        pass
+    return None
 
 
 _TOOL_OF = {"calculator": "calculator", "datetime": "get_datetime", "knowledge": "search_knowledge"}
