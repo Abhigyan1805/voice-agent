@@ -102,10 +102,11 @@ class WhisperSTT:
             self._tokenizers[lang] = (tok, get_suppressed_tokens(tok, [-1]))
         return self._tokenizers[lang]
 
-    def transcribe(self, audio: np.ndarray, language: str | None = "auto") -> str:
+    def transcribe(self, audio: np.ndarray, language: str | None = "auto", prompt: str | None = None) -> str:
         """Greedy decode of one VAD-cut utterance (16 kHz mono float32, up to 30 s).
 
         ``language``: "hi" or "en" to force, "auto"/None to choose between them per utterance.
+        ``prompt``: optional previous-context text for the decoder (e.g. digits, to expect a number).
         """
         from faster_whisper.audio import pad_or_trim
 
@@ -114,11 +115,11 @@ class WhisperSTT:
         audio = audio[: fe.n_samples]
         feats = fe(audio)[..., : fe.nb_max_frames]
         n = window_frames(len(audio), self.pad_s, self.short_window_max_s)
-        raw, ids, lang = self._decode(pad_or_trim(feats, n), language)
+        raw, ids, lang = self._decode(pad_or_trim(feats, n), language, prompt)
         fallback = False
         if n < FULL_FRAMES and needs_fallback(raw, len(ids), len(audio) / 16_000):
             fallback, n = True, FULL_FRAMES
-            raw, ids, lang = self._decode(pad_or_trim(feats, n), language)
+            raw, ids, lang = self._decode(pad_or_trim(feats, n), language, prompt)
         self.last_window_s = n / FRAMES_PER_S
         self.last_fallback = fallback
         self.last_tokens = len(ids)
@@ -127,7 +128,7 @@ class WhisperSTT:
         self.last_seconds = time.perf_counter() - t0
         return re.sub(r"\s+", " ", collapse_repeats(raw)).strip()
 
-    def _decode(self, features: np.ndarray, language: str | None) -> tuple[str, list[int], str]:
+    def _decode(self, features: np.ndarray, language: str | None, prompt: str | None = None) -> tuple[str, list[int], str]:
         enc = self.model.encode(features)
         if language in (None, "auto"):
             probs = {tok[2:-2]: p for tok, p in self.model.model.detect_language(enc)[0]}
@@ -136,7 +137,8 @@ class WhisperSTT:
         else:
             lang = language
         tok, suppress = self._tokenizer(lang)
-        prompt = list(tok.sot_sequence) + [tok.no_timestamps]
+        context = [tok.sot_prev] + tok.encode(" " + prompt.strip())[-64:] if prompt else []
+        prompt = context + list(tok.sot_sequence) + [tok.no_timestamps]
         result = self.model.model.generate(
             enc,
             [prompt],

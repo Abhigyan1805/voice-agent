@@ -167,7 +167,7 @@ def main() -> None:
                 vad_cpu += time.perf_counter() - t
                 for ev in evs:
                     if isinstance(ev, SpeechPause) and args.speculative and args.realtime:
-                        spec = SpeculativeSTT(pipe.stt, ev.audio, ev.pause_id)
+                        spec = SpeculativeSTT(pipe.stt, ev.audio, ev.pause_id, prompt=pipe.stt_prompt())
                         n_spec += 1
                     elif isinstance(ev, SpeechEnd):
                         end = ev

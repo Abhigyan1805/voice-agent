@@ -115,3 +115,15 @@ def test_runner_spoken_and_oracle_tracks(tmp_path):
     oracle["attribution"] = {"stage": None, "turn": None}
     s = summarise([spoken, oracle])
     assert s["calls_passed_spoken"] == "0/1" and s["calls_passed_oracle"] == "1/1" and s["failures_by_stage"] == {"vad": 1}
+
+
+def test_reactive_caller_classification():
+    from voice_agent.callsim import classify_reply, repeat_text
+
+    lookup = [{"name": "get_order_status", "args": {"order_id": "48213"}, "result": {}}]
+    assert classify_reply("आपका नंबर 4 8 2 1 3 है, क्या यह सही है?", [], "48213") == "confirm"
+    assert classify_reply("I heard 4 4 4 7 2 9. Is that right?", [], "44729") == "repeat"
+    assert classify_reply("ऑर्डर नहीं मिला। क्या आप नंबर दोबारा बता सकते हैं?", lookup, "48213") == "repeat"
+    assert classify_reply("आपका ऑर्डर 48213 शिप हो चुका है। कुछ और?", lookup, "48213") is None
+    assert classify_reply("Your order has shipped.", lookup, "48213") is None
+    assert repeat_text("405", "en") == "No, the number is: four, zero, five."

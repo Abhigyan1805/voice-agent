@@ -123,6 +123,17 @@ Call suite on the same channel (spoken track; the oracle-text track does not dep
 | tel | **13/36** | 56/87 | 33/48 | 25.0 % | 18/36 | llm 2, stt 20, tts 1 |
 | tel-babble15 | **9/36** | 47/87 | 29/48 | 40.0 % | 12/36 | llm 3, stt 23, vad 1 |
 
+### Misheard digits: before and after the fix
+
+Same 12 calls and 3 repetitions, with a reactive simulated caller: when the agent reads back a wrong order id or phone number, or asks for it again, the caller repeats it slowly digit by digit (at most twice), and confirms a correct read-back. A turn passes with at most one repeat. "Before" is the v3 prompt with no number handling (`VOICE_AGENT_DIGIT_FIX=0`); "after" adds spoken-number normalisation of the transcript, a digit hint to the recogniser on the turn after the agent asks for a number, and a read-back-and-confirm rule in the prompt. Exact id on first try: the 5-digit id or 10-digit phone number appears as one digit string in what the LLM received from the caller's first attempt.
+
+| Run | Calls passed, spoken | Held-out calls, spoken | Calls passed, oracle | Exact id on first try | Right id reached the order tool | Id turns with 0 / 1 / 2 repeats | Failures by stage |
+|---|---:|---:|---:|---:|---:|---:|---|
+| before, clean | **13/36** | 4/12 | 32/36 | 15/39 | 21/39 | 28 / 8 / 3 | llm 4, stt 16, tts 3 |
+| after, clean | **19/36** | 5/12 | 31/36 | 15/39 | 25/39 | 24 / 13 / 2 | llm 2, stt 13, tts 2 |
+| before, telephone | **14/36** | 4/12 | 32/36 | 12/39 | 24/39 | 26 / 9 / 4 | llm 2, stt 19, tts 1 |
+| after, telephone | **16/36** | 3/12 | 31/36 | 15/39 | 25/39 | 28 / 7 / 4 | llm 3, stt 15, tts 2 |
+
 ## End-to-end latency
 
 CPU: 11th Gen Intel(R) Core(TM) i5-11300H @ 3.10GHz (6 logical CPUs visible in WSL2), STT on 4 threads. LLM: gemini-3.5-flash-lite (56 turns), live calls, cache off. 56 turns (2 rounds over 28 prompts), 56 without errors. Audio fed in real time; speculative STT on. Machine load average during turns: median 2.3, p95 4.0 (other jobs share this machine). Peak RSS of the whole process: 1095 MB.

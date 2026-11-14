@@ -1,5 +1,5 @@
 {
- "about": "Scripted multi-turn calls to the agent with the order tools enabled. Placeholders: {d+N} is the day of the month N days after the run date; {iso+N} the ISO date. Spoken calendar dates in the audio are fixed (November 2026). Calls marked held_out were not looked at while tuning the prompt.",
+ "about": "Scripted multi-turn calls to the agent with the order tools enabled. Placeholders: {d+N} is the day of the month N days after the run date; {iso+N} the ISO date. Spoken calendar dates in the audio are fixed (November 2026). Calls marked held_out were not looked at while tuning the prompt. A turn with an id field gives an order id or phone number: the simulated caller confirms a correct read-back ('yes, that number is right') and repeats the number slowly, at most twice, when the agent reads back a wrong one or asks again; a turn with more than one repeat fails.",
  "status_words": {
   "shipped": "shipped|dispatch|on (its|the) way|भेज|रवाना|शिप|रास्ते|निकल",
   "out_for_delivery": "out for delivery|today|आज|निकल|रास्ते|डिलीवरी के लिए",
@@ -10,7 +10,7 @@
   {"id": "c01-status-hi", "lang": "hi", "held_out": false, "faults": {}, "turns": [
    {"user": "नमस्ते, मुझे अपने ऑर्डर का स्टेटस जानना है।", "voice": "hi_IN-pratham-medium",
     "expect": {"tools": [], "reply_lang": "hi"}},
-   {"user": "मेरा ऑर्डर नंबर है चार आठ दो एक तीन।", "voice": "hi_IN-pratham-medium",
+   {"user": "मेरा ऑर्डर नंबर है चार आठ दो एक तीन।", "id": "48213", "voice": "hi_IN-pratham-medium",
     "expect": {"tools": [{"name": "get_order_status", "args": {"order_id": "48213"}}], "reply_any": ["@shipped"], "reply_lang": "hi"}},
    {"user": "यह कब तक पहुँच जाएगा?", "voice": "hi_IN-pratham-medium",
     "expect": {"forbid": ["reschedule_delivery"], "reply_any": ["\\b{d+2}\\b"], "reply_lang": "hi"}},
@@ -19,7 +19,7 @@
   ], "final_state": {"48213": "{iso+2}"}},
 
   {"id": "c02-status-en", "lang": "en", "held_out": false, "faults": {}, "turns": [
-   {"user": "Hi, can you tell me where my order is? The order number is six zero three one eight.", "voice": "en_US-ryan-medium",
+   {"user": "Hi, can you tell me where my order is? The order number is six zero three one eight.", "id": "60318", "voice": "en_US-ryan-medium",
     "expect": {"tools": [{"name": "get_order_status", "args": {"order_id": "60318"}}], "reply_any": ["@shipped"], "reply_lang": "en"}},
    {"user": "What did I order again?", "voice": "en_US-ryan-medium",
     "expect": {"forbid": ["reschedule_delivery"], "reply_any": ["mixer|grinder"], "reply_lang": "en"}},
@@ -28,14 +28,14 @@
   ], "final_state": {"60318": "{iso+3}"}},
 
   {"id": "c03-unknown-id", "lang": "hi", "held_out": true, "faults": {}, "turns": [
-   {"user": "मेरा ऑर्डर नंबर एक एक एक एक एक है, उसका स्टेटस बताइए।", "voice": "hi_IN-rohan-medium",
+   {"user": "मेरा ऑर्डर नंबर एक एक एक एक एक है, उसका स्टेटस बताइए।", "id": "11111", "voice": "hi_IN-rohan-medium",
     "expect": {"tools": [{"name": "get_order_status", "args": {"order_id": "11111"}}], "reply_any": ["नहीं मिल|दोबारा|फिर से|सही नंबर|गलत|मौजूद नहीं"], "reply_none": ["@shipped"], "reply_lang": "hi"}},
-   {"user": "माफ़ कीजिए, सही नंबर है सात दो नौ शून्य पाँच।", "voice": "hi_IN-rohan-medium",
+   {"user": "माफ़ कीजिए, सही नंबर है सात दो नौ शून्य पाँच।", "id": "72905", "voice": "hi_IN-rohan-medium",
     "expect": {"tools": [{"name": "get_order_status", "args": {"order_id": "72905"}}], "reply_any": ["बैट|bat|@placed|\\b{d+5}\\b"], "reply_lang": "hi"}}
   ]},
 
   {"id": "c04-reschedule-hx", "lang": "hinglish", "held_out": false, "faults": {}, "turns": [
-   {"user": "मेरे order चार आठ दो एक तीन की delivery मुझे आगे करवानी है।", "voice": "hi_IN-pratham-medium",
+   {"user": "मेरे order चार आठ दो एक तीन की delivery मुझे आगे करवानी है।", "id": "48213", "voice": "hi_IN-pratham-medium",
     "expect": {"forbid": ["reschedule_delivery"], "reply_lang": "hi"}},
    {"user": "उसे बीस नवंबर को कर दो।", "voice": "hi_IN-pratham-medium",
     "expect": {"forbid": ["reschedule_delivery"], "reply_any": ["\\b20\\b|बीस"], "reply_lang": "hi"}},
@@ -44,49 +44,49 @@
   ], "final_state": {"48213": "2026-11-20"}},
 
   {"id": "c05-delivered-en", "lang": "en", "held_out": false, "faults": {}, "turns": [
-   {"user": "I want to change the delivery date for order five one one seven seven to November twenty second.", "voice": "en_US-ryan-medium",
+   {"user": "I want to change the delivery date for order five one one seven seven to November twenty second.", "id": "51177", "voice": "en_US-ryan-medium",
     "expect": {"forbid": ["reschedule_delivery"], "reply_lang": "en"}},
    {"user": "Yes, that's right.", "voice": "en_US-ryan-medium",
     "expect": {"reply_lang": "en"}}
   ], "final_state": {"51177": "{iso-3}"}, "reply_any_in_call": ["delivered"]},
 
   {"id": "c06-caller-declines", "lang": "hi", "held_out": true, "faults": {}, "turns": [
-   {"user": "ऑर्डर छह आठ तीन चार शून्य की डिलीवरी पच्चीस नवंबर को कर दीजिए।", "voice": "hi_IN-rohan-medium",
+   {"user": "ऑर्डर छह आठ तीन चार शून्य की डिलीवरी पच्चीस नवंबर को कर दीजिए।", "id": "68340", "voice": "hi_IN-rohan-medium",
     "expect": {"forbid": ["reschedule_delivery"], "reply_any": ["\\b25\\b|पच्चीस"], "reply_lang": "hi"}},
    {"user": "नहीं, रहने दीजिए, मत बदलिए।", "voice": "hi_IN-rohan-medium",
     "expect": {"forbid": ["reschedule_delivery"], "reply_lang": "hi"}}
   ], "final_state": {"68340": "{iso+2}"}},
 
   {"id": "c07-retries-en", "lang": "en", "held_out": false, "faults": {"fail_503": 2}, "turns": [
-   {"user": "Where is my order four four seven two nine?", "voice": "en_US-ryan-medium",
+   {"user": "Where is my order four four seven two nine?", "id": "44729", "voice": "en_US-ryan-medium",
     "expect": {"tools": [{"name": "get_order_status", "args": {"order_id": "44729"}}], "reply_any": ["@shipped"], "reply_none": ["@slow"], "reply_lang": "en"}},
    {"user": "Great, when does it arrive?", "voice": "en_US-ryan-medium",
     "expect": {"forbid": ["reschedule_delivery"], "reply_any": ["\\b{d+1}(st|nd|rd|th)?\\b|tomorrow"], "reply_lang": "en"}}
   ]},
 
   {"id": "c08-service-hangs", "lang": "hi", "held_out": false, "faults": {"hang_s": 4}, "turns": [
-   {"user": "मेरे ऑर्डर नौ शून्य दो पाँच एक का स्टेटस क्या है?", "voice": "hi_IN-pratham-medium",
+   {"user": "मेरे ऑर्डर नौ शून्य दो पाँच एक का स्टेटस क्या है?", "id": "90251", "voice": "hi_IN-pratham-medium",
     "expect": {"tools": [{"name": "get_order_status", "args": {"order_id": "90251"}}], "reply_any": ["@slow"], "reply_none": ["@placed", "@shipped", "योगा|yoga"], "reply_lang": "hi"}},
    {"user": "ठीक है, एक बार फिर से कोशिश कीजिए।", "voice": "hi_IN-pratham-medium",
     "expect": {"tools": [{"name": "get_order_status", "args": {"order_id": "90251"}}], "reply_none": ["@placed", "@shipped", "योगा|yoga"], "reply_lang": "hi"}}
   ]},
 
   {"id": "c09-phone-lookup", "lang": "en", "held_out": true, "faults": {}, "turns": [
-   {"user": "I don't remember my order number. My phone number is nine one two three four five six seven eight zero.", "voice": "en_US-ryan-medium",
+   {"user": "I don't remember my order number. My phone number is nine one two three four five six seven eight zero.", "id": "9123456780", "voice": "en_US-ryan-medium",
     "expect": {"tools": [{"name": "find_orders_by_phone", "args": {"phone": "9123456780"}}], "reply_any": ["bag|bat"], "reply_lang": "en"}},
    {"user": "When will the cricket bat arrive?", "voice": "en_US-ryan-medium",
     "expect": {"forbid": ["reschedule_delivery"], "reply_any": ["\\b{d+5}(st|nd|rd|th)?\\b"], "reply_lang": "en"}}
   ]},
 
   {"id": "c10-discount-maths", "lang": "hinglish", "held_out": false, "faults": {}, "turns": [
-   {"user": "order तीन छह पाँच चार शून्य का status बताओ।", "voice": "hi_IN-rohan-medium",
+   {"user": "order तीन छह पाँच चार शून्य का status बताओ।", "id": "36540", "voice": "hi_IN-rohan-medium",
     "expect": {"tools": [{"name": "get_order_status", "args": {"order_id": "36540"}}], "reply_any": ["@out_for_delivery"], "reply_lang": "hi"}},
    {"user": "अगर बारह सौ रुपये के bag पर पंद्रह प्रतिशत discount मिले तो कितना देना होगा?", "voice": "hi_IN-rohan-medium",
     "expect": {"tools": [{"name": "calculator"}], "reply_any": ["1020|1,020"], "reply_lang": "hi"}}
   ]},
 
   {"id": "c11-helpline-midcall", "lang": "hi", "held_out": false, "faults": {}, "turns": [
-   {"user": "मेरा ऑर्डर पाँच सात छह आठ तीन कहाँ है?", "voice": "hi_IN-pratham-medium",
+   {"user": "मेरा ऑर्डर पाँच सात छह आठ तीन कहाँ है?", "id": "57683", "voice": "hi_IN-pratham-medium",
     "expect": {"tools": [{"name": "get_order_status", "args": {"order_id": "57683"}}], "reply_any": ["@out_for_delivery"], "reply_lang": "hi"}},
    {"user": "अच्छा, और ऑनलाइन धोखाधड़ी की शिकायत के लिए कौन सा नंबर है?", "voice": "hi_IN-pratham-medium",
     "expect": {"tools": [{"name": "search_knowledge"}], "reply_any": ["1930"], "reply_lang": "hi"}},
@@ -97,7 +97,7 @@
   {"id": "c12-scope-and-switch", "lang": "hi+en", "held_out": true, "faults": {}, "turns": [
    {"user": "क्या तुम मेरे लिए ट्रेन की टिकट बुक कर सकते हो?", "voice": "hi_IN-rohan-medium",
     "expect": {"tools": [], "reply_any": ["नहीं|माफ़|माफ|सकता|सकती"], "reply_lang": "hi"}},
-   {"user": "Okay, then tell me the status of order eight three four one two.", "voice": "en_US-ryan-medium",
+   {"user": "Okay, then tell me the status of order eight three four one two.", "id": "83412", "voice": "en_US-ryan-medium",
     "expect": {"tools": [{"name": "get_order_status", "args": {"order_id": "83412"}}], "reply_any": ["@placed|headphone|\\b{d+6}(st|nd|rd|th)?\\b"], "reply_lang": "en"}}
   ]}
  ]

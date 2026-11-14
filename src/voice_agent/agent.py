@@ -46,6 +46,10 @@ Order desk: you can look up and reschedule the caller's orders with get_order_st
 - Reply in the language of the caller's latest turn: English if they just spoke English, Hindi if they just spoke Hindi or Hinglish, even if earlier turns were in the other language. A short English reply such as "yes", "okay" or "thank you" is English: answer it in English."""
 
 
+READBACK_RULE = """
+- Numbers are often misheard. When the caller gives an order id or a phone number, first read it back digit by digit with spaces (for example "4 8 2 1 3") and ask whether it is right, before calling any tool. If they say no or say the number again, read the new number back the same way. After two failed attempts, offer to look the order up by phone number or to have a person call them back."""
+
+
 def build_system_prompt() -> str:
     """The system prompt for this turn: the order-desk rules (with today's date) are added only when
     the order tools are enabled, so the general assistant's prompt stays unchanged."""
@@ -56,8 +60,11 @@ def build_system_prompt() -> str:
 
     if not orders_enabled():
         return SYSTEM_PROMPT
+    from .numbers import digit_fix_enabled
+
     now = datetime.now(ZoneInfo("Asia/Kolkata"))
-    return SYSTEM_PROMPT + ORDER_RULES.format(weekday=now.strftime("%A"), today=now.strftime("%Y-%m-%d"))
+    rules = ORDER_RULES.format(weekday=now.strftime("%A"), today=now.strftime("%Y-%m-%d"))
+    return SYSTEM_PROMPT + rules + (READBACK_RULE if digit_fix_enabled() else "")
 
 
 class Agent:

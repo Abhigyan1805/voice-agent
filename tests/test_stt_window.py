@@ -43,7 +43,7 @@ def make_stt(decodes):
     stt.pad_s, stt.short_window_max_s = 5.0, 12.0
     seen = []
 
-    def _decode(features, language):
+    def _decode(features, language, prompt=None):
         seen.append(features.shape[-1])
         return decodes.pop(0)
 

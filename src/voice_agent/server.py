@@ -142,7 +142,7 @@ def create_app(pipeline=None, filler: bool = False, scorer_factory=SileroScorer)
                         elif isinstance(ev, SpeechPause):
                             # start transcribing now; reused if the turn really ends here
                             if ev.audio.size >= 0.3 * 16_000:
-                                session["spec"] = SpeculativeSTT(pipe.stt, ev.audio, ev.pause_id, pipe.stt_language)
+                                session["spec"] = SpeculativeSTT(pipe.stt, ev.audio, ev.pause_id, pipe.stt_language, pipe.stt_prompt())
                         elif isinstance(ev, SpeechEnd):
                             emit({"type": "vad", "state": "silence", "duration": round(ev.duration, 2)})
                             spec, session["spec"] = session["spec"], None

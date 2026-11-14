@@ -17,7 +17,21 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from voice_agent.audio import resample, write_wav  # noqa: E402
+from voice_agent.callsim import CONFIRM, repeat_text, voice_lang  # noqa: E402
 from voice_agent.config import MODELS_DIR  # noqa: E402
+
+
+def render(voices, voice, text, path, rng):
+    from piper import PiperVoice
+
+    if voice not in voices:
+        voices[voice] = PiperVoice.load(str(MODELS_DIR / "piper" / f"{voice}.onnx"))
+    v = voices[voice]
+    audio = np.concatenate([c.audio_float_array for c in v.synthesize(text)])
+    audio = resample(audio, v.config.sample_rate, 16_000)
+    audio = np.concatenate([np.zeros(8_000), audio, np.zeros(19_200)]).astype(np.float32)
+    audio += rng.normal(0, 10 ** (-60 / 20), len(audio)).astype(np.float32)
+    write_wav(path, audio, 16_000)
 
 
 def main() -> None:
@@ -39,6 +53,11 @@ def main() -> None:
             audio += rng.normal(0, 10 ** (-60 / 20), len(audio)).astype(np.float32)
             write_wav(out_dir / f"{call['id']}-{k}.wav", audio, 16_000)
             print(f"{call['id']}-{k}: {len(audio) / 16_000:.2f} s")
+            if turn.get("id"):  # the caller's slow repeat of the number, used when the agent asks again
+                render(voices, turn["voice"], repeat_text(turn["id"], voice_lang(turn["voice"])),
+                       out_dir / f"{call['id']}-{k}-repeat.wav", rng)
+    for voice in sorted({t["voice"] for c in calls for t in c["turns"]}):  # "yes, that number is right"
+        render(voices, voice, CONFIRM[voice_lang(voice)], out_dir / f"confirm-{voice}.wav", rng)
 
 
 if __name__ == "__main__":

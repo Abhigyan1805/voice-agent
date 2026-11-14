@@ -21,6 +21,7 @@ import numpy as np
 
 from . import tools as toolbox
 from .llm import TextDelta, ToolEvent, ToolStart
+from .numbers import digit_fix_enabled, normalize_numbers, stt_prompt
 from .text import SentenceStreamer
 
 
@@ -60,7 +61,7 @@ class SpeculativeSTT:
     talking, the job is simply dropped.
     """
 
-    def __init__(self, stt, audio: np.ndarray, pause_id: int, language: str | None = "auto"):
+    def __init__(self, stt, audio: np.ndarray, pause_id: int, language: str | None = "auto", prompt: str | None = None):
         self.pause_id = pause_id
         self.text: str | None = None
         self.language: str | None = None
@@ -73,7 +74,7 @@ class SpeculativeSTT:
         def work() -> None:
             t = time.perf_counter()
             try:
-                self.text = stt.transcribe(audio, language=language)
+                self.text = stt.transcribe(audio, language=language, **({"prompt": prompt} if prompt else {}))
                 self.language = getattr(stt, "last_language", None)
                 self.window_s = getattr(stt, "last_window_s", None)
                 self.fallback = bool(getattr(stt, "last_fallback", False))
@@ -120,6 +121,8 @@ class TurnMetrics:
     error: str | None = None
     reply: str = ""
     transcript: str = ""
+    llm_input: str = ""  # transcript after spoken-number normalisation, as the LLM saw it
+    stt_prompted: bool = False  # the recogniser got the digit hint (the agent had just asked for a number)
 
     def as_dict(self) -> dict[str, Any]:
         return {k: (round(v, 4) if isinstance(v, float) else v) for k, v in self.__dict__.items()}
@@ -153,6 +156,12 @@ class VoicePipeline:
         # answer; always on for tools marked slow (network calls that can take seconds).
         self.filler = filler
 
+    def stt_prompt(self) -> str | None:
+        """Digit hint for the recogniser when the agent's last reply asked for a number."""
+        with self.agent._lock:
+            history = list(self.agent.history)
+        return stt_prompt(history)
+
     def run_turn(
         self,
         audio: np.ndarray | None = None,
@@ -173,7 +182,9 @@ class VoicePipeline:
         elif text is None:
             if audio is None:
                 raise ValueError("give audio or text")
-            text = self.stt.transcribe(audio, language=self.stt_language)
+            prompt = self.stt_prompt()
+            m.stt_prompted = prompt is not None
+            text = self.stt.transcribe(audio, language=self.stt_language, **({"prompt": prompt} if prompt else {}))
             m.stt_s = m.stt_compute_s = time.perf_counter() - t0
             m.stt_window_s = getattr(self.stt, "last_window_s", None)
             m.stt_fallback = bool(getattr(self.stt, "last_fallback", False))
@@ -181,6 +192,9 @@ class VoicePipeline:
             m.stt_s = 0.0
         m.transcript = text
         yield Transcript(text, m.stt_s)
+        if digit_fix_enabled():
+            text = normalize_numbers(text)
+        m.llm_input = text
         if not text.strip():
             m.total_s = time.perf_counter() - t0
             yield TurnDone(m)

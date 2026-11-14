@@ -169,6 +169,17 @@ Call suite on the same channel (spoken track; the oracle-text track does not dep
 | tel | **13/36** | 56/87 | 33/48 | 25.0 % | 18/36 | llm 2, stt 20, tts 1 |
 | tel-babble15 | **9/36** | 47/87 | 29/48 | 40.0 % | 12/36 | llm 3, stt 23, vad 1 |
 
+### Misheard digits: before and after the fix
+
+Same 12 calls and 3 repetitions, with a reactive simulated caller: when the agent reads back a wrong order id or phone number, or asks for it again, the caller repeats it slowly digit by digit (at most twice), and confirms a correct read-back. A turn passes with at most one repeat. "Before" is the v3 prompt with no number handling (`VOICE_AGENT_DIGIT_FIX=0`); "after" adds spoken-number normalisation of the transcript, a digit hint to the recogniser on the turn after the agent asks for a number, and a read-back-and-confirm rule in the prompt. Exact id on first try: the 5-digit id or 10-digit phone number appears as one digit string in what the LLM received from the caller's first attempt.
+
+| Run | Calls passed, spoken | Held-out calls, spoken | Calls passed, oracle | Exact id on first try | Right id reached the order tool | Id turns with 0 / 1 / 2 repeats | Failures by stage |
+|---|---:|---:|---:|---:|---:|---:|---|
+| before, clean | **13/36** | 4/12 | 32/36 | 15/39 | 21/39 | 28 / 8 / 3 | llm 4, stt 16, tts 3 |
+| after, clean | **19/36** | 5/12 | 31/36 | 15/39 | 25/39 | 24 / 13 / 2 | llm 2, stt 13, tts 2 |
+| before, telephone | **14/36** | 4/12 | 32/36 | 12/39 | 24/39 | 26 / 9 / 4 | llm 2, stt 19, tts 1 |
+| after, telephone | **16/36** | 3/12 | 31/36 | 15/39 | 25/39 | 28 / 7 / 4 | llm 3, stt 15, tts 2 |
+
 <!-- results:end -->
 
 Laptop CPU (Intel i5-11300H, 4 STT threads, WSL2, shared with other jobs). LLM: `gemini-3.5-flash-lite` on the free tier, live calls, cache off. Latency comes from 56 turns: 20 spoken question prompts and 8 real FLEURS sentences, two rounds each, with the audio fed in real time. Source: [results/RESULTS.md](results/RESULTS.md), generated from the JSON files next to it.
@@ -282,6 +293,18 @@ A call whose turns all pass but whose final state is wrong counts as **llm** if 
 **Prompt tuning, with held-out calls.** Four calls (`c03`, `c06`, `c09`, `c12`) were held out: prompt changes were made by reading failures of the other eight only, at most twice, and every version's run is kept (`results/calls-clean-v1.json` to `-v3.json`, prompt diffs in `results/prompt-v1-to-v2.diff` and `results/prompt-v2-to-v3.diff`). v2 made the agent look the order up before a reschedule, forbade calling `reschedule_delivery` in the same turn as the request, required a spoken reply after every tool result, and asked for the reply in the language of the caller's latest turn. v3 added that a date given with the request is not a confirmation, and that a short English "yes" or "thank you" is English. The language rule came from a tuning call (`c05`), though it also bears on the held-out language-switch call `c12`.
 
 Check fixes after the first run, applied to every version by re-scoring the stored results (`eval_calls.py --rescore`): `c05` required the word "delivered" in the second turn, but a correct agent says so in the first turn as soon as it looks the order up; that check moved to call level. No other script or check changed after the first run. Per-turn WER writes digits one per token on both sides, because the scripts spell order ids as words ("चार आठ दो") while the recogniser writes digits.
+
+## Misheard digits
+
+The call suite showed that most spoken calls fail on one thing: order ids and phone numbers read digit by digit come out of the recogniser wrong ("four four seven two nine" as `444729`, a dropped final "शून्य", "नौ शून्य" as `9-10`). The model was not fine-tuned for this; three cheaper measures sit around it instead:
+
+1. **Spoken-number normalisation** (`src/voice_agent/numbers.py`). Runs of digit words in English or Hindi, "double five" / "डबल पाँच", Devanagari numerals, and digit groups split by spaces, commas or hyphens are rewritten as one digit string before the LLM and the tools see them. Ordinary numbers and the everyday uses of "एक", "दो" or "one" are left alone. The raw transcript is still what WER is scored on.
+2. **A digit hint for the recogniser**, only on the turn after the agent asked for a number: a short previous-context prompt with spaced digits is passed to Whisper's decoder. Every other turn decodes exactly as before.
+3. **Read-back and confirm.** The prompt tells the agent to read any id or phone number back digit by digit and ask whether it is right before calling a tool, to read back a corrected number the same way, and after two failed attempts to offer the phone-number lookup or a call back.
+
+To score this, the simulated caller in the call suite became reactive: it confirms a correct read-back and repeats the number slowly when the agent reads back a wrong one or asks again, at most twice. One corrected repeat still counts as a pass; two do not. The before and after runs use the same reactive caller, so the comparison isolates the fix. `VOICE_AGENT_DIGIT_FIX=0` turns all three measures off.
+
+What the before/after table in the results block shows: more spoken calls pass with the fix, on clean and on telephone audio, but the gain comes from read-back and the caller's repeat getting the right id to the order tool, not from the recogniser hearing the id right the first time, which barely changed. Normalisation rarely matters here because the recogniser already writes digits; its errors are wrong or missing digits, which no rewriting can recover. The held-out calls did not improve. The prompt rule was written from the failures of the eight tuning calls, and a few calls of difference out of 36 is within run-to-run noise.
 
 ## Phone audio
 

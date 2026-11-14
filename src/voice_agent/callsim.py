@@ -99,8 +99,10 @@ def _arg_equal(key: str, want: Any, got: Any) -> bool:
     return str(want).strip().lower() == str(got).strip().lower()
 
 
-def check_turn(expect: dict, tools: list[dict], reply: str, today: date, words: dict[str, str]) -> dict[str, bool]:
-    """Every check that the turn's expectations define, as name -> passed."""
+def check_turn(expect: dict, tools: list[dict], reply: str, today: date, words: dict[str, str],
+               last_reply: str | None = None) -> dict[str, bool]:
+    """Every check that the turn's expectations define, as name -> passed. ``reply`` is every reply of
+    the exchange; the language is judged on ``last_reply`` (the agent's final words in it)."""
     checks: dict[str, bool] = {}
     names = [t["name"] for t in tools]
     if "tools" in expect:
@@ -120,7 +122,7 @@ def check_turn(expect: dict, tools: list[dict], reply: str, today: date, words: 
     if expect.get("reply_none"):
         checks["reply_none"] = not any(re.search(expand(p, today, words), text) for p in expect["reply_none"])
     if expect.get("reply_lang"):
-        checks["reply_lang"] = reply_language(reply) == expect["reply_lang"]
+        checks["reply_lang"] = reply_language(reply if last_reply is None else last_reply) == expect["reply_lang"]
     return checks
 
 
@@ -144,8 +146,8 @@ def rescore(calls: list[dict], spec: dict, today: date) -> None:
     for res in calls:
         call = by_id[res["id"]]
         for t, turn_spec in zip(res["turns"], call["turns"]):
-            t["checks"] = check_turn(turn_spec["expect"], t["tools"], t["reply"], today, words)
-            t["text_passed"] = all(t["checks"].values())
+            t["checks"] = check_turn(turn_spec["expect"], t["tools"], t["reply"], today, words, t.get("last_reply"))
+            t["text_passed"] = all(t["checks"].values()) and t.get("retries", 0) <= 1
             if res["track"] == "spoken":
                 pats = numeric_patterns(turn_spec["expect"])
                 if not (t["text_passed"] and pats):
@@ -185,6 +187,52 @@ def wer_cer(ref: str, hyp: str) -> tuple[float | None, float | None]:
     if not r:
         return None, None
     return round(100 * jiwer.wer(r, h), 2), round(100 * jiwer.cer(r, h), 2)
+
+
+# ------------------------------------------------------------------ reactive caller
+
+MAX_RETRIES = 2  # the caller repeats a number at most twice; a turn with more than one repeat fails
+CONFIRM = {"hi": "हाँ, नंबर सही है।", "en": "Yes, that number is right."}
+_HI_DIGITS = ["शून्य", "एक", "दो", "तीन", "चार", "पाँच", "छह", "सात", "आठ", "नौ"]
+_EN_DIGITS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+_REPEAT_ASK = re.compile(r"दोबारा|फिर से|एक बार और|repeat|again|once more|say (it|the number)|सही नंबर")
+_CONFIRM_ASK = re.compile(r"सही|ठीक|पुष्टि|है ना|यही|correct|right|confirm|is that")
+
+
+def voice_lang(voice: str) -> str:
+    return "en" if voice.startswith("en") else "hi"
+
+
+def repeat_text(number: str, lang: str) -> str:
+    """What the caller says when asked again: the number slowly, digit by digit."""
+    if lang == "en":
+        return "No, the number is: " + ", ".join(_EN_DIGITS[int(d)] for d in number) + "."
+    return "नहीं, नंबर है: " + ", ".join(_HI_DIGITS[int(d)] for d in number) + "।"
+
+
+def numbers_in(text: str) -> list[str]:
+    from .numbers import normalize_numbers
+
+    return re.findall(r"\d{4,}", normalize_numbers(norm_text(text)))
+
+
+def id_in_text(number: str, text: str) -> bool:
+    return number in numbers_in(text)
+
+
+def classify_reply(reply: str, tools: list[dict], number: str) -> str | None:
+    """How the simulated caller reacts to the agent's reply on a turn that gave ``number``:
+    "confirm" when the agent read back the right number and asked, "repeat" when it read back a
+    wrong one or asked for the number again, None otherwise (the call goes on with the script)."""
+    if "?" not in reply:
+        return None
+    nums = numbers_in(reply)
+    looked_up = any(t["name"] in _ORDER_TOOLS for t in tools)
+    if not looked_up and number in nums and _CONFIRM_ASK.search(norm_text(reply)):
+        return "confirm"
+    if number not in nums and (nums and not looked_up or _REPEAT_ASK.search(norm_text(reply))):
+        return "repeat"
+    return None
 
 
 # ------------------------------------------------------------------ attribution
@@ -255,43 +303,55 @@ class CallRunner:
         turns = []
         for k, spec in enumerate(call["turns"]):
             row: dict[str, Any] = {"turn": k, "reference": spec["user"], "vad_no_speech": False, "vad_split": False}
-            if track == "spoken":
-                audio = load_audio(self.audio_dir / f"{call['id']}-{k}.wav")
-                if self.condition is not None:
-                    audio = self.condition(audio)
-                utt, row["vad_no_speech"], row["vad_split"] = self._segment(audio)
-                events = self.pipe.run_turn(audio=utt) if utt is not None else iter(())
-            else:
-                events = self.pipe.run_turn(text=spec["user"])
-            tools, speech, metrics = [], [], None
-            for ev in events:
-                if isinstance(ev, ToolUse):
-                    tools.append({"name": ev.name, "args": ev.args, "result": ev.result, "meta": getattr(ev, "meta", None)})
-                elif isinstance(ev, SpeechAudio) and ev.index >= 0:
-                    speech.append(ev)
-                elif isinstance(ev, TurnDone):
-                    metrics = ev.metrics
-            reply = metrics.reply if metrics else ""
-            transcript = metrics.transcript if metrics else ""
-            checks = check_turn(spec["expect"], tools, reply, self.today, self.words)
+            voice = spec.get("voice", "")
+            first = self._sub_turn(track, spec["user"], f"{call['id']}-{k}.wav", row)
+            subs = [first]
+            followups: list[dict] = []
+            retries = 0
+            if spec.get("id"):  # reactive caller: answer a read-back, or repeat the number when asked
+                while True:
+                    kind = classify_reply(subs[-1]["reply"], subs[-1]["tools"], spec["id"])
+                    if kind is None or (kind != "confirm" and retries >= MAX_RETRIES):
+                        break
+                    lang = voice_lang(voice)
+                    if kind == "confirm":
+                        text, wav = CONFIRM[lang], f"confirm-{voice}.wav"
+                    else:
+                        retries += 1
+                        text, wav = repeat_text(spec["id"], lang), f"{call['id']}-{k}-repeat.wav"
+                    sub = self._sub_turn(track, text, wav, {})
+                    subs.append(sub)
+                    followups.append({"kind": kind, "said": text, "transcript": sub["transcript"],
+                                      "reply": sub["reply"], "tools": sub["tools"]})
+                    if kind == "confirm":
+                        break
+            tools = [t for x in subs for t in x["tools"]]
+            reply = " ".join(x["reply"] for x in subs if x["reply"])
+            checks = check_turn(spec["expect"], tools, reply, self.today, self.words, last_reply=subs[-1]["reply"])
+            transcript = first["transcript"]
             row.update(
-                transcript=transcript, reply=reply, tools=tools, checks=checks,
-                text_passed=all(checks.values()),
+                transcript=transcript, llm_input=first["llm_input"], reply=reply, last_reply=subs[-1]["reply"],
+                tools=tools, checks=checks, followups=followups, retries=retries,
+                text_passed=all(checks.values()) and retries <= 1,
                 unplanned_tool_error=any(t["result"].get("error") in ("timeout", "unavailable")
                                          for t in tools if t["name"] in _ORDER_TOOLS) and not planned_error,
                 tool_over_budget=any(t["meta"] and not t["meta"].get("within_budget", True) for t in tools),
-                stages={k2: getattr(metrics, k2, None) for k2 in ("stt_s", "llm_first_token_s", "tts_first_audio_s",
-                                                                   "time_to_first_audio_s", "total_s")} if metrics else {},
-                llm_tokens={"prompt": getattr(metrics, "llm_prompt_tokens", 0),
-                            "completion": getattr(metrics, "llm_completion_tokens", 0)},
-                error=getattr(metrics, "error", None),
+                stages=first["stages"],
+                llm_tokens={kk: sum(x["llm_tokens"][kk] for x in subs) for kk in ("prompt", "completion")},
+                error=next((x["error"] for x in subs if x["error"]), None),
             )
+            if spec.get("id"):
+                row["id_exact_first_try"] = id_in_text(spec["id"], first["llm_input"])
+                row["id_confirmed_correct"] = any(
+                    digits_only(t["args"].get("order_id", t["args"].get("phone", ""))) == spec["id"]
+                    for t in tools if t["name"] in _ORDER_TOOLS)
             if track == "spoken":
                 row["wer"], row["cer"] = wer_cer(spec["user"], transcript)
                 want = [digits_only(v) for e in spec["expect"].get("tools", []) for kk, v in e.get("args", {}).items()
                         if kk in ("order_id", "phone")]
                 row["entities_heard"] = all(w in spoken_digits(transcript) for w in want) if want else None
                 pats = numeric_patterns(spec["expect"])
+                speech = [a for x in subs for a in x["speech"]]
                 row["tts_roundtrip_ok"] = None
                 if row["text_passed"] and pats and speech:
                     row["tts_roundtrip_ok"], row["tts_roundtrip_text"] = self._roundtrip(speech, pats)
@@ -305,6 +365,41 @@ class CallRunner:
         out["call_checks"] = call_checks(call, out, self.today, self.words)
         out["final_state_ok"] = all(out["call_checks"].values())
         return out
+
+    def _sub_turn(self, track: str, text: str, wav: str, row: dict) -> dict:
+        """One caller utterance through the pipeline (spoken: recorded audio; oracle: the text)."""
+        from .audio import load_audio
+        from .pipeline import SpeechAudio, ToolUse, TurnDone
+
+        if track == "spoken":
+            audio = load_audio(self.audio_dir / wav)
+            if self.condition is not None:
+                audio = self.condition(audio)
+            utt, no_speech, split = self._segment(audio)
+            row["vad_no_speech"] = row.get("vad_no_speech", False) or no_speech
+            row["vad_split"] = row.get("vad_split", False) or split
+            events = self.pipe.run_turn(audio=utt) if utt is not None else iter(())
+        else:
+            events = self.pipe.run_turn(text=text)
+        tools, speech, metrics = [], [], None
+        for ev in events:
+            if isinstance(ev, ToolUse):
+                tools.append({"name": ev.name, "args": ev.args, "result": ev.result, "meta": getattr(ev, "meta", None)})
+            elif isinstance(ev, SpeechAudio) and ev.index >= 0:
+                speech.append(ev)
+            elif isinstance(ev, TurnDone):
+                metrics = ev.metrics
+        return {
+            "transcript": metrics.transcript if metrics else "",
+            "llm_input": (getattr(metrics, "llm_input", None) or metrics.transcript) if metrics else "",
+            "reply": metrics.reply if metrics else "",
+            "tools": tools, "speech": speech,
+            "stages": {k: getattr(metrics, k, None) for k in ("stt_s", "llm_first_token_s", "tts_first_audio_s",
+                                                               "time_to_first_audio_s", "total_s")} if metrics else {},
+            "llm_tokens": {"prompt": getattr(metrics, "llm_prompt_tokens", 0),
+                           "completion": getattr(metrics, "llm_completion_tokens", 0)},
+            "error": getattr(metrics, "error", None),
+        }
 
     def _roundtrip(self, speech, patterns) -> tuple[bool, str]:
         from .audio import resample
@@ -361,7 +456,19 @@ def summarise(calls: list[dict]) -> dict:
                      "mean": round(float(np.mean(wers)), 2) if wers else None,
                      "zero_error_turns": sum(w == 0 for w in wers)},
         "order_and_phone_digits_heard": f"{sum(ent)}/{len(ent)}",
+        **_id_stats(spoken),
         "tokens": {k: sum(t["llm_tokens"][k] for c in calls for t in c["turns"]) for k in ("prompt", "completion")},
+    }
+
+
+def _id_stats(spoken: list[dict]) -> dict:
+    ids = [t for c in spoken for t in c["turns"] if "id_exact_first_try" in t]
+    if not ids:
+        return {}
+    return {
+        "id_turns_exact_first_try": f"{sum(t['id_exact_first_try'] for t in ids)}/{len(ids)}",
+        "id_turns_confirmed_correct": f"{sum(t['id_confirmed_correct'] for t in ids)}/{len(ids)}",
+        "id_turns_retries": {str(n): sum(t.get("retries", 0) == n for t in ids) for n in range(MAX_RETRIES + 1)},
     }
 
 
