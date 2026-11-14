@@ -185,8 +185,8 @@ TOOLS: dict[str, Tool] = {
     for t in [
         Tool(
             "calculator",
-            "Evaluate an arithmetic expression exactly. Use it for any arithmetic, percentages or unit "
-            "maths instead of computing in your head. Write the expression with digits and + - * / ** ( ) "
+            "Evaluate an arithmetic expression exactly. Call it for every calculation, even simple ones "
+            "(sums, percentages, splitting a bill, square roots), instead of computing in your head. Write the expression with digits and + - * / ** ( ) "
             "and functions sqrt, round, log, sin, cos; '15% of 200' is accepted.",
             {
                 "type": "object",
@@ -197,8 +197,8 @@ TOOLS: dict[str, Tool] = {
         ),
         Tool(
             "get_datetime",
-            "Get the current date, time and weekday. Use it whenever the user asks about today, now, "
-            "the time, the day or the date.",
+            "Get the current date, time and weekday. Call it whenever the user asks the current time, "
+            "today's date or the day of the week; you do not know them otherwise.",
             {
                 "type": "object",
                 "properties": {"timezone": {"type": "string", "description": "IANA timezone, default Asia/Kolkata"}},
@@ -208,8 +208,9 @@ TOOLS: dict[str, Tool] = {
         Tool(
             "search_knowledge",
             "Search a small local knowledge base about this voice assistant itself (what it can do, how it "
-            "works, which models it uses) and about India's emergency helpline numbers. Use it for questions "
-            "on those topics.",
+            "works, which models it uses) and about India's emergency and helpline numbers (police, ambulance, "
+            "fire, women's helpline...). Always call it for those topics instead of answering from memory. "
+            "Do not call it for general knowledge or unclear input.",
             {
                 "type": "object",
                 "properties": {"query": {"type": "string", "description": "the user's question or key words"}},

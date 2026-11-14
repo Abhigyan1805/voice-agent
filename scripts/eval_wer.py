@@ -4,11 +4,14 @@ Data: FLEURS hi_in *test* clips 150-249 in file-name order (100 clips, real read
 test split was never used for training or model selection, and clips 0-149 were already used for
 the CPU int8 benchmark in the fine-tuning repo, so this slice is new to both.
 
-Two decoding settings are scored with the same model and clips:
-  forced-hi  language token fixed to Hindi (what the fine-tuning repo reports)
-  auto       the agent's setting: one encoder pass, Hindi-vs-English language ID, then decode
+Decoding settings are scored with the same model and clips, named ``<window>/<language>``:
+  window    30s    the encoder always sees a 30 s window (Whisper's training setup)
+            short  utterance + pad_s seconds below short_window_max_s, with a fallback to 30 s
+                   when the short decode loops or runs too long (the agent's default)
+  language  forced-hi  language token fixed to Hindi (what the fine-tuning repo reports)
+            auto       one encoder pass, Hindi-vs-English language ID, then decode (the agent)
 
-    python scripts/eval_wer.py                 # writes results/wer.json
+    python scripts/eval_wer.py                 # writes results/wer-150-250.json
     python scripts/eval_wer.py --start 0 --stop 150   # the fine-tuning repo's CPU subset, for comparison
 """
 
@@ -28,7 +31,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from voice_agent.config import Settings  # noqa: E402
 from voice_agent.fleurs import load_clips, normalize  # noqa: E402
-from voice_agent.stt import WhisperSTT  # noqa: E402
+from voice_agent.stt import TOKEN_LIMIT, WhisperSTT  # noqa: E402
 
 
 def score(refs, hyps):
@@ -47,23 +50,33 @@ def main() -> None:
     ap.add_argument("--stop", type=int, default=250)
     ap.add_argument("--threads", type=int, default=4)
     ap.add_argument("--out", default=None)
+    ap.add_argument("--modes", default="30s/forced-hi,30s/auto,short/auto")
+    ap.add_argument("--pad-s", type=float, default=None, help="short-window padding (default: Settings)")
     args = ap.parse_args()
 
     clips = load_clips(args.start, args.stop)
     s = Settings()
-    stt = WhisperSTT(s.stt_model, threads=args.threads)
+    pad_s = s.stt_pad_s if args.pad_s is None else args.pad_s
+    stt = WhisperSTT(s.stt_model, threads=args.threads, pad_s=pad_s, short_window_max_s=s.stt_short_window_max_s)
     stt.transcribe(clips[0].audio)  # warm-up
     results = {}
     rows = [{"uid": c.uid, "ref": c.text, "duration_s": round(c.duration, 2)} for c in clips]
-    for mode in ("forced-hi", "auto"):
-        lat, hyps, langs = [], [], []
+    for mode in args.modes.split(","):
+        window, language = mode.split("/")
+        stt.pad_s = 0.0 if window == "30s" else pad_s
+        lat, hyps, langs, fallbacks, limit_hits = [], [], [], 0, 0
         for c, row in zip(clips, rows):
             t = time.perf_counter()
-            hyp = stt.transcribe(c.audio, language="hi" if mode == "forced-hi" else "auto")
+            hyp = stt.transcribe(c.audio, language="hi" if language == "forced-hi" else "auto")
             lat.append(time.perf_counter() - t)
             hyps.append(hyp)
             langs.append(stt.last_language)
+            fallbacks += stt.last_fallback
+            limit_hits += stt.last_hit_token_limit
             row[f"hyp_{mode}"] = hyp
+            row[f"tokens_{mode}"] = stt.last_tokens
+            row[f"window_s_{mode}"] = stt.last_window_s
+            row[f"fallback_{mode}"] = stt.last_fallback
         audio_s = sum(c.duration for c in clips)
         results[mode] = {
             **score([c.text for c in clips], hyps),
@@ -71,6 +84,8 @@ def main() -> None:
             "latency_p50_s": round(float(np.percentile(lat, 50)), 3),
             "latency_p95_s": round(float(np.percentile(lat, 95)), 3),
             "detected_english": sum(l == "en" for l in langs),
+            "fallbacks_to_30s": fallbacks,
+            "hit_token_limit": limit_hits,
         }
         print(mode, results[mode], flush=True)
 
@@ -83,7 +98,8 @@ def main() -> None:
         "model": s.stt_model.name,
         "cpu": cpu_model(),
         "threads": args.threads,
-        "decoding": "greedy, no timestamps, up to the 448-token decoder limit",
+        "decoding": f"greedy, no timestamps; generation stops at {TOKEN_LIMIT} tokens",
+        "short_window": {"pad_s": pad_s, "short_window_max_s": s.stt_short_window_max_s},
         "normaliser": "NFC, punctuation/symbols and danda removed, lowercase (same as the fine-tuning repo)",
         "results": results,
         "peak_rss_mb": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1),

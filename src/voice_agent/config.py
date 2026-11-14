@@ -38,6 +38,9 @@ class Settings:
         default_factory=lambda: Path(os.environ.get("VOICE_AGENT_STT", MODELS_DIR / "whisper-small-hindi-ct2-int8"))
     )
     stt_threads: int = int(os.environ.get("VOICE_AGENT_STT_THREADS", "4"))
+    # Encode utterance + this many seconds instead of 30 s for short utterances; 0 = always 30 s.
+    stt_pad_s: float = float(os.environ.get("VOICE_AGENT_STT_PAD_S", "5"))
+    stt_short_window_max_s: float = float(os.environ.get("VOICE_AGENT_STT_SHORT_MAX_S", "12"))
     tts_hindi: Path = field(
         default_factory=lambda: Path(
             os.environ.get("VOICE_AGENT_TTS_HI", MODELS_DIR / "piper" / "hi_IN-priyamvada-medium.onnx")
@@ -48,7 +51,7 @@ class Settings:
             os.environ.get("VOICE_AGENT_TTS_EN", MODELS_DIR / "piper" / "en_US-lessac-medium.onnx")
         )
     )
-    # "gemini", "openai" (any OpenAI-compatible endpoint, e.g. DeepSeek) or "offline".
+    # "auto" (DeepSeek if DEEPSEEK_API_KEY is set, else Gemini, else offline), "gemini", "openai" (any OpenAI-compatible endpoint, e.g. DeepSeek) or "offline".
     llm_provider: str = os.environ.get("VOICE_AGENT_LLM", "auto")
     llm_model: str | None = os.environ.get("VOICE_AGENT_LLM_MODEL") or None
     llm_cache: bool = os.environ.get("VOICE_AGENT_LLM_CACHE", "1") != "0"

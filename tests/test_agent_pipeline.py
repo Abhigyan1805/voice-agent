@@ -251,3 +251,41 @@ def test_speculative_transcript_is_reused():
     m = events[-1].metrics
     assert SlowSTT.calls == 1 and m.transcript == "हैलो" and m.stt_speculative
     assert m.stt_s < 0.1 <= m.stt_compute_s
+
+
+def test_auto_prefers_deepseek_then_gemini_then_offline(monkeypatch):
+    from voice_agent.llm import make_client
+
+    for k in ("DEEPSEEK_API_KEY", "GOOGLE_API_KEY", "GEMINI_API_KEY", "OPENAI_API_KEY", "VOICE_AGENT_LLM_THINKING",
+              "DEEPSEEK_BASE_URL"):
+        monkeypatch.delenv(k, raising=False)
+    assert isinstance(make_client("auto"), OfflineClient)
+    monkeypatch.setenv("GOOGLE_API_KEY", "g")
+    assert isinstance(make_client("auto"), GeminiClient)
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "d")
+    assert isinstance(make_client("auto"), OpenAICompatClient)
+
+
+def test_deepseek_thinking_defaults_off_and_can_be_overridden(monkeypatch):
+    monkeypatch.delenv("VOICE_AGENT_LLM_THINKING", raising=False)
+    monkeypatch.delenv("DEEPSEEK_BASE_URL", raising=False)
+    client = OpenAICompatClient(api_key="k", cache=False)
+    client.http = FakeSSE([[{"choices": [{"delta": {"content": "hi"}}]}]])
+    list(client.turn("sys", [], "hello"))
+    assert client.http.bodies[0]["thinking"] == {"type": "disabled"}
+    monkeypatch.setenv("VOICE_AGENT_LLM_THINKING", "on")
+    assert OpenAICompatClient(api_key="k", cache=False).thinking == "on"
+    monkeypatch.delenv("VOICE_AGENT_LLM_THINKING")
+    other = OpenAICompatClient(api_key="k", cache=False, base_url="http://localhost:8000/v1")
+    other.http = FakeSSE([[{"choices": [{"delta": {"content": "hi"}}]}]])
+    list(other.turn("sys", [], "hello"))
+    assert "thinking" not in other.http.bodies[0]
+
+
+def test_tool_section_names_every_tool_and_the_no_tool_case():
+    from voice_agent.agent import SYSTEM_PROMPT, SYSTEM_PROMPT_V1
+
+    for name in ("calculator", "get_datetime", "search_knowledge"):
+        assert name in SYSTEM_PROMPT and name in SYSTEM_PROMPT_V1
+    assert "Never answer these from memory" in SYSTEM_PROMPT and "No tool for general knowledge" in SYSTEM_PROMPT
+    assert SYSTEM_PROMPT_V1.startswith(SYSTEM_PROMPT[:200])

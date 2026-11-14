@@ -27,6 +27,7 @@ from . import tools as toolbox
 from .config import CACHE_DIR
 
 MAX_TOOL_ROUNDS = 3
+READ_TIMEOUT_S = float(os.environ.get("VOICE_AGENT_LLM_TIMEOUT_S", "8"))
 
 
 @dataclass
@@ -54,6 +55,7 @@ class TurnInfo:
     retry_codes: list[int] = field(default_factory=list)
     prompt_tokens: int = 0  # summed over every request of the turn (billing view)
     completion_tokens: int = 0  # includes reasoning tokens
+    ttfb_s: list[float] = field(default_factory=list)  # per network request: request sent -> first event
 
 
 class LLMError(RuntimeError):
@@ -78,7 +80,9 @@ class _SSE:
         import httpx
 
         self.httpx = httpx
-        self.client = httpx.Client(timeout=httpx.Timeout(30.0, connect=10.0))
+        # A voice turn cannot wait 30 s: give up if the first byte (or any gap in the stream) takes
+        # longer than READ_TIMEOUT_S; the pipeline then speaks a short apology.
+        self.client = httpx.Client(timeout=httpx.Timeout(READ_TIMEOUT_S, connect=5.0, write=10.0, pool=5.0))
         self.cache = cache
         self.cache_dir = cache_dir
         self.max_retries = max_retries
@@ -107,6 +111,7 @@ class _SSE:
         recorded: list[dict] = []
         delay = 1.0
         for attempt in range(max_retries + 1):
+            t_req = time.perf_counter()
             with self.client.stream("POST", url, headers=headers, json=body) as resp:
                 if resp.status_code in (429, 500, 502, 503, 504):
                     resp.read()
@@ -132,6 +137,8 @@ class _SSE:
                     if not data or data == "[DONE]":
                         continue
                     obj = json.loads(data)
+                    if not recorded:
+                        info.ttfb_s.append(round(time.perf_counter() - t_req, 4))
                     recorded.append(obj)
                     yield obj
                 break
@@ -270,9 +277,13 @@ class OpenAICompatClient:
     def __init__(self, model: str = "deepseek-flash", base_url: str | None = None, api_key: str | None = None, cache=True,
                  thinking: str | None = None):
         self.model = model
-        # "on"/"off" sets DeepSeek's ``thinking`` switch; unset leaves the provider default.
-        self.thinking = (thinking or os.environ.get("VOICE_AGENT_LLM_THINKING") or "").lower() or None
         self.base_url = (base_url or os.environ.get("DEEPSEEK_BASE_URL") or "https://api.deepseek.com").rstrip("/")
+        # "on"/"off" sets DeepSeek's ``thinking`` switch. On DeepSeek it defaults to "off": reasoning
+        # adds latency and, under the 400-token cap, sometimes leaves no reply at all. Other
+        # OpenAI-compatible endpoints get no ``thinking`` field unless it is set explicitly.
+        self.thinking = (thinking or os.environ.get("VOICE_AGENT_LLM_THINKING") or "").lower() or None
+        if self.thinking is None and "deepseek" in self.base_url:
+            self.thinking = "off"
         self.api_key = api_key or os.environ.get("DEEPSEEK_API_KEY") or os.environ.get("OPENAI_API_KEY")
         if not self.api_key:
             raise LLMError("DEEPSEEK_API_KEY / OPENAI_API_KEY is not set")
@@ -408,9 +419,15 @@ def _run_tool(name: str, args: dict) -> ToolEvent:
 
 
 def make_client(provider: str = "auto", model: str | None = None, cache: bool = True):
-    """'auto' picks Gemini when GOOGLE_API_KEY is set, else offline. DeepSeek is only used when asked for."""
+    """'auto' picks DeepSeek (thinking off) when DEEPSEEK_API_KEY is set, else Gemini when GOOGLE_API_KEY
+    is set, else the offline rules."""
     if provider == "auto":
-        provider = "gemini" if (os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")) else "offline"
+        if os.environ.get("DEEPSEEK_API_KEY"):
+            provider = "deepseek"
+        elif os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY"):
+            provider = "gemini"
+        else:
+            provider = "offline"
     if provider == "gemini":
         return GeminiClient(model=model or "gemini-3.5-flash-lite", cache=cache)
     if provider in ("openai", "deepseek"):

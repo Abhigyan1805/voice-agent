@@ -63,6 +63,8 @@ class SpeculativeSTT:
         self.text: str | None = None
         self.language: str | None = None
         self.compute_s = 0.0
+        self.window_s: float | None = None
+        self.fallback = False
         self.error: BaseException | None = None
         self._done = threading.Event()
 
@@ -71,6 +73,8 @@ class SpeculativeSTT:
             try:
                 self.text = stt.transcribe(audio, language=language)
                 self.language = getattr(stt, "last_language", None)
+                self.window_s = getattr(stt, "last_window_s", None)
+                self.fallback = bool(getattr(stt, "last_fallback", False))
             except BaseException as e:  # re-raised in result()
                 self.error = e
             finally:
@@ -91,6 +95,9 @@ class TurnMetrics:
     stt_s: float | None = None  # STT time on the critical path (after end of turn)
     stt_compute_s: float | None = None  # full decode time (differs from stt_s when speculative)
     stt_speculative: bool = False
+    stt_window_s: float | None = None  # encoder window used (30 s, or utterance + padding)
+    stt_fallback: bool = False  # short-window decode rejected and redone at 30 s
+    llm_ttfb_s: float | None = None  # first LLM request sent -> first streamed event
     llm_first_token_s: float | None = None  # from LLM request start
     llm_first_sentence_s: float | None = None  # from LLM request start
     tts_first_audio_s: float | None = None  # synthesis time of the first sentence
@@ -159,11 +166,14 @@ class VoicePipeline:
             m.stt_s = time.perf_counter() - t0
             m.stt_compute_s = speculative.compute_s
             m.stt_speculative = True
+            m.stt_window_s, m.stt_fallback = speculative.window_s, speculative.fallback
         elif text is None:
             if audio is None:
                 raise ValueError("give audio or text")
             text = self.stt.transcribe(audio, language=self.stt_language)
             m.stt_s = m.stt_compute_s = time.perf_counter() - t0
+            m.stt_window_s = getattr(self.stt, "last_window_s", None)
+            m.stt_fallback = bool(getattr(self.stt, "last_fallback", False))
         else:
             m.stt_s = 0.0
         m.transcript = text
@@ -251,6 +261,8 @@ class VoicePipeline:
         m.llm_model = getattr(info, "model", None)
         m.llm_prompt_tokens = getattr(info, "prompt_tokens", 0)
         m.llm_completion_tokens = getattr(info, "completion_tokens", 0)
+        ttfb = getattr(info, "ttfb_s", None)
+        m.llm_ttfb_s = ttfb[0] if ttfb else None
         m.reply = "".join(reply).strip()
         m.total_s = time.perf_counter() - t0
         yield TurnDone(m)

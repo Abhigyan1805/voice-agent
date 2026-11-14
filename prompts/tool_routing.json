@@ -1,0 +1,23 @@
+[
+  {"id": "tr-calc-1", "lang": "hinglish", "expect": "calculator", "text": "पंद्रह हज़ार का बारह प्रतिशत GST कितना बनेगा?"},
+  {"id": "tr-calc-2", "lang": "en", "expect": "calculator", "text": "If I save 2500 rupees a month, how much will I have after 18 months?"},
+  {"id": "tr-calc-3", "lang": "hi", "expect": "calculator", "text": "सात सौ अस्सी को बारह से भाग दो।"},
+  {"id": "tr-calc-4", "lang": "hi", "expect": "calculator", "text": "दो सौ में से सैंतीस घटाओ तो कितना बचेगा?"},
+  {"id": "tr-time-1", "lang": "en", "expect": "get_datetime", "text": "What day of the week is it today?"},
+  {"id": "tr-time-2", "lang": "hi", "expect": "get_datetime", "text": "आज तारीख क्या है?"},
+  {"id": "tr-time-3", "lang": "hinglish", "expect": "get_datetime", "text": "kal kaun sa din hoga?"},
+  {"id": "tr-kb-1", "lang": "hinglish", "expect": "search_knowledge", "text": "पुलिस का emergency नंबर क्या है?"},
+  {"id": "tr-kb-2", "lang": "en", "expect": "search_knowledge", "text": "Which number should I call if there is a fire?"},
+  {"id": "tr-kb-3", "lang": "hi", "expect": "search_knowledge", "text": "महिला हेल्पलाइन का नंबर बताओ।"},
+  {"id": "tr-kb-4", "lang": "en", "expect": "search_knowledge", "text": "Are you a human or a computer program?"},
+  {"id": "tr-kb-5", "lang": "hinglish", "expect": "search_knowledge", "text": "तुम कौन सा model use करते हो?"},
+  {"id": "tr-none-1", "lang": "hi", "expect": "none", "text": "मुझे एक छोटा सा चुटकुला सुनाओ।"},
+  {"id": "tr-none-2", "lang": "en", "expect": "none", "text": "What is the capital of Japan?"},
+  {"id": "tr-none-3", "lang": "hi", "expect": "none", "text": "बारिश के मौसम में कौन सी सब्ज़ियाँ खानी चाहिए?"},
+  {"id": "tr-none-4", "lang": "en", "expect": "none", "text": "Thank you, that was helpful."},
+  {"id": "tr-none-5", "lang": "hi", "expect": "none", "text": "हम्म, अच्छा ठीक है।"},
+  {"id": "tr-none-6", "lang": "en", "expect": "none", "text": "Tell me a little about the history of cricket in India."},
+  {"id": "tr-garbled-1", "lang": "hi", "expect": "none", "garbled": true, "text": "कल्प तो बार नियम सफ़ेदी चल।"},
+  {"id": "tr-garbled-2", "lang": "en", "expect": "none", "garbled": true, "text": "the uh mm blue tablet over seven"},
+  {"id": "tr-garbled-3", "lang": "hi", "expect": "none", "garbled": true, "text": "हेल्प हो रहा पानी से थे।"}
+]

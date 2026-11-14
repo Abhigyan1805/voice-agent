@@ -41,7 +41,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from voice_agent.audio import load_audio  # noqa: E402
 from voice_agent.config import Settings, load_env_file  # noqa: E402
 from voice_agent.pipeline import SpeculativeSTT, TurnDone  # noqa: E402
-from voice_agent.vad import FRAME, SileroScorer, SpeechEnd, SpeechPause, VadSegmenter  # noqa: E402
+from voice_agent.vad import FRAME, SileroScorer, SpeechEnd, SpeechPause, VadConfig, VadSegmenter  # noqa: E402
 
 def cpu_model() -> str:
     for line in Path("/proc/cpuinfo").read_text().splitlines():
@@ -97,12 +97,15 @@ def main() -> None:
     ap.add_argument("--rounds", type=int, default=2)
     ap.add_argument("--fleurs", type=int, default=8, help="number of real FLEURS clips to add")
     ap.add_argument("--fleurs-offset", type=int, default=300)
-    ap.add_argument("--provider", default="gemini")
+    ap.add_argument("--provider", default="deepseek")
     ap.add_argument("--model", default=None)
     ap.add_argument("--thinking", choices=["on", "off"], default=None, help="DeepSeek reasoning switch")
     ap.add_argument("--rpm", type=int, default=12)
     ap.add_argument("--tag", default="main")
     ap.add_argument("--filler", action="store_true")
+    ap.add_argument("--stt-pad-s", type=float, default=None, help="short STT window padding; 0 = always 30 s")
+    ap.add_argument("--end-silence-ms", type=float, default=None, help="VAD end-of-turn hangover")
+    ap.add_argument("--pause-ms", type=float, default=None, help="VAD pause that starts speculative STT")
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--no-realtime", dest="realtime", action="store_false",
                     help="feed audio as fast as possible and add the VAD hangover arithmetically")
@@ -117,6 +120,13 @@ def main() -> None:
 
     s = Settings()
     s.llm_provider, s.llm_model, s.llm_cache = args.provider, args.model, False
+    if args.stt_pad_s is not None:
+        s.stt_pad_s = args.stt_pad_s
+    vad_cfg = VadConfig()
+    if args.end_silence_ms is not None:
+        vad_cfg.end_silence_ms = args.end_silence_ms
+    if args.pause_ms is not None:
+        vad_cfg.pause_ms = args.pause_ms
     t_load = time.perf_counter()
     pipe = build_pipeline(s, filler=args.filler)
     load_s = time.perf_counter() - t_load
@@ -141,8 +151,8 @@ def main() -> None:
         for p in prompts:
             pipe.agent.reset()
             pacer.wait()
-            seg = VadSegmenter(scorer)
-            vad_cpu, end, spec = 0.0, None, None
+            seg = VadSegmenter(scorer, vad_cfg)
+            vad_cpu, end, spec, n_spec = 0.0, None, None, 0
             audio = p["audio"]
             frame_wall: list[float] = []
             t_start = time.perf_counter()
@@ -158,6 +168,7 @@ def main() -> None:
                 for ev in evs:
                     if isinstance(ev, SpeechPause) and args.speculative and args.realtime:
                         spec = SpeculativeSTT(pipe.stt, ev.audio, ev.pause_id)
+                        n_spec += 1
                     elif isinstance(ev, SpeechEnd):
                         end = ev
                 if end is not None:
@@ -196,6 +207,7 @@ def main() -> None:
                 "utterance_s": round(end.duration, 3),
                 "vad_cpu_ms_per_frame": round(1000 * vad_cpu / max(1, len(frame_wall)), 3),
                 "endpoint_delay_s": round(endpoint, 3),
+                "speculative_decodes_wasted": n_spec - (1 if spec is not None else 0),
                 **m,
                 "e2e_ttfa_s": round(e2e, 4) if e2e is not None else None,
                 # other processes share this machine; record how busy it was during the turn
@@ -228,6 +240,12 @@ def main() -> None:
         "tts_voices": [Path(s.tts_hindi).stem, Path(s.tts_english).stem],
         "rounds": args.rounds,
         "realtime_feed": args.realtime,
+        "vad": {"end_silence_ms": vad_cfg.end_silence_ms, "pause_ms": vad_cfg.pause_ms},
+        "stt_window": {"pad_s": s.stt_pad_s, "short_window_max_s": s.stt_short_window_max_s,
+                       "fallbacks": sum(bool(r.get("stt_fallback")) for r in rows)},
+        "speculative_decodes_wasted": sum(r["speculative_decodes_wasted"] for r in rows),
+        "llm_tokens_total": {"prompt": sum(r["llm_prompt_tokens"] for r in rows),
+                             "completion": sum(r["llm_completion_tokens"] for r in rows)},
         "speculative_stt": args.speculative and args.realtime,
         "turns": len(rows),
         "turns_ok": len(ok),
@@ -239,7 +257,7 @@ def main() -> None:
         "mem_available_mb_during_turns": stats("mem_available_mb", rows),
         "peak_rss_mb": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1),
         "stages": {k: stats(k) for k in ("vad_cpu_ms_per_frame", "endpoint_delay_s", "stt_s", "stt_compute_s",
-                                         "llm_first_token_s",
+                                         "llm_ttfb_s", "llm_first_token_s",
                                          "llm_first_sentence_s", "tts_first_audio_s", "time_to_first_audio_s",
                                          "e2e_ttfa_s")},
         "by_group": {

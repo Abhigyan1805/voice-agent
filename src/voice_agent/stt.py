@@ -5,22 +5,54 @@ speech as Devanagari gibberish, while letting faster-whisper auto-detect costs a
 pass. So ``transcribe`` runs the encoder **once**, reads Whisper's language-ID head from that
 encoder output, picks Hindi or English (the only two the agent supports), and decodes from the
 same encoder output.
+
+Encoder window: Whisper is trained on 30 s windows, and encoding 30 s costs about 1.3 s on this
+CPU even for a 2 s question. For utterances shorter than ``short_window_max_s`` the features are
+padded only to the utterance length plus ``pad_s`` seconds. With too little trailing padding the
+decoder can miss the end token and loop, so a short-window decode that loops or produces more
+tokens than the audio can plausibly hold is decoded again with the full 30 s window (the
+"fallback"). ``pad_s = 0`` restores the plain 30 s behaviour.
 """
 
 from __future__ import annotations
 
+import math
 import re
 import time
 from pathlib import Path
 
 import numpy as np
 
-# Devanagari costs roughly one Whisper token per character, so a 15 s Hindi sentence can need
-# 300+ tokens. Same cap as the fine-tuning repo; generation stops at the end token long before
-# this for a short spoken question, so the cap costs nothing there.
+# Devanagari costs roughly one Whisper token per character. We request up to 444 tokens, but
+# CTranslate2 stops Whisper generation at half of the 448-token decoder context: every runaway
+# decode ends at exactly TOKEN_LIMIT generated tokens. At a median ~13 tokens per second of Hindi
+# speech, sentences longer than about 17 s can be cut; the WER evaluation counts how often.
 MAX_NEW_TOKENS = 440
 MAX_LENGTH = 448  # Whisper's decoder context
+TOKEN_LIMIT = 222  # generated tokens at which decoding is observed to stop
 LANGS = ("hi", "en")
+FRAMES_PER_S = 100  # mel frames per second (hop 160 at 16 kHz)
+FULL_FRAMES = 3000  # 30 s window
+# Fallback bound: Hindi on this model needs a median ~13 tokens per second of speech.
+MAX_TOKENS_PER_S = 14.0
+MAX_TOKENS_SLACK = 20
+
+
+def window_frames(n_samples: int, pad_s: float, short_window_max_s: float, sr: int = 16_000) -> int:
+    """Mel frames to encode for an utterance of ``n_samples``: utterance + ``pad_s`` when short, else 30 s."""
+    dur = n_samples / sr
+    if pad_s <= 0 or dur >= short_window_max_s:
+        return FULL_FRAMES
+    n = math.ceil((dur + pad_s) * FRAMES_PER_S)
+    n += n % 2  # the encoder's strided conv halves the length
+    return min(FULL_FRAMES, n)
+
+
+def needs_fallback(raw_text: str, n_tokens: int, duration_s: float) -> bool:
+    """A short-window decode is suspect if it looped, hit the token limit, or is implausibly long."""
+    looped = collapse_repeats(raw_text) != raw_text
+    too_long = n_tokens > MAX_TOKENS_PER_S * duration_s + MAX_TOKENS_SLACK
+    return looped or too_long or n_tokens >= TOKEN_LIMIT
 
 
 def collapse_repeats(text: str, max_repeat: int = 3) -> str:
@@ -41,7 +73,7 @@ def collapse_repeats(text: str, max_repeat: int = 3) -> str:
 
 
 class WhisperSTT:
-    def __init__(self, model_dir: str | Path, threads: int = 4):
+    def __init__(self, model_dir: str | Path, threads: int = 4, pad_s: float = 5.0, short_window_max_s: float = 12.0):
         from faster_whisper import WhisperModel
 
         model_dir = Path(model_dir)
@@ -54,6 +86,12 @@ class WhisperSTT:
         self.last_seconds = 0.0
         self.last_language = "hi"
         self.last_language_probs: dict[str, float] = {}
+        self.pad_s = pad_s
+        self.short_window_max_s = short_window_max_s
+        self.last_window_s = 30.0
+        self.last_fallback = False
+        self.last_tokens = 0
+        self.last_hit_token_limit = False
 
     def _tokenizer(self, lang: str):
         from faster_whisper.tokenizer import Tokenizer
@@ -73,7 +111,23 @@ class WhisperSTT:
 
         t0 = time.perf_counter()
         fe = self.model.feature_extractor
-        features = pad_or_trim(fe(audio[: fe.n_samples])[..., : fe.nb_max_frames])
+        audio = audio[: fe.n_samples]
+        feats = fe(audio)[..., : fe.nb_max_frames]
+        n = window_frames(len(audio), self.pad_s, self.short_window_max_s)
+        raw, ids, lang = self._decode(pad_or_trim(feats, n), language)
+        fallback = False
+        if n < FULL_FRAMES and needs_fallback(raw, len(ids), len(audio) / 16_000):
+            fallback, n = True, FULL_FRAMES
+            raw, ids, lang = self._decode(pad_or_trim(feats, n), language)
+        self.last_window_s = n / FRAMES_PER_S
+        self.last_fallback = fallback
+        self.last_tokens = len(ids)
+        self.last_hit_token_limit = len(ids) >= TOKEN_LIMIT
+        self.last_language = lang
+        self.last_seconds = time.perf_counter() - t0
+        return re.sub(r"\s+", " ", collapse_repeats(raw)).strip()
+
+    def _decode(self, features: np.ndarray, language: str | None) -> tuple[str, list[int], str]:
         enc = self.model.encode(features)
         if language in (None, "auto"):
             probs = {tok[2:-2]: p for tok, p in self.model.model.detect_language(enc)[0]}
@@ -91,7 +145,5 @@ class WhisperSTT:
             suppress_blank=True,
             suppress_tokens=suppress,
         )[0]
-        text = collapse_repeats(tok.decode(result.sequences_ids[0]).strip())
-        self.last_language = lang
-        self.last_seconds = time.perf_counter() - t0
-        return re.sub(r"\s+", " ", text).strip()
+        ids = result.sequences_ids[0]
+        return tok.decode(ids).strip(), ids, lang

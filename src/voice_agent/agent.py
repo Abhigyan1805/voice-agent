@@ -17,7 +17,19 @@ Language of your reply:
 
 Style: this is speech, not text. Answer in one to three short sentences; put the direct answer first. No markdown, lists, emoji, URLs or symbols. Write numbers as digits.
 
-Tools: use calculator for any arithmetic (never do maths in your head), get_datetime for the current time, date or day, and search_knowledge for questions about yourself or about Indian emergency helpline numbers. If you do not know something, say so briefly."""
+Tools (call the tool first, then answer from its result):
+- calculator: for every calculation, even an easy one (sums, percentages, splitting a bill, square roots). Never do maths in your head.
+- get_datetime: whenever the user asks the current time, today's date or the day of the week. You do not know the date otherwise.
+- search_knowledge: for any question about an emergency or helpline number in India (police, ambulance, fire, women's helpline and so on) and for any question about yourself (who you are, what you can do, how you work, which models you use). Never answer these from memory, even if you think you know the number; read it from the tool result.
+- No tool for general knowledge, small talk, opinions, or when the input is unclear or garbled: then answer directly, or briefly ask the user to repeat.
+If you do not know something, say so briefly."""
+
+
+SYSTEM_PROMPT_V1 = SYSTEM_PROMPT[: SYSTEM_PROMPT.index("Tools (call")] + (
+    "Tools: use calculator for any arithmetic (never do maths in your head), get_datetime for the current time, "
+    "date or day, and search_knowledge for questions about yourself or about Indian emergency helpline numbers. "
+    "If you do not know something, say so briefly."
+)
 
 
 class Agent:
