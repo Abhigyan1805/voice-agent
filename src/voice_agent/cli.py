@@ -98,6 +98,13 @@ def cmd_serve(args) -> None:
     uvicorn.run(create_app(filler=args.filler), host=args.host, port=args.port, log_level="warning")
 
 
+def cmd_demo_service(args) -> None:
+    from .demo_service import serve
+
+    print(f"order service (local stand-in) on http://127.0.0.1:{args.port}; set VOICE_AGENT_ORDERS_URL to use it")
+    serve(port=args.port, api_key=args.key)
+
+
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(prog="voice-agent", description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -117,6 +124,10 @@ def main(argv: list[str] | None = None) -> None:
     s.add_argument("--port", type=int, default=8000)
     s.add_argument("--filler", action="store_true")
     s.set_defaults(fn=cmd_serve)
+    d = sub.add_parser("demo-service", help="run the local order-status REST service the order tools call")
+    d.add_argument("--port", type=int, default=8090)
+    d.add_argument("--key", default="demo-key", help="API key the service expects in X-API-Key")
+    d.set_defaults(fn=cmd_demo_service)
     args = ap.parse_args(argv)
     args.fn(args)
 

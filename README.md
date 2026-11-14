@@ -97,6 +97,24 @@ v2 on the spoken-benchmark transcripts alone: tool used when needed 31/33, unnec
 | 544 ms | 0/20 | 15/100 (15 %) | 1.93 |
 | 704 ms | 0/20 | 11/100 (11 %) | 2.02 |
 
+### REST tool under injected faults
+
+`scripts/eval_rest_tool.py`: the order tools' client against the local stand-in order service (src/voice_agent/demo_service.py) over HTTP on 127.0.0.1, no LLM. Client: connect timeout 1 s, read timeout 2.5 s, 5 s budget per tool call, up to 2 retries with jittered back-off. 30 calls per mode. **330/330** calls ended in the expected outcome (the order data, or an error the agent can speak about instead of inventing an answer); 330/330 stayed within the budget.
+
+| Fault | Expected outcome | Correct | Attempts (mean) | Seconds p50 | Seconds max |
+|---|---|---:|---:|---:|---:|
+| none | ok | 30/30 | 1.0 | 0.00 | 0.00 |
+| latency 300 ms | ok | 30/30 | 1.0 | 0.30 | 0.30 |
+| one 503, then success | ok | 30/30 | 2.0 | 0.20 | 0.30 |
+| two 503s, then success | ok | 30/30 | 3.0 | 0.64 | 0.85 |
+| three 503s (more than the retries) | unavailable | 30/30 | 3.0 | 0.61 | 0.89 |
+| 429 with Retry-After 1 s | ok | 30/30 | 2.0 | 1.00 | 1.01 |
+| malformed body once | ok | 30/30 | 2.0 | 0.20 | 0.30 |
+| hang 4 s (longer than the read timeout) | timeout | 30/30 | 2.0 | 5.00 | 5.00 |
+| unknown order id | not_found | 30/30 | 1.0 | 0.00 | 0.00 |
+| reschedule, one 503 then success | ok | 30/30 | 2.0 | 0.24 | 0.30 |
+| reschedule a delivered order | rejected | 30/30 | 1.0 | 0.00 | 0.00 |
+
 <!-- results:end -->
 
 Laptop CPU (Intel i5-11300H, 4 STT threads, WSL2, shared with other jobs). LLM: `gemini-3.5-flash-lite` on the free tier, live calls, cache off. Latency comes from 56 turns: 20 spoken question prompts and 8 real FLEURS sentences, two rounds each, with the audio fed in real time. Source: [results/RESULTS.md](results/RESULTS.md), generated from the JSON files next to it.
@@ -199,6 +217,7 @@ The arena fix: with ONNX Runtime's default CPU memory arena, each new sentence l
 - **One encoder pass for language ID.** Forcing `language="hi"` turned English questions into Devanagari gibberish ("व्या पर च्कर्व रूट 144…" for "What is the square root of 144…"). faster-whisper's auto-detection fixes that but runs the encoder twice (about +1 s). Reading the language-ID head from the encoder output that the decoder already uses adds only about 3 % to decode time (measured on the WER set). It picked the right language on all 56 benchmark turns and did not mistake any of the 100 held-out Hindi clips for English.
 - **Speculative STT** moves part of the decode into the end-of-turn wait: 0.384 s per turn, measured inside each turn.
 - **A Gemini model fallback.** During this work `gemini-3.1-flash-lite` returned HTTP 503 ("high demand") for every request for a while. The client now tries the configured model with two retries, falls back to the next free model, and stays there for five minutes. Each turn records which model answered.
+- **An order desk over a real REST client.** With `VOICE_AGENT_ORDERS_URL` set, the agent gets three more tools (`get_order_status`, `find_orders_by_phone`, `reschedule_delivery`) that call an order service over HTTP with `httpx`: connect and read timeouts, a total time budget per tool call, bounded retries with jittered back-off on connect errors, timeouts, 502/503/504, 429 (`Retry-After` honoured) and malformed bodies, and an `Idempotency-Key` on the reschedule write so a retried request cannot apply twice. Failures come back to the LLM as `not_found`, `timeout`, `unavailable` or `rejected`, and the system prompt tells it to say the system is slow rather than invent a status, to read the order id back digit by digit and to wait for a yes before any change. The service in this repo (`voice-agent demo-service`) is a local stand-in with seeded data and fault injection, not a real business system; the client would point at any service with the same contract. While a network tool runs, the agent says "one moment" so the caller is not left in silence.
 - **Tool errors are data, not exceptions.** The calculator parses with `ast`, never `eval`, accepts `×`, `÷`, `%`, `18% of 1250` and Devanagari digits, and returns `{"error": ...}` so the LLM can recover. An LLM failure is spoken as a short apology instead of silence.
 - **Bounded memory.** One STT model, two small TTS voices and a 2 MB VAD, loaded once. The evaluation reads FLEURS through a child process because the 300 MB single-row-group parquet alone costs about 1.5 GB to decode.
 
@@ -253,13 +272,17 @@ python scripts/eval_wer.py                # WER/CER on FLEURS hi test clips 150-
 python scripts/bench.py --rounds 2        # end-to-end latency -> results/bench-main.json
 python scripts/bench.py --rounds 1 --no-speculative --tag nospec
 python scripts/eval_tts.py                # Piper speed + round-trip intelligibility -> results/tts.json
+python scripts/eval_tools.py --reps 3     # text-only tool routing, old vs new prompt -> results/tool-routing.json
+python scripts/eval_endpoint.py           # VAD end-of-turn sweep -> results/endpoint-sweep.json
+python scripts/eval_rest_tool.py          # order REST client under injected faults -> results/rest-tool.json
+python scripts/report.py --readme         # regenerate results/RESULTS.md and the README results block
 python scripts/smoke_ws.py                # against a running `voice-agent serve --port 8765`: typed turn, spoken turn, barge-in
 python scripts/make_prompts.py            # regenerate the synthetic prompt recordings (needs the pratham/rohan/ryan voices)
 ```
 
 FLEURS is read from the Hugging Face cache (`google/fleurs`, `parquet-data/hi_in/test-*`) or from `FLEURS_HI_TEST=/path/to/test.parquet`.
 
-Configuration, all through environment variables: `VOICE_AGENT_LLM` (`auto`, `gemini`, `openai` for any OpenAI-compatible endpoint such as DeepSeek or a local vLLM, or `offline`), `VOICE_AGENT_LLM_MODEL`, `VOICE_AGENT_LLM_CACHE=0`, `VOICE_AGENT_STT`, `VOICE_AGENT_STT_THREADS`, `VOICE_AGENT_TTS_HI`, `VOICE_AGENT_TTS_EN`. Keys are read from the environment or the env file and are never logged. LLM responses are cached on disk under `cache/llm/` for development; the benchmarks turn the cache off.
+Configuration, all through environment variables: `VOICE_AGENT_LLM` (`auto` picks DeepSeek when `DEEPSEEK_API_KEY` is set, else Gemini when `GOOGLE_API_KEY` is set, else offline; or `gemini`, `openai`/`deepseek` for any OpenAI-compatible endpoint such as DeepSeek or a local vLLM, or `offline`), `VOICE_AGENT_LLM_MODEL`, `VOICE_AGENT_LLM_THINKING` (`on`/`off`; DeepSeek defaults to `off`), `VOICE_AGENT_LLM_TIMEOUT_S` (default 8), `VOICE_AGENT_LLM_CACHE=0`, `VOICE_AGENT_STT`, `VOICE_AGENT_STT_THREADS`, `VOICE_AGENT_STT_PAD_S` (short encoder window padding, default 5; `0` = always 30 s), `VOICE_AGENT_STT_SHORT_MAX_S` (default 12), `VOICE_AGENT_TTS_HI`, `VOICE_AGENT_TTS_EN`, `VOICE_AGENT_ORDERS_URL` and `VOICE_AGENT_ORDERS_KEY` (enable the order tools; run `voice-agent demo-service --port 8090` for the local stand-in). Keys are read from the environment or the env file and are never logged. LLM responses are cached on disk under `cache/llm/` for development; the benchmarks turn the cache off.
 
 ## Project layout
 

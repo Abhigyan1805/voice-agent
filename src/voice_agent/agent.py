@@ -5,7 +5,7 @@ from __future__ import annotations
 import threading
 from typing import Iterator
 
-from .llm import TextDelta, ToolEvent
+from .llm import TextDelta, ToolEvent, ToolStart
 
 SYSTEM_PROMPT = """You are a friendly voice assistant. Your words are spoken aloud by a text-to-speech voice.
 
@@ -32,8 +32,34 @@ SYSTEM_PROMPT_V1 = SYSTEM_PROMPT[: SYSTEM_PROMPT.index("Tools (call")] + (
 )
 
 
+ORDER_RULES = """
+
+Order desk: you can look up and reschedule the caller's orders with get_order_status, find_orders_by_phone and reschedule_delivery. Today is {weekday}, {today}.
+- Order ids have 5 digits and phone numbers 10 digits. Callers say digits as words in Hindi or English ("चार आठ दो एक तीन" is 48213, "छह शून्य" is 60), and the recogniser may write them as words, digits or Devanagari digits. Convert them to plain digits before calling a tool.
+- If the caller does not know the order id, ask for their 10-digit phone number and call find_orders_by_phone.
+- Before rescheduling, read the order id back digit by digit and say the new date, and ask the caller to confirm. Call reschedule_delivery only after the caller clearly says yes in a later turn. If they say no, change nothing. Dates go to the tool as YYYY-MM-DD and must be after today.
+- If a tool returns not_found, ask the caller to repeat the number once; if it is still not found, offer to look up their orders by phone number.
+- If a tool returns timeout or unavailable, say the order system is slow right now and offer to try again. Never guess or invent an order's status or delivery date.
+- If a tool returns rejected, explain the reason simply (for example, the order is already delivered).
+- Tell the caller the status and the delivery date in words they understand; for a date say the day and month."""
+
+
+def build_system_prompt() -> str:
+    """The system prompt for this turn: the order-desk rules (with today's date) are added only when
+    the order tools are enabled, so the general assistant's prompt stays unchanged."""
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    from .tools import orders_enabled
+
+    if not orders_enabled():
+        return SYSTEM_PROMPT
+    now = datetime.now(ZoneInfo("Asia/Kolkata"))
+    return SYSTEM_PROMPT + ORDER_RULES.format(weekday=now.strftime("%A"), today=now.strftime("%Y-%m-%d"))
+
+
 class Agent:
-    def __init__(self, client, system: str = SYSTEM_PROMPT, max_history_turns: int = 6):
+    def __init__(self, client, system: str | None = None, max_history_turns: int = 6):
         self.client = client
         self.system = system
         self.max_history = max_history_turns * 2
@@ -44,14 +70,15 @@ class Agent:
         with self._lock:
             self.history.clear()
 
-    def respond(self, user_text: str, cancel: threading.Event | None = None) -> Iterator[TextDelta | ToolEvent]:
+    def respond(self, user_text: str, cancel: threading.Event | None = None) -> Iterator[TextDelta | ToolEvent | ToolStart]:
         """Stream one reply. The exchange is added to history even if the user barges in, with the
         reply truncated to what was generated, so the next turn knows where the agent was cut off."""
         with self._lock:
             history = list(self.history[-self.max_history :])
         reply = []
         try:
-            for ev in self.client.turn(self.system, history, user_text, cancel):
+            system = self.system if self.system is not None else build_system_prompt()
+            for ev in self.client.turn(system, history, user_text, cancel):
                 if isinstance(ev, TextDelta):
                     reply.append(ev.text)
                 yield ev

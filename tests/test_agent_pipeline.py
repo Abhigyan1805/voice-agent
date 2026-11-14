@@ -289,3 +289,35 @@ def test_tool_section_names_every_tool_and_the_no_tool_case():
         assert name in SYSTEM_PROMPT and name in SYSTEM_PROMPT_V1
     assert "Never answer these from memory" in SYSTEM_PROMPT and "No tool for general knowledge" in SYSTEM_PROMPT
     assert SYSTEM_PROMPT_V1.startswith(SYSTEM_PROMPT[:200])
+
+
+def test_order_rules_only_with_order_service(monkeypatch):
+    from voice_agent.agent import SYSTEM_PROMPT, build_system_prompt
+
+    monkeypatch.delenv("VOICE_AGENT_ORDERS_URL", raising=False)
+    assert build_system_prompt() == SYSTEM_PROMPT
+    monkeypatch.setenv("VOICE_AGENT_ORDERS_URL", "http://127.0.0.1:1")
+    p = build_system_prompt()
+    assert p.startswith(SYSTEM_PROMPT) and "reschedule_delivery" in p and "Today is" in p
+
+
+def test_slow_tool_gets_filler_before_the_call_returns():
+    from voice_agent.llm import ToolStart
+
+    class HttpToolClient:
+        info = TurnInfo()
+
+        def turn(self, system, history, user_text, cancel=None):
+            yield ToolStart("get_order_status")
+            time.sleep(0.2)
+            yield ToolEvent("get_order_status", {"order_id": "48213"}, {"status": "shipped"}, 0.2, {"attempts": 1})
+            yield TextDelta("आपका ऑर्डर भेज दिया गया है।")
+
+    tts = FakeTTS()
+    events = list(VoicePipeline(None, Agent(HttpToolClient()), tts).run_turn(text="मेरा ऑर्डर?"))
+    kinds = [type(e).__name__ for e in events]
+    assert kinds.index("SpeechAudio") < kinds.index("ToolUse")  # filler spoken while the tool ran
+    tool = [e for e in events if isinstance(e, ToolUse)][0]
+    assert tool.meta == {"attempts": 1}
+    m = events[-1].metrics
+    assert m.time_to_filler_audio_s < m.time_to_first_audio_s and m.sentences == 1

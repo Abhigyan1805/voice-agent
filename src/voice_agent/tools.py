@@ -1,4 +1,5 @@
-"""The agent's tools: a safe calculator, the current date/time, and a tiny local knowledge base.
+"""The agent's tools: a safe calculator, the current date/time, a tiny local knowledge base, and
+(when ``VOICE_AGENT_ORDERS_URL`` is set) three order tools that call a REST service.
 
 Each tool is a plain function plus a JSON-schema declaration, so the same registry can be handed
 to Gemini (``functionDeclarations``) or to an OpenAI-compatible API (``tools``).
@@ -10,6 +11,7 @@ import ast
 import json
 import math
 import operator
+import os
 import re
 from dataclasses import dataclass
 from datetime import datetime
@@ -169,6 +171,59 @@ def search_knowledge(query: str) -> dict[str, Any]:
     return {"query": query, "results": hits} if hits else {"query": query, "results": [], "note": "no match"}
 
 
+# ---------------------------------------------------------------- orders (REST)
+
+_ORDERS_CLIENT = None
+
+
+def orders_enabled() -> bool:
+    return bool(os.environ.get("VOICE_AGENT_ORDERS_URL"))
+
+
+def _orders():
+    global _ORDERS_CLIENT
+    from .orders_client import OrdersClient
+
+    url = os.environ.get("VOICE_AGENT_ORDERS_URL", "").rstrip("/")
+    if _ORDERS_CLIENT is None or _ORDERS_CLIENT.base_url != url:
+        _ORDERS_CLIENT = OrdersClient(base_url=url)
+    return _ORDERS_CLIENT
+
+
+def _digits(value: Any) -> str:
+    return re.sub(r"\D", "", str(value).translate(_DEVANAGARI_DIGITS))
+
+
+def _bad(message: str) -> dict[str, Any]:
+    return {"error": "rejected", "message": message, "attempts": 0}
+
+
+def get_order_status(order_id: str) -> dict[str, Any]:
+    oid = _digits(order_id)
+    if len(oid) != 5:
+        return _bad(f"order ids have 5 digits, got {oid or 'none'}; ask the caller to repeat the number")
+    return _orders().get_order(oid)
+
+
+def find_orders_by_phone(phone: str) -> dict[str, Any]:
+    digits = _digits(phone)
+    digits = digits[-10:] if len(digits) > 10 and digits.startswith(("91", "0")) else digits
+    if len(digits) != 10:
+        return _bad(f"phone numbers have 10 digits, got {len(digits)}; ask the caller to repeat it")
+    return _orders().find_by_phone(digits)
+
+
+def reschedule_delivery(order_id: str, date: str) -> dict[str, Any]:
+    oid = _digits(order_id)
+    if len(oid) != 5:
+        return _bad(f"order ids have 5 digits, got {oid or 'none'}; ask the caller to repeat the number")
+    try:
+        new = datetime.strptime(str(date).strip(), "%Y-%m-%d").date().isoformat()
+    except ValueError:
+        return _bad("date must be YYYY-MM-DD")
+    return _orders().reschedule(oid, new)
+
+
 # ---------------------------------------------------------------- registry
 
 
@@ -178,6 +233,8 @@ class Tool:
     description: str
     parameters: dict[str, Any]
     fn: Callable[..., dict[str, Any]]
+    slow: bool = False  # network call: the pipeline says "one moment" while it runs
+    orders: bool = False  # registered only when VOICE_AGENT_ORDERS_URL is set
 
 
 TOOLS: dict[str, Tool] = {
@@ -218,14 +275,62 @@ TOOLS: dict[str, Tool] = {
             },
             search_knowledge,
         ),
+        Tool(
+            "get_order_status",
+            "Look up one order in the order system: status, item and expected delivery date. Pass the "
+            "5-digit order id as plain digits.",
+            {
+                "type": "object",
+                "properties": {"order_id": {"type": "string", "description": "5 digits, e.g. '48213'"}},
+                "required": ["order_id"],
+            },
+            get_order_status,
+            slow=True,
+            orders=True,
+        ),
+        Tool(
+            "find_orders_by_phone",
+            "List the orders registered to a caller's 10-digit phone number. Use it when the caller does "
+            "not know the order id.",
+            {
+                "type": "object",
+                "properties": {"phone": {"type": "string", "description": "10 digits, e.g. '9876543210'"}},
+                "required": ["phone"],
+            },
+            find_orders_by_phone,
+            slow=True,
+            orders=True,
+        ),
+        Tool(
+            "reschedule_delivery",
+            "Move an order's delivery to a new date. Only call it after reading the order id and the new "
+            "date back to the caller and hearing a clear yes.",
+            {
+                "type": "object",
+                "properties": {
+                    "order_id": {"type": "string", "description": "5 digits"},
+                    "date": {"type": "string", "description": "new delivery date, YYYY-MM-DD, after today"},
+                },
+                "required": ["order_id", "date"],
+            },
+            reschedule_delivery,
+            slow=True,
+            orders=True,
+        ),
     ]
 }
+
+
+def enabled_tools() -> list[Tool]:
+    """The tools offered to the LLM: the order tools only when an order service is configured, so
+    the general assistant (and its benchmark) keeps the same three tools."""
+    return [t for t in TOOLS.values() if not t.orders or orders_enabled()]
 
 
 def call_tool(name: str, args: dict[str, Any] | None) -> dict[str, Any]:
     """Run a tool by name. Errors are returned as data so the LLM can recover; they never raise."""
     tool = TOOLS.get(name)
-    if tool is None:
+    if tool is None or (tool.orders and not orders_enabled()):
         return {"error": f"unknown tool {name!r}"}
     try:
         return tool.fn(**(args or {}))
@@ -234,11 +339,11 @@ def call_tool(name: str, args: dict[str, Any] | None) -> dict[str, Any]:
 
 
 def gemini_declarations() -> list[dict[str, Any]]:
-    return [{"name": t.name, "description": t.description, "parameters": t.parameters} for t in TOOLS.values()]
+    return [{"name": t.name, "description": t.description, "parameters": t.parameters} for t in enabled_tools()]
 
 
 def openai_tools() -> list[dict[str, Any]]:
     return [
         {"type": "function", "function": {"name": t.name, "description": t.description, "parameters": t.parameters}}
-        for t in TOOLS.values()
+        for t in enabled_tools()
     ]

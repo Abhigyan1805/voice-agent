@@ -41,6 +41,14 @@ class ToolEvent:
     args: dict[str, Any]
     result: dict[str, Any]
     seconds: float
+    meta: dict[str, Any] | None = None  # HTTP tools: attempts, status codes, seconds
+
+
+@dataclass
+class ToolStart:
+    """Yielded just before a tool runs, so the pipeline can say "one moment" during a slow call."""
+
+    name: str
 
 
 @dataclass
@@ -258,6 +266,7 @@ class GeminiClient:
             contents.append({"role": "model", "parts": model_parts})
             responses = []
             for call in calls:
+                yield ToolStart(call.get("name", ""))
                 ev = _run_tool(call.get("name", ""), call.get("args") or {})
                 self.info.tool_calls.append(ev.name)
                 yield ev
@@ -343,6 +352,7 @@ class OpenAICompatClient:
                     args = json.loads(c["arguments"] or "{}")
                 except json.JSONDecodeError:
                     args = {}
+                yield ToolStart(c["name"])
                 ev = _run_tool(c["name"], args)
                 self.info.tool_calls.append(ev.name)
                 yield ev
@@ -415,7 +425,8 @@ def _words_to_ops(text: str) -> str:
 def _run_tool(name: str, args: dict) -> ToolEvent:
     t0 = time.perf_counter()
     result = toolbox.call_tool(name, args)
-    return ToolEvent(name=name, args=args, result=result, seconds=time.perf_counter() - t0)
+    meta = result.pop("_meta", None) if isinstance(result, dict) else None
+    return ToolEvent(name=name, args=args, result=result, seconds=time.perf_counter() - t0, meta=meta)
 
 
 def make_client(provider: str = "auto", model: str | None = None, cache: bool = True):

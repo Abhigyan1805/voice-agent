@@ -51,6 +51,24 @@ v2 on the spoken-benchmark transcripts alone: tool used when needed 31/33, unnec
 | 544 ms | 0/20 | 15/100 (15 %) | 1.93 |
 | 704 ms | 0/20 | 11/100 (11 %) | 2.02 |
 
+### REST tool under injected faults
+
+`scripts/eval_rest_tool.py`: the order tools' client against the local stand-in order service (src/voice_agent/demo_service.py) over HTTP on 127.0.0.1, no LLM. Client: connect timeout 1 s, read timeout 2.5 s, 5 s budget per tool call, up to 2 retries with jittered back-off. 30 calls per mode. **330/330** calls ended in the expected outcome (the order data, or an error the agent can speak about instead of inventing an answer); 330/330 stayed within the budget.
+
+| Fault | Expected outcome | Correct | Attempts (mean) | Seconds p50 | Seconds max |
+|---|---|---:|---:|---:|---:|
+| none | ok | 30/30 | 1.0 | 0.00 | 0.00 |
+| latency 300 ms | ok | 30/30 | 1.0 | 0.30 | 0.30 |
+| one 503, then success | ok | 30/30 | 2.0 | 0.20 | 0.30 |
+| two 503s, then success | ok | 30/30 | 3.0 | 0.64 | 0.85 |
+| three 503s (more than the retries) | unavailable | 30/30 | 3.0 | 0.61 | 0.89 |
+| 429 with Retry-After 1 s | ok | 30/30 | 2.0 | 1.00 | 1.01 |
+| malformed body once | ok | 30/30 | 2.0 | 0.20 | 0.30 |
+| hang 4 s (longer than the read timeout) | timeout | 30/30 | 2.0 | 5.00 | 5.00 |
+| unknown order id | not_found | 30/30 | 1.0 | 0.00 | 0.00 |
+| reschedule, one 503 then success | ok | 30/30 | 2.0 | 0.24 | 0.30 |
+| reschedule a delivered order | rejected | 30/30 | 1.0 | 0.00 | 0.00 |
+
 ## End-to-end latency
 
 CPU: 11th Gen Intel(R) Core(TM) i5-11300H @ 3.10GHz (6 logical CPUs visible in WSL2), STT on 4 threads. LLM: gemini-3.5-flash-lite (56 turns), live calls, cache off. 56 turns (2 rounds over 28 prompts), 56 without errors. Audio fed in real time; speculative STT on. Machine load average during turns: median 2.3, p95 4.0 (other jobs share this machine). Peak RSS of the whole process: 1095 MB.

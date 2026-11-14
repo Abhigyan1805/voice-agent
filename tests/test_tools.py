@@ -57,7 +57,39 @@ def test_call_tool_dispatch_and_errors():
     assert call_tool("search_knowledge", {"query": "112"})["results"]
 
 
-def test_declarations_cover_every_tool():
-    names = set(TOOLS)
-    assert {d["name"] for d in gemini_declarations()} == names
-    assert {t["function"]["name"] for t in openai_tools()} == names
+def test_declarations_cover_every_tool(monkeypatch):
+    monkeypatch.delenv("VOICE_AGENT_ORDERS_URL", raising=False)
+    base = {n for n, t in TOOLS.items() if not t.orders}
+    assert base == {"calculator", "get_datetime", "search_knowledge"}
+    assert {d["name"] for d in gemini_declarations()} == base
+    assert {t["function"]["name"] for t in openai_tools()} == base
+    monkeypatch.setenv("VOICE_AGENT_ORDERS_URL", "http://127.0.0.1:1")
+    assert {d["name"] for d in gemini_declarations()} == set(TOOLS)
+    assert {t["function"]["name"] for t in openai_tools()} == set(TOOLS)
+
+
+def test_order_tools_disabled_without_service(monkeypatch):
+    from voice_agent.tools import call_tool
+
+    monkeypatch.delenv("VOICE_AGENT_ORDERS_URL", raising=False)
+    assert "unknown tool" in call_tool("get_order_status", {"order_id": "48213"})["error"]
+
+
+def test_order_tools_against_local_service(monkeypatch):
+    from datetime import timedelta
+
+    from voice_agent.demo_service import ServiceThread, today
+    from voice_agent.llm import _run_tool
+
+    with ServiceThread() as svc:
+        monkeypatch.setenv("VOICE_AGENT_ORDERS_URL", svc.url)
+        ev = _run_tool("get_order_status", {"order_id": "४८२१३"})  # Devanagari digits normalised
+        assert ev.result["status"] == "shipped" and ev.meta["attempts"] == 1 and "_meta" not in ev.result
+        assert _run_tool("get_order_status", {"order_id": "4821"}).result["error"] == "rejected"  # no HTTP call
+        assert _run_tool("get_order_status", {"order_id": "11111"}).result["error"] == "not_found"
+        phone = _run_tool("find_orders_by_phone", {"phone": "+91 98765 43210"}).result
+        assert [o["order_id"] for o in phone["orders"]] == ["48213", "51177"]
+        new = (today() + timedelta(days=8)).isoformat()
+        r = _run_tool("reschedule_delivery", {"order_id": "48213", "date": new}).result
+        assert r["expected_delivery"] == new and svc.store.writes == 1
+        assert _run_tool("reschedule_delivery", {"order_id": "51177", "date": new}).result["error"] == "rejected"

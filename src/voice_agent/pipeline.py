@@ -19,7 +19,8 @@ from typing import Any, Iterator
 
 import numpy as np
 
-from .llm import TextDelta, ToolEvent
+from . import tools as toolbox
+from .llm import TextDelta, ToolEvent, ToolStart
 from .text import SentenceStreamer
 
 
@@ -39,6 +40,7 @@ class ToolUse:
     name: str
     args: dict
     result: dict
+    meta: dict | None = None
 
 
 @dataclass
@@ -130,7 +132,7 @@ class TurnDone:
 
 Event = Transcript | Token | ToolUse | SpeechAudio | TurnDone
 
-_SENTENCE, _TOKEN, _TOOL, _END, _ERROR = range(5)
+_SENTENCE, _TOKEN, _TOOL, _END, _ERROR, _TOOL_START = range(6)
 
 
 class VoicePipeline:
@@ -146,8 +148,9 @@ class VoicePipeline:
         self.stt, self.agent, self.tts = stt, agent, tts
         self.stt_language = stt_language
         self.streamer_kw = streamer_kw or {}
-        # Speak a short "one moment" while a tool round-trip is in flight. Off by default so the
-        # headline time-to-first-audio is always time to the first words of the actual answer.
+        # Speak a short "one moment" while a tool round-trip is in flight. Off by default for the
+        # local tools so the headline time-to-first-audio is time to the first words of the actual
+        # answer; always on for tools marked slow (network calls that can take seconds).
         self.filler = filler
 
     def run_turn(
@@ -192,7 +195,9 @@ class VoicePipeline:
                 for ev in self.agent.respond(text, cancel):
                     if cancel.is_set():
                         break
-                    if isinstance(ev, ToolEvent):
+                    if isinstance(ev, ToolStart):
+                        q.put((_TOOL_START, ev.name, time.perf_counter()))
+                    elif isinstance(ev, ToolEvent):
                         q.put((_TOOL, ev, time.perf_counter()))
                     elif isinstance(ev, TextDelta):
                         q.put((_TOKEN, ev.text, time.perf_counter()))
@@ -226,10 +231,18 @@ class VoicePipeline:
                 m.error = payload
                 payload = "माफ़ कीजिए, अभी जवाब नहीं मिल पाया।" if _is_hindi(text) else "Sorry, I could not get an answer."
                 kind = _SENTENCE
-            if kind == _TOOL:
+            if kind == _TOOL_START:
+                tool = toolbox.TOOLS.get(payload)
+                slow = bool(tool and tool.slow)
+                if (self.filler or slow) and index == 0 and m.time_to_filler_audio_s is None:
+                    phrase = "एक सेकंड।" if _is_hindi(text) else "One moment."
+                    wav = self.tts.synthesize(phrase)
+                    m.time_to_filler_audio_s = time.perf_counter() - t0
+                    yield SpeechAudio(-1, phrase, self.tts.voice_for(phrase), wav, self.tts.sample_rate)
+            elif kind == _TOOL:
                 m.tools.append(payload.name)
-                yield ToolUse(payload.name, payload.args, payload.result)
-                if self.filler and index == 0 and m.time_to_filler_audio_s is None:
+                yield ToolUse(payload.name, payload.args, payload.result, payload.meta)
+                if self.filler and index == 0 and m.time_to_filler_audio_s is None:  # client without ToolStart
                     phrase = "एक सेकंड।" if _is_hindi(text) else "One moment."
                     wav = self.tts.synthesize(phrase)
                     m.time_to_filler_audio_s = time.perf_counter() - t0

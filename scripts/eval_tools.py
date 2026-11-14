@@ -148,7 +148,7 @@ def main() -> None:
     for version in args.versions.split(","):
         system = SYSTEM_PROMPT_V1 if version == "v1" else SYSTEM_PROMPT
         for n, t in toolbox.TOOLS.items():
-            t.description = V1_DESCRIPTIONS[n] if version == "v1" else current[n]
+            t.description = V1_DESCRIPTIONS.get(n, current[n]) if version == "v1" else current[n]
         jobs = [(rep, it) for rep in range(args.reps) for it in items]
         with ThreadPoolExecutor(args.workers) as pool:
             outs = list(pool.map(lambda j: run_one(args.provider, args.model, system, j[1]), jobs))

@@ -1,0 +1,14 @@
+[
+  {"order_id": "48213", "phone": "9876543210", "customer": "Asha", "item": "pressure cooker", "status": "shipped", "delivery_offset_days": 2},
+  {"order_id": "51177", "phone": "9876543210", "customer": "Asha", "item": "ceiling fan", "status": "delivered", "delivery_offset_days": -3},
+  {"order_id": "36540", "phone": "9123456780", "customer": "Rahul", "item": "school bag", "status": "out_for_delivery", "delivery_offset_days": 0},
+  {"order_id": "72905", "phone": "9123456780", "customer": "Rahul", "item": "cricket bat", "status": "placed", "delivery_offset_days": 5},
+  {"order_id": "60318", "phone": "9988776655", "customer": "Meena", "item": "mixer grinder", "status": "shipped", "delivery_offset_days": 3},
+  {"order_id": "25864", "phone": "9988776655", "customer": "Meena", "item": "saree", "status": "cancelled", "delivery_offset_days": 1},
+  {"order_id": "83412", "phone": "9001122334", "customer": "Imran", "item": "headphones", "status": "placed", "delivery_offset_days": 6},
+  {"order_id": "19076", "phone": "9001122334", "customer": "Imran", "item": "phone charger", "status": "delivered", "delivery_offset_days": -1},
+  {"order_id": "44729", "phone": "9876501234", "customer": "Priya", "item": "water bottle", "status": "shipped", "delivery_offset_days": 1},
+  {"order_id": "90251", "phone": "9876501234", "customer": "Priya", "item": "yoga mat", "status": "placed", "delivery_offset_days": 4},
+  {"order_id": "57683", "phone": "9345678901", "customer": "Vikram", "item": "table lamp", "status": "out_for_delivery", "delivery_offset_days": 0},
+  {"order_id": "68340", "phone": "9345678901", "customer": "Vikram", "item": "wall clock", "status": "shipped", "delivery_offset_days": 2}
+]

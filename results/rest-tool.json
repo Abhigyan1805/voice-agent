@@ -1,0 +1,161 @@
+{
+ "service": "local stand-in order service (src/voice_agent/demo_service.py) over HTTP on 127.0.0.1",
+ "client": {
+  "connect_timeout_s": 1.0,
+  "read_timeout_s": 2.5,
+  "budget_s": 5.0,
+  "max_retries": 2,
+  "backoff_s": 0.2
+ },
+ "calls_per_mode": 30,
+ "total": {
+  "correct": 330,
+  "calls": 330,
+  "within_budget": 330
+ },
+ "modes": {
+  "none": {
+   "expected": "ok",
+   "correct": 30,
+   "calls": 30,
+   "attempts_mean": 1.0,
+   "seconds_p50": 0.001,
+   "seconds_p95": 0.001,
+   "seconds_max": 0.002,
+   "within_budget": 30,
+   "outcomes": {
+    "ok": 30
+   }
+  },
+  "latency 300 ms": {
+   "expected": "ok",
+   "correct": 30,
+   "calls": 30,
+   "attempts_mean": 1.0,
+   "seconds_p50": 0.302,
+   "seconds_p95": 0.303,
+   "seconds_max": 0.305,
+   "within_budget": 30,
+   "outcomes": {
+    "ok": 30
+   }
+  },
+  "one 503, then success": {
+   "expected": "ok",
+   "correct": 30,
+   "calls": 30,
+   "attempts_mean": 2.0,
+   "seconds_p50": 0.197,
+   "seconds_p95": 0.291,
+   "seconds_max": 0.3,
+   "within_budget": 30,
+   "outcomes": {
+    "ok": 30
+   }
+  },
+  "two 503s, then success": {
+   "expected": "ok",
+   "correct": 30,
+   "calls": 30,
+   "attempts_mean": 3.0,
+   "seconds_p50": 0.637,
+   "seconds_p95": 0.823,
+   "seconds_max": 0.854,
+   "within_budget": 30,
+   "outcomes": {
+    "ok": 30
+   }
+  },
+  "three 503s (more than the retries)": {
+   "expected": "unavailable",
+   "correct": 30,
+   "calls": 30,
+   "attempts_mean": 3.0,
+   "seconds_p50": 0.614,
+   "seconds_p95": 0.829,
+   "seconds_max": 0.891,
+   "within_budget": 30,
+   "outcomes": {
+    "unavailable": 30
+   }
+  },
+  "429 with Retry-After 1 s": {
+   "expected": "ok",
+   "correct": 30,
+   "calls": 30,
+   "attempts_mean": 2.0,
+   "seconds_p50": 1.003,
+   "seconds_p95": 1.007,
+   "seconds_max": 1.008,
+   "within_budget": 30,
+   "outcomes": {
+    "ok": 30
+   }
+  },
+  "malformed body once": {
+   "expected": "ok",
+   "correct": 30,
+   "calls": 30,
+   "attempts_mean": 2.0,
+   "seconds_p50": 0.201,
+   "seconds_p95": 0.296,
+   "seconds_max": 0.302,
+   "within_budget": 30,
+   "outcomes": {
+    "ok": 30
+   }
+  },
+  "hang 4 s (longer than the read timeout)": {
+   "expected": "timeout",
+   "correct": 30,
+   "calls": 30,
+   "attempts_mean": 2.0,
+   "seconds_p50": 5.004,
+   "seconds_p95": 5.005,
+   "seconds_max": 5.005,
+   "within_budget": 30,
+   "outcomes": {
+    "timeout": 30
+   }
+  },
+  "unknown order id": {
+   "expected": "not_found",
+   "correct": 30,
+   "calls": 30,
+   "attempts_mean": 1.0,
+   "seconds_p50": 0.001,
+   "seconds_p95": 0.001,
+   "seconds_max": 0.001,
+   "within_budget": 30,
+   "outcomes": {
+    "not_found": 30
+   }
+  },
+  "reschedule, one 503 then success": {
+   "expected": "ok",
+   "correct": 30,
+   "calls": 30,
+   "attempts_mean": 2.0,
+   "seconds_p50": 0.242,
+   "seconds_p95": 0.29,
+   "seconds_max": 0.296,
+   "within_budget": 30,
+   "outcomes": {
+    "ok": 30
+   }
+  },
+  "reschedule a delivered order": {
+   "expected": "rejected",
+   "correct": 30,
+   "calls": 30,
+   "attempts_mean": 1.0,
+   "seconds_p50": 0.001,
+   "seconds_p95": 0.001,
+   "seconds_max": 0.001,
+   "within_budget": 30,
+   "outcomes": {
+    "rejected": 30
+   }
+  }
+ }
+}
