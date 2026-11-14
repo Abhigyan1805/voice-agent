@@ -115,6 +115,38 @@ v2 on the spoken-benchmark transcripts alone: tool used when needed 31/33, unnec
 | reschedule, one 503 then success | ok | 30/30 | 2.0 | 0.24 | 0.30 |
 | reschedule a delivered order | rejected | 30/30 | 1.0 | 0.00 | 0.00 |
 
+### Call quality: scripted multi-turn calls
+
+`scripts/eval_calls.py`: 12 scripted calls (29 caller turns) with the order tools on, each run 3 times. Spoken track: the callers' recorded audio (synthetic Piper voices) through VAD, STT, the LLM (deepseek-flash, thinking off) with tools, and TTS. Oracle track: the same calls with the reference text given to the LLM directly. A call passes when every turn passes every check and the order service ends in the expected state. Each failed spoken call is attributed to the stage that caused its first failing turn (rules below the block).
+
+| Prompt | Calls passed, spoken | Calls passed, oracle text | Spoken, tuning calls | Spoken, held-out calls | Turns passed, spoken | Tool calls correct, spoken / oracle | Failures by stage (spoken) |
+|---|---:|---:|---:|---:|---:|---:|---|
+| v1 | **5/36** | 25/36 | 5/24 | 0/12 | 42/87 | 28/48 / 47/48 | llm 9, stt 21, tts 1 |
+| v2 | **8/36** | 31/36 | 6/24 | 2/12 | 47/87 | 27/48 / 48/48 | llm 2, stt 26 |
+| v3 | **10/36** | 32/36 | 6/24 | 4/12 | 50/87 | 28/48 / 47/48 | llm 3, stt 23 |
+
+Latest prompt (v3): per-turn WER median 25.0 % (mean 28.1 %, 24 of 87 turns error-free; digits counted one per token whether spoken as words or written as numbers). Order ids and phone numbers recognised exactly: 18/36 turns. LLM tokens for the run: 528733 prompt, 13976 completion.
+
+| Call | Language | Held out | Passed, spoken | Passed, oracle |
+|---|---|---|---:|---:|
+| `c01-status-hi` | hi |  | 3/3 | 3/3 |
+| `c02-status-en` | en |  | 3/3 | 3/3 |
+| `c03-unknown-id` | hi | yes | 0/3 | 3/3 |
+| `c04-reschedule-hx` | hinglish |  | 0/3 | 2/3 |
+| `c05-delivered-en` | en |  | 0/3 | 3/3 |
+| `c06-caller-declines` | hi | yes | 0/3 | 3/3 |
+| `c07-retries-en` | en |  | 0/3 | 3/3 |
+| `c08-service-hangs` | hi |  | 0/3 | 3/3 |
+| `c09-phone-lookup` | en | yes | 1/3 | 0/3 |
+| `c10-discount-maths` | hinglish |  | 0/3 | 3/3 |
+| `c11-helpline-midcall` | hi |  | 0/3 | 3/3 |
+| `c12-scope-and-switch` | hi+en | yes | 3/3 | 3/3 |
+
+Worked failure examples (first failing turn of a call, one per stage, from the latest run):
+
+- **stt** (`c03-unknown-id`, turn 2): caller said "माफ़ कीजिए, सही नंबर है सात दो नौ शून्य पाँच।"; recogniser heard "माफ़ किजे! सही नंबर है साथ दो नौश्य उन्य पाथ्स!"; tools: get_order_status(order_id=72959) -> not_found; reply "माफ़ कीजिए, 72959 भी सिस्टम में नहीं मिला। क्या आप अपना 10 अंकों का फ़ोन नंबर बता सकते हैं, मैं उससे ऑर्डर ढू…". Failed check: tools, reply_any.
+- **llm** (`c04-reschedule-hx`, turn 2): caller said "उसे बीस नवंबर को कर दो।"; recogniser heard "उसे 20 नवंबर को कर दो।"; tools: get_order_status(order_id=48813) -> not_found; reply "48813 नंबर से अभी भी कोई ऑर्डर नहीं मिल रहा, इसलिए मैं तारीख़ नहीं बदल सकता। आप अपना 10 अंकों का फ़ोन नंबर बत…". Failed check: reply_any.
+
 <!-- results:end -->
 
 Laptop CPU (Intel i5-11300H, 4 STT threads, WSL2, shared with other jobs). LLM: `gemini-3.5-flash-lite` on the free tier, live calls, cache off. Latency comes from 56 turns: 20 spoken question prompts and 8 real FLEURS sentences, two rounds each, with the audio fed in real time. Source: [results/RESULTS.md](results/RESULTS.md), generated from the JSON files next to it.
@@ -210,6 +242,24 @@ Round trip: fixed sentences are synthesised, transcribed by the agent's own reco
 | STT-only WER evaluation | 763 MB |
 
 The arena fix: with ONNX Runtime's default CPU memory arena, each new sentence length grew Piper's cached buffers. Synthesising the benchmark's 90 reply sentences took the two voices from 250 MB to 905 MB resident. With the arena off they settle at 347 MB, at the same speed.
+
+## Call-quality suite
+
+`evals/calls/calls.json` holds 12 scripted calls to the order desk, in Hindi, English and Hinglish: order status, an unknown order id, a reschedule with read-back and confirmation, a reschedule the service refuses (already delivered), a caller who says no at the confirmation, a service that fails twice before answering, a service that hangs, a lookup by phone number, a discount calculation mid-call, a helpline question mid-call, and an out-of-scope request followed by a switch to English. Each caller turn is recorded once with a Piper voice (`scripts/make_call_audio.py`), so the callers are synthetic. Every turn is checked for the tool calls it must (or must not) make, with order ids and phone numbers compared as digits; for facts the reply must contain (a status word, the delivery day, `1930`, `1020`); for things it must not say (an invented status while the service is down); and for the reply language. Call-level checks look at the order service afterwards (was the date changed, or left alone) and for facts that may come in any turn.
+
+`scripts/eval_calls.py` runs each call twice: spoken (recorded audio through VAD, speech recognition, LLM with tools, TTS) and as oracle text (the reference text straight to the LLM). Comparing the two is what lets it say which stage broke a call. The first failing turn of a spoken call is attributed by these rules, in order; later failures in the same call are marked as cascade:
+
+1. **tool**: the turn's tool calls were right, but the service or client failed in a way the script did not plan for (timeout or unavailable with no injected fault), or the client broke its time budget.
+2. **vad**: the VAD found no speech in the turn, or split it into several turns.
+3. **tts** (suspect): the reply text passed every check, but a required number or date was lost when the spoken reply was transcribed back by the agent's own recogniser. Recogniser errors are in that loop too, so this is a suspicion, not proof.
+4. **stt**: the turn failed spoken but passed as oracle text.
+5. **llm**: the turn failed as oracle text too.
+
+A call whose turns all pass but whose final state is wrong counts as **llm** if the oracle call also ended wrong, else **stt**. The rules are heuristics; every turn's transcript, reply, tool calls with HTTP attempts, checks and stage times are in `results/calls-clean-v*.json`.
+
+**Prompt tuning, with held-out calls.** Four calls (`c03`, `c06`, `c09`, `c12`) were held out: prompt changes were made by reading failures of the other eight only, at most twice, and every version's run is kept (`results/calls-clean-v1.json` to `-v3.json`, prompt diffs in `results/prompt-v1-to-v2.diff` and `results/prompt-v2-to-v3.diff`). v2 made the agent look the order up before a reschedule, forbade calling `reschedule_delivery` in the same turn as the request, required a spoken reply after every tool result, and asked for the reply in the language of the caller's latest turn. v3 added that a date given with the request is not a confirmation, and that a short English "yes" or "thank you" is English. The language rule came from a tuning call (`c05`), though it also bears on the held-out language-switch call `c12`.
+
+Check fixes after the first run, applied to every version by re-scoring the stored results (`eval_calls.py --rescore`): `c05` required the word "delivered" in the second turn, but a correct agent says so in the first turn as soon as it looks the order up; that check moved to call level. No other script or check changed after the first run. Per-turn WER writes digits one per token on both sides, because the scripts spell order ids as words ("चार आठ दो") while the recogniser writes digits.
 
 ## Design decisions
 

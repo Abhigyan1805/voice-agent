@@ -69,6 +69,38 @@ v2 on the spoken-benchmark transcripts alone: tool used when needed 31/33, unnec
 | reschedule, one 503 then success | ok | 30/30 | 2.0 | 0.24 | 0.30 |
 | reschedule a delivered order | rejected | 30/30 | 1.0 | 0.00 | 0.00 |
 
+### Call quality: scripted multi-turn calls
+
+`scripts/eval_calls.py`: 12 scripted calls (29 caller turns) with the order tools on, each run 3 times. Spoken track: the callers' recorded audio (synthetic Piper voices) through VAD, STT, the LLM (deepseek-flash, thinking off) with tools, and TTS. Oracle track: the same calls with the reference text given to the LLM directly. A call passes when every turn passes every check and the order service ends in the expected state. Each failed spoken call is attributed to the stage that caused its first failing turn (rules below the block).
+
+| Prompt | Calls passed, spoken | Calls passed, oracle text | Spoken, tuning calls | Spoken, held-out calls | Turns passed, spoken | Tool calls correct, spoken / oracle | Failures by stage (spoken) |
+|---|---:|---:|---:|---:|---:|---:|---|
+| v1 | **5/36** | 25/36 | 5/24 | 0/12 | 42/87 | 28/48 / 47/48 | llm 9, stt 21, tts 1 |
+| v2 | **8/36** | 31/36 | 6/24 | 2/12 | 47/87 | 27/48 / 48/48 | llm 2, stt 26 |
+| v3 | **10/36** | 32/36 | 6/24 | 4/12 | 50/87 | 28/48 / 47/48 | llm 3, stt 23 |
+
+Latest prompt (v3): per-turn WER median 25.0 % (mean 28.1 %, 24 of 87 turns error-free; digits counted one per token whether spoken as words or written as numbers). Order ids and phone numbers recognised exactly: 18/36 turns. LLM tokens for the run: 528733 prompt, 13976 completion.
+
+| Call | Language | Held out | Passed, spoken | Passed, oracle |
+|---|---|---|---:|---:|
+| `c01-status-hi` | hi |  | 3/3 | 3/3 |
+| `c02-status-en` | en |  | 3/3 | 3/3 |
+| `c03-unknown-id` | hi | yes | 0/3 | 3/3 |
+| `c04-reschedule-hx` | hinglish |  | 0/3 | 2/3 |
+| `c05-delivered-en` | en |  | 0/3 | 3/3 |
+| `c06-caller-declines` | hi | yes | 0/3 | 3/3 |
+| `c07-retries-en` | en |  | 0/3 | 3/3 |
+| `c08-service-hangs` | hi |  | 0/3 | 3/3 |
+| `c09-phone-lookup` | en | yes | 1/3 | 0/3 |
+| `c10-discount-maths` | hinglish |  | 0/3 | 3/3 |
+| `c11-helpline-midcall` | hi |  | 0/3 | 3/3 |
+| `c12-scope-and-switch` | hi+en | yes | 3/3 | 3/3 |
+
+Worked failure examples (first failing turn of a call, one per stage, from the latest run):
+
+- **stt** (`c03-unknown-id`, turn 2): caller said "माफ़ कीजिए, सही नंबर है सात दो नौ शून्य पाँच।"; recogniser heard "माफ़ किजे! सही नंबर है साथ दो नौश्य उन्य पाथ्स!"; tools: get_order_status(order_id=72959) -> not_found; reply "माफ़ कीजिए, 72959 भी सिस्टम में नहीं मिला। क्या आप अपना 10 अंकों का फ़ोन नंबर बता सकते हैं, मैं उससे ऑर्डर ढू…". Failed check: tools, reply_any.
+- **llm** (`c04-reschedule-hx`, turn 2): caller said "उसे बीस नवंबर को कर दो।"; recogniser heard "उसे 20 नवंबर को कर दो।"; tools: get_order_status(order_id=48813) -> not_found; reply "48813 नंबर से अभी भी कोई ऑर्डर नहीं मिल रहा, इसलिए मैं तारीख़ नहीं बदल सकता। आप अपना 10 अंकों का फ़ोन नंबर बत…". Failed check: reply_any.
+
 ## End-to-end latency
 
 CPU: 11th Gen Intel(R) Core(TM) i5-11300H @ 3.10GHz (6 logical CPUs visible in WSL2), STT on 4 threads. LLM: gemini-3.5-flash-lite (56 turns), live calls, cache off. 56 turns (2 rounds over 28 prompts), 56 without errors. Audio fed in real time; speculative STT on. Machine load average during turns: median 2.3, p95 4.0 (other jobs share this machine). Peak RSS of the whole process: 1095 MB.
