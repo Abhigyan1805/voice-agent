@@ -1,0 +1,12 @@
+{
+ "about": "Audio conditions for the phone-robustness evaluation; implemented in src/voice_agent/degrade.py. Noise is added at the caller's side, before the channel.",
+ "conditions": {
+  "clean": "no change",
+  "tel": "300-3400 Hz band-pass, 8 kHz, G.711 mu-law, back to 16 kHz",
+  "tel+opus8": "tel, then Opus at 8 kbit/s narrowband (stand-in for a low-bitrate mobile codec; no GSM/AMR encoder available)",
+  "tel+babble15": "babble from 6 FLEURS speakers outside the evaluation slice at 15 dB SNR, then tel",
+  "tel+babble5": "babble at 5 dB SNR, then tel",
+  "tel+white10": "white noise at 10 dB SNR, then tel",
+  "tel+loss5": "tel, then 5 % of 20 ms frames zeroed (packet loss without concealment)"
+ }
+}

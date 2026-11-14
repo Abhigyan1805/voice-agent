@@ -147,6 +147,28 @@ Worked failure examples (first failing turn of a call, one per stage, from the l
 - **stt** (`c03-unknown-id`, turn 2): caller said "माफ़ कीजिए, सही नंबर है सात दो नौ शून्य पाँच।"; recogniser heard "माफ़ किजे! सही नंबर है साथ दो नौश्य उन्य पाथ्स!"; tools: get_order_status(order_id=72959) -> not_found; reply "माफ़ कीजिए, 72959 भी सिस्टम में नहीं मिला। क्या आप अपना 10 अंकों का फ़ोन नंबर बता सकते हैं, मैं उससे ऑर्डर ढू…". Failed check: tools, reply_any.
 - **llm** (`c04-reschedule-hx`, turn 2): caller said "उसे बीस नवंबर को कर दो।"; recogniser heard "उसे 20 नवंबर को कर दो।"; tools: get_order_status(order_id=48813) -> not_found; reply "48813 नंबर से अभी भी कोई ऑर्डर नहीं मिल रहा, इसलिए मैं तारीख़ नहीं बदल सकता। आप अपना 10 अंकों का फ़ोन नंबर बत…". Failed check: reply_any.
 
+### Phone audio: simulated telephone channel
+
+`scripts/eval_wer.py --conditions`: the same 100 FLEURS clips passed through a simulated channel (`src/voice_agent/degrade.py`): `tel` = 300-3400 Hz band-pass, 8 kHz, G.711 mu-law, back to 16 kHz; `opus8` = Opus at 8 kbit/s narrowband after that (no GSM/AMR encoder is available here); `babbleN` / `whiteN` = babble from 6 other FLEURS speakers or white noise at N dB SNR, added before the channel; `loss5` = 5 % of 20 ms frames dropped without concealment. Agent decoding (short window, language ID).
+
+| Condition | WER | CER | Latency p50 | Fallbacks to 30 s | Clips with no speech found / split by the VAD | Detected as English |
+|---|---:|---:|---:|---:|---:|---:|
+| clean | 27.61 % | 11.76 % | 2.71 s | 4 | 0 / 15 | 0 |
+| tel | 32.82 % | 14.91 % | 2.69 s | 1 | 1 / 21 | 0 |
+| tel+opus8 | 38.66 % | 18.43 % | 2.55 s | 2 | 1 / 28 | 1 |
+| tel+babble15 | 40.47 % | 19.72 % | 2.74 s | 2 | 1 / 19 | 0 |
+| tel+babble5 | 74.79 % | 48.39 % | 2.57 s | 3 | 1 / 7 | 1 |
+| tel+white10 | 54.16 % | 28.11 % | 2.66 s | 1 | 1 / 21 | 0 |
+| tel+loss5 | 34.71 % | 15.76 % | 2.88 s | 1 | 0 / 29 | 0 |
+
+Call suite on the same channel (spoken track; the oracle-text track does not depend on audio and is reused from the clean run):
+
+| Audio | Calls passed, spoken | Turns passed | Tool calls correct | Per-turn WER median | Order/phone digits heard | Failures by stage |
+|---|---:|---:|---:|---:|---:|---|
+| clean | **10/36** | 50/87 | 28/48 | 25.0 % | 18/36 | llm 3, stt 23 |
+| tel | **13/36** | 56/87 | 33/48 | 25.0 % | 18/36 | llm 2, stt 20, tts 1 |
+| tel-babble15 | **9/36** | 47/87 | 29/48 | 40.0 % | 12/36 | llm 3, stt 23, vad 1 |
+
 <!-- results:end -->
 
 Laptop CPU (Intel i5-11300H, 4 STT threads, WSL2, shared with other jobs). LLM: `gemini-3.5-flash-lite` on the free tier, live calls, cache off. Latency comes from 56 turns: 20 spoken question prompts and 8 real FLEURS sentences, two rounds each, with the audio fed in real time. Source: [results/RESULTS.md](results/RESULTS.md), generated from the JSON files next to it.
@@ -260,6 +282,14 @@ A call whose turns all pass but whose final state is wrong counts as **llm** if 
 **Prompt tuning, with held-out calls.** Four calls (`c03`, `c06`, `c09`, `c12`) were held out: prompt changes were made by reading failures of the other eight only, at most twice, and every version's run is kept (`results/calls-clean-v1.json` to `-v3.json`, prompt diffs in `results/prompt-v1-to-v2.diff` and `results/prompt-v2-to-v3.diff`). v2 made the agent look the order up before a reschedule, forbade calling `reschedule_delivery` in the same turn as the request, required a spoken reply after every tool result, and asked for the reply in the language of the caller's latest turn. v3 added that a date given with the request is not a confirmation, and that a short English "yes" or "thank you" is English. The language rule came from a tuning call (`c05`), though it also bears on the held-out language-switch call `c12`.
 
 Check fixes after the first run, applied to every version by re-scoring the stored results (`eval_calls.py --rescore`): `c05` required the word "delivered" in the second turn, but a correct agent says so in the first turn as soon as it looks the order up; that check moved to call level. No other script or check changed after the first run. Per-turn WER writes digits one per token on both sides, because the scripts spell order ids as words ("चार आठ दो") while the recogniser writes digits.
+
+## Phone audio
+
+A phone call reaches an agent as 8 kHz narrowband audio, compressed and often noisy. `src/voice_agent/degrade.py` simulates that channel on recorded audio, deterministically: a 300-3400 Hz band-pass (windowed-sinc FIR in numpy), anti-aliased decimation to 8 kHz, G.711 mu-law encoding, and back to 16 kHz for the recogniser; optionally Opus at 8 kbit/s through PyAV as a low-bitrate codec (this PyAV build has no GSM or AMR encoder), babble noise mixed from six FLEURS speakers outside every evaluation slice or white noise at a set SNR (measured over the frames the VAD scores as speech, and added before the channel, at the caller's side), and dropped 20 ms frames without concealment. The same 100 FLEURS clips and the same 12 scripted calls are then scored under each condition (tables in the results block).
+
+Reading the call-suite rows: the telephone-channel run passed more calls than the clean run. That is not a sign that phone audio helps; with 36 calls, a live LLM and recogniser errors that move from run to run, a gap of a few calls is noise. The FLEURS WER rows, on 100 clips with no LLM in the loop, are the steadier measure of what the channel costs.
+
+What this does not show: the channel is simulated, the noise is synthetic, and the speech underneath is clean read speech or synthetic callers. `voice-agent serve` has no telephony front end; these numbers come from degrading recordings, not from real calls.
 
 ## Design decisions
 

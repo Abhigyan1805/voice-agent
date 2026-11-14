@@ -12,6 +12,9 @@ Decoding settings are scored with the same model and clips, named ``<window>/<la
             auto       one encoder pass, Hindi-vs-English language ID, then decode (the agent)
 
     python scripts/eval_wer.py                 # writes results/wer-150-250.json
+    python scripts/eval_wer.py --conditions clean,tel,tel+babble15 --out results/wer-robust.json
+        # simulated phone audio (src/voice_agent/degrade.py), agent decoding (short/auto) per condition;
+        # also counts clips where the VAD found no speech or split the clip
     python scripts/eval_wer.py --start 0 --stop 150   # the fine-tuning repo's CPU subset, for comparison
 """
 
@@ -44,6 +47,18 @@ def score(refs, hyps):
     return {"wer": round(100 * jiwer.wer(r, h), 2), "cer": round(100 * jiwer.cer(r, h), 2)}
 
 
+def vad_check(audios) -> dict:
+    """Run each clip (padded 0.5 s / 1.5 s) through the agent's VAD: no speech found, or split in several turns."""
+    from voice_agent.vad import SileroScorer, SpeechEnd, segment
+
+    scorer = SileroScorer()
+    counts = []
+    for a in audios:
+        padded = np.concatenate([np.zeros(8000, np.float32), a, np.zeros(24_000, np.float32)])
+        counts.append(sum(isinstance(e, SpeechEnd) for e in segment(padded, scorer)))
+    return {"no_speech": sum(n == 0 for n in counts), "split": sum(n > 1 for n in counts)}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--start", type=int, default=150)
@@ -52,6 +67,7 @@ def main() -> None:
     ap.add_argument("--out", default=None)
     ap.add_argument("--modes", default="30s/forced-hi,30s/auto,short/auto")
     ap.add_argument("--pad-s", type=float, default=None, help="short-window padding (default: Settings)")
+    ap.add_argument("--conditions", default=None, help="comma-separated audio conditions; decoding short/auto")
     args = ap.parse_args()
 
     clips = load_clips(args.start, args.stop)
@@ -61,13 +77,24 @@ def main() -> None:
     stt.transcribe(clips[0].audio)  # warm-up
     results = {}
     rows = [{"uid": c.uid, "ref": c.text, "duration_s": round(c.duration, 2)} for c in clips]
-    for mode in args.modes.split(","):
-        window, language = mode.split("/")
+    modes = [f"{c}" for c in args.conditions.split(",")] if args.conditions else args.modes.split(",")
+    for mode in modes:
+        audios = [c.audio for c in clips]
+        vad_stats = None
+        if args.conditions:
+            from voice_agent.degrade import make_condition
+
+            cond = make_condition(mode)
+            audios = [cond(a) for a in audios]
+            window, language = "short", "auto"
+            vad_stats = vad_check(audios)
+        else:
+            window, language = mode.split("/")
         stt.pad_s = 0.0 if window == "30s" else pad_s
         lat, hyps, langs, fallbacks, limit_hits = [], [], [], 0, 0
-        for c, row in zip(clips, rows):
+        for c, row, audio in zip(clips, rows, audios):
             t = time.perf_counter()
-            hyp = stt.transcribe(c.audio, language="hi" if language == "forced-hi" else "auto")
+            hyp = stt.transcribe(audio, language="hi" if language == "forced-hi" else "auto")
             lat.append(time.perf_counter() - t)
             hyps.append(hyp)
             langs.append(stt.last_language)
@@ -86,6 +113,7 @@ def main() -> None:
             "detected_english": sum(l == "en" for l in langs),
             "fallbacks_to_30s": fallbacks,
             "hit_token_limit": limit_hits,
+            **({"vad": vad_stats} if vad_stats else {}),
         }
         print(mode, results[mode], flush=True)
 

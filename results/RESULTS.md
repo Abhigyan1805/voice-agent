@@ -101,6 +101,28 @@ Worked failure examples (first failing turn of a call, one per stage, from the l
 - **stt** (`c03-unknown-id`, turn 2): caller said "माफ़ कीजिए, सही नंबर है सात दो नौ शून्य पाँच।"; recogniser heard "माफ़ किजे! सही नंबर है साथ दो नौश्य उन्य पाथ्स!"; tools: get_order_status(order_id=72959) -> not_found; reply "माफ़ कीजिए, 72959 भी सिस्टम में नहीं मिला। क्या आप अपना 10 अंकों का फ़ोन नंबर बता सकते हैं, मैं उससे ऑर्डर ढू…". Failed check: tools, reply_any.
 - **llm** (`c04-reschedule-hx`, turn 2): caller said "उसे बीस नवंबर को कर दो।"; recogniser heard "उसे 20 नवंबर को कर दो।"; tools: get_order_status(order_id=48813) -> not_found; reply "48813 नंबर से अभी भी कोई ऑर्डर नहीं मिल रहा, इसलिए मैं तारीख़ नहीं बदल सकता। आप अपना 10 अंकों का फ़ोन नंबर बत…". Failed check: reply_any.
 
+### Phone audio: simulated telephone channel
+
+`scripts/eval_wer.py --conditions`: the same 100 FLEURS clips passed through a simulated channel (`src/voice_agent/degrade.py`): `tel` = 300-3400 Hz band-pass, 8 kHz, G.711 mu-law, back to 16 kHz; `opus8` = Opus at 8 kbit/s narrowband after that (no GSM/AMR encoder is available here); `babbleN` / `whiteN` = babble from 6 other FLEURS speakers or white noise at N dB SNR, added before the channel; `loss5` = 5 % of 20 ms frames dropped without concealment. Agent decoding (short window, language ID).
+
+| Condition | WER | CER | Latency p50 | Fallbacks to 30 s | Clips with no speech found / split by the VAD | Detected as English |
+|---|---:|---:|---:|---:|---:|---:|
+| clean | 27.61 % | 11.76 % | 2.71 s | 4 | 0 / 15 | 0 |
+| tel | 32.82 % | 14.91 % | 2.69 s | 1 | 1 / 21 | 0 |
+| tel+opus8 | 38.66 % | 18.43 % | 2.55 s | 2 | 1 / 28 | 1 |
+| tel+babble15 | 40.47 % | 19.72 % | 2.74 s | 2 | 1 / 19 | 0 |
+| tel+babble5 | 74.79 % | 48.39 % | 2.57 s | 3 | 1 / 7 | 1 |
+| tel+white10 | 54.16 % | 28.11 % | 2.66 s | 1 | 1 / 21 | 0 |
+| tel+loss5 | 34.71 % | 15.76 % | 2.88 s | 1 | 0 / 29 | 0 |
+
+Call suite on the same channel (spoken track; the oracle-text track does not depend on audio and is reused from the clean run):
+
+| Audio | Calls passed, spoken | Turns passed | Tool calls correct | Per-turn WER median | Order/phone digits heard | Failures by stage |
+|---|---:|---:|---:|---:|---:|---|
+| clean | **10/36** | 50/87 | 28/48 | 25.0 % | 18/36 | llm 3, stt 23 |
+| tel | **13/36** | 56/87 | 33/48 | 25.0 % | 18/36 | llm 2, stt 20, tts 1 |
+| tel-babble15 | **9/36** | 47/87 | 29/48 | 40.0 % | 12/36 | llm 3, stt 23, vad 1 |
+
 ## End-to-end latency
 
 CPU: 11th Gen Intel(R) Core(TM) i5-11300H @ 3.10GHz (6 logical CPUs visible in WSL2), STT on 4 threads. LLM: gemini-3.5-flash-lite (56 turns), live calls, cache off. 56 turns (2 rounds over 28 prompts), 56 without errors. Audio fed in real time; speculative STT on. Machine load average during turns: median 2.3, p95 4.0 (other jobs share this machine). Peak RSS of the whole process: 1095 MB.

@@ -1,0 +1,4804 @@
+{
+ "tag": "tel-babble15",
+ "checks_sha1": "5f43c1dcefba",
+ "condition": "tel+babble15",
+ "run_date": "2026-11-14",
+ "service_date": "2026-11-14",
+ "reps": 3,
+ "calls": [
+  {
+   "id": "c01-status-hi",
+   "lang": "hi",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "नमस्ते, मुझे अपने ऑर्डर का स्टेटस जानना है।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "नमस्टे मुछे अपने ओडर का स्टेटिस जाना है.",
+     "reply": "नमस्ते! ज़रूर, मैं बता दूँगा। अपना 5 अंकों का ऑर्डर नंबर बताइए, या अगर याद नहीं है तो अपना 10 अंकों का फ़ोन नंबर बता दीजिए।",
+     "tools": [],
+     "checks": {
+      "tools": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.7917734310030937,
+      "llm_first_token_s": 0.7148825410040445,
+      "tts_first_audio_s": 0.03994624000188196,
+      "time_to_first_audio_s": 1.7014809250031249,
+      "total_s": 2.4051099389980664
+     },
+     "llm_tokens": {
+      "prompt": 1799,
+      "completion": 84
+     },
+     "error": null,
+     "wer": 62.5,
+     "cer": 17.07,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "मेरा ऑर्डर नंबर है चार आठ दो एक तीन।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "नेरा ऑडर नंबर है। 4-8-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-2",
+     "reply": "ऑर्डर नंबर 5 अंकों का होता है, और आपने बहुत सारे अंक बोले हैं, इसलिए मैं ठीक से समझ नहीं पाया। क्या आप सिर्फ़ 5 अंक दोबारा बता सकते हैं?",
+     "tools": [],
+     "checks": {
+      "tools": false,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 8.122823856007017,
+      "llm_first_token_s": 0.8375291670017759,
+      "tts_first_audio_s": 0.3937948490056442,
+      "time_to_first_audio_s": 9.617311640002299,
+      "total_s": 9.78483972500544
+     },
+     "llm_tokens": {
+      "prompt": 2104,
+      "completion": 86
+     },
+     "error": null,
+     "wer": 1111.11,
+     "cer": 707.14,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    },
+    {
+     "turn": 2,
+     "reference": "यह कब तक पहुँच जाएगा?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "यह कब तक पहुंच आगा.",
+     "reply": "माफ़ कीजिए, ऑर्डर नंबर के बिना मैं पहुंचने की तारीख़ नहीं बता सकता। कृपया 5 अंकों का ऑर्डर नंबर बताइए, या अपना 10 अंकों का फ़ोन नंबर दीजिए ताकि मैं आपके ऑर्डर ढूँढ सकूँ।",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.5299179970024852,
+      "llm_first_token_s": 0.5529785580001771,
+      "tts_first_audio_s": 0.22989247999794316,
+      "time_to_first_audio_s": 1.6061979310034076,
+      "total_s": 2.0353813340043416
+     },
+     "llm_tokens": {
+      "prompt": 2209,
+      "completion": 121
+     },
+     "error": null,
+     "wer": 40.0,
+     "cer": 20.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "cascade"
+    },
+    {
+     "turn": 3,
+     "reference": "ठीक है, धन्यवाद।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "चीके धानिवार।",
+     "reply": "माफ़ कीजिए, मैं समझ नहीं पाया। कृपया अपना 10 अंकों का फ़ोन नंबर अंकों में बताइए, ताकि मैं आपके ऑर्डर ढूँढ सकूँ।",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.5089270800017403,
+      "llm_first_token_s": 0.6367585219995817,
+      "tts_first_audio_s": 0.14244621100078803,
+      "time_to_first_audio_s": 1.4923821359989233,
+      "total_s": 1.8596726350006065
+     },
+     "llm_tokens": {
+      "prompt": 2342,
+      "completion": 80
+     },
+     "error": null,
+     "wer": 100.0,
+     "cer": 57.14,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {
+    "48213": "2026-11-16"
+   },
+   "writes": 0,
+   "call_checks": {
+    "final_state": true
+   },
+   "final_state_ok": true,
+   "rep": 0,
+   "attribution": {
+    "stage": "stt",
+    "turn": 1
+   }
+  },
+  {
+   "id": "c02-status-en",
+   "lang": "en",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "Hi, can you tell me where my order is? The order number is six zero three one eight.",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "Hi, can you tell me where my order is? The order number is 60318.",
+     "reply": "I'll look that up for you.Your order 60318 for the mixer grinder has been shipped and should arrive on 17 November.",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "60318"
+       },
+       "result": {
+        "order_id": "60318",
+        "status": "shipped",
+        "item": "mixer grinder",
+        "expected_delivery": "2026-11-17",
+        "customer": "Meena"
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.0029,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.5712422349970439,
+      "llm_first_token_s": 0.653271789997234,
+      "tts_first_audio_s": 0.35329757499857806,
+      "time_to_first_audio_s": 2.655641862998891,
+      "total_s": 2.6556786369983456
+     },
+     "llm_tokens": {
+      "prompt": 3688,
+      "completion": 68
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": true,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "What did I order again?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "What did I order again?",
+     "reply": "You ordered a mixer grinder.",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.3790058590020635,
+      "llm_first_token_s": 0.9893840880031348,
+      "tts_first_audio_s": 0.07815864100120962,
+      "time_to_first_audio_s": 1.6559309549993486,
+      "total_s": 1.6559630400006426
+     },
+     "llm_tokens": {
+      "prompt": 1831,
+      "completion": 7
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 2,
+     "reference": "And when will it arrive?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "And when will it arrive?",
+     "reply": "It should arrive on 17 November.",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.35965189099806594,
+      "llm_first_token_s": 0.933366046003357,
+      "tts_first_audio_s": 0.09530873499898007,
+      "time_to_first_audio_s": 1.5712531979952473,
+      "total_s": 1.5712918459976208
+     },
+     "llm_tokens": {
+      "prompt": 1848,
+      "completion": 8
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": true,
+     "tts_roundtrip_text": "It should arrive on 17 November.",
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {
+    "60318": "2026-11-17"
+   },
+   "writes": 0,
+   "call_checks": {
+    "final_state": true
+   },
+   "final_state_ok": true,
+   "rep": 0,
+   "attribution": {
+    "stage": null,
+    "turn": null
+   }
+  },
+  {
+   "id": "c03-unknown-id",
+   "lang": "hi",
+   "held_out": true,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "मेरा ऑर्डर नंबर एक एक एक एक एक है, उसका स्टेटस बताइए।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "मेरा ऑर्डर नंबर “1111” है. उसका स्टीट्स, पताईए.",
+     "reply": "ऑर्डर नंबर 5 अंकों का होता है, और आपने 4 अंक बताए हैं। कृपया नंबर दोबारा बताइए, या अपना 10 अंकों का फ़ोन नंबर दीजिए ताकि मैं आपके ऑर्डर ढूंढ सकूँ।",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "1111"
+       },
+       "result": {
+        "error": "rejected",
+        "message": "order ids have 5 digits, got 1111; ask the caller to repeat the number",
+        "attempts": 0
+       },
+       "meta": null
+      }
+     ],
+     "checks": {
+      "tools": false,
+      "reply_any": true,
+      "reply_none": true,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.9024998110035085,
+      "llm_first_token_s": 1.6954636399968877,
+      "tts_first_audio_s": 0.25070120400050655,
+      "time_to_first_audio_s": 2.9812415929991403,
+      "total_s": 3.4175243970021256
+     },
+     "llm_tokens": {
+      "prompt": 3701,
+      "completion": 143
+     },
+     "error": null,
+     "wer": 25.0,
+     "cer": 13.04,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    },
+    {
+     "turn": 1,
+     "reference": "माफ़ कीजिए, सही नंबर है सात दो नौ शून्य पाँच।",
+     "vad_no_speech": false,
+     "vad_split": true,
+     "transcript": "माफ़ की दिए. सही नंबर है, साथ 2009-5.",
+     "reply": "ऑर्डर 20095 सिस्टम में नहीं मिला। कृपया नंबर एक बार फिर बताइए, या अपना 10 अंकों का फ़ोन नंबर दीजिए ताकि मैं उससे ऑर्डर ढूंढ सकूँ।",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "20095"
+       },
+       "result": {
+        "error": "not_found",
+        "message": "order 20095 not found",
+        "status": 404,
+        "attempts": 1
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         404
+        ],
+        "seconds": 0.0028,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": false,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.7851210179942427,
+      "llm_first_token_s": 1.8153260860053706,
+      "tts_first_audio_s": 0.15365370699873893,
+      "time_to_first_audio_s": 2.8125578769977437,
+      "total_s": 3.297798936997424
+     },
+     "llm_tokens": {
+      "prompt": 3961,
+      "completion": 128
+     },
+     "error": null,
+     "wer": 50.0,
+     "cer": 25.0,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "cascade"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 0,
+   "attribution": {
+    "stage": "stt",
+    "turn": 0
+   }
+  },
+  {
+   "id": "c04-reschedule-hx",
+   "lang": "hinglish",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "मेरे order चार आठ दो एक तीन की delivery मुझे आगे करवानी है।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "एक अउद-चार 8-2-1-3 के देले वही मुछे आगे करवानी है।",
+     "reply": "ऑर्डर 48213, प्रेशर कुकर, अभी शिप हो चुका है और डिलीवरी 16 नवंबर को है। आप इसे किस तारीख को शिफ्ट करना चाहते हैं?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "48213"
+       },
+       "result": {
+        "order_id": "48213",
+        "status": "shipped",
+        "item": "pressure cooker",
+        "expected_delivery": "2026-11-16",
+        "customer": "Asha"
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.0031,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "forbid": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.9824669950030511,
+      "llm_first_token_s": 1.9518274920046679,
+      "tts_first_audio_s": 0.4315177800017409,
+      "time_to_first_audio_s": 3.583321125996008,
+      "total_s": 3.750201003997063
+     },
+     "llm_tokens": {
+      "prompt": 3711,
+      "completion": 105
+     },
+     "error": null,
+     "wer": 46.15,
+     "cer": 37.25,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "उसे बीस नवंबर को कर दो।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "उसे 20 नवंबर को कर दो।",
+     "reply": "ऑर्डर 48213 की डिलीवरी 20 नवंबर 2026 कर दी जाए, ठीक है? कृपया हाँ कहिए।",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "48213"
+       },
+       "result": {
+        "order_id": "48213",
+        "status": "shipped",
+        "item": "pressure cooker",
+        "expected_delivery": "2026-11-16",
+        "customer": "Asha"
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.002,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "forbid": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.5324310810028692,
+      "llm_first_token_s": 1.6371273120021215,
+      "tts_first_audio_s": 0.39860011000564555,
+      "time_to_first_audio_s": 2.748356677002448,
+      "total_s": 2.8048914890023298
+     },
+     "llm_tokens": {
+      "prompt": 3877,
+      "completion": 87
+     },
+     "error": null,
+     "wer": 33.33,
+     "cer": 14.29,
+     "entities_heard": null,
+     "tts_roundtrip_ok": true,
+     "tts_roundtrip_text": "ऑडर 44,233 की डेलीवरी 20 नवंबर 2,266 कर दी जाए. ठीक है. प्रप्याहा कहीए.",
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 2,
+     "reference": "हाँ, सही है।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "अँख सही हैं.",
+     "reply": "हो गया, आपके ऑर्डर 48213 की डिलीवरी अब 20 नवंबर को होगी। और कुछ चाहिए तो बताइए।",
+     "tools": [
+      {
+       "name": "reschedule_delivery",
+       "args": {
+        "order_id": "48213",
+        "date": "2026-11-20"
+       },
+       "result": {
+        "order_id": "48213",
+        "status": "shipped",
+        "item": "pressure cooker",
+        "expected_delivery": "2026-11-20",
+        "customer": "Asha",
+        "rescheduled": true
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.0027,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.4441601580037968,
+      "llm_first_token_s": 1.739473978006572,
+      "tts_first_audio_s": 0.35354955199727556,
+      "time_to_first_audio_s": 2.747320276001119,
+      "total_s": 2.8468767349986592
+     },
+     "llm_tokens": {
+      "prompt": 4025,
+      "completion": 114
+     },
+     "error": null,
+     "wer": 66.67,
+     "cer": 40.0,
+     "entities_heard": false,
+     "tts_roundtrip_ok": true,
+     "tts_roundtrip_text": "खो गया, आपके ऑडर 48,233 की डेलीवरी अब 20 नवंबर को होगी और कुछ चाहिए को बताएगे.",
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {
+    "48213": "2026-11-20"
+   },
+   "writes": 1,
+   "call_checks": {
+    "final_state": true
+   },
+   "final_state_ok": true,
+   "rep": 0,
+   "attribution": {
+    "stage": null,
+    "turn": null
+   }
+  },
+  {
+   "id": "c05-delivered-en",
+   "lang": "en",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "I want to change the delivery date for order five one one seven seven to November twenty second.",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "I want to change the delivery date for Order 5111-777 to November 22nd.",
+     "reply": "I couldn't find an order with the number 51777. Could you repeat the 5-digit order number once, or give me your 10-digit phone number so I can look up your orders?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "51777"
+       },
+       "result": {
+        "error": "not_found",
+        "message": "order 51777 not found",
+        "status": 404,
+        "attempts": 1
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         404
+        ],
+        "seconds": 0.0023,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "forbid": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.6002674359988305,
+      "llm_first_token_s": 2.2148587299961946,
+      "tts_first_audio_s": 0.20874047100369353,
+      "time_to_first_audio_s": 3.187629626998387,
+      "total_s": 3.484957319997193
+     },
+     "llm_tokens": {
+      "prompt": 3669,
+      "completion": 81
+     },
+     "error": null,
+     "wer": 22.22,
+     "cer": 18.75,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "Yes, that's right.",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "Yes, that's right.",
+     "reply": "Sorry, I still need the correct order number to proceed. Could you say the 5-digit order number again, or share your 10-digit phone number so I can find your orders?",
+     "tools": [],
+     "checks": {
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.5068661710029119,
+      "llm_first_token_s": 0.7676482390015735,
+      "tts_first_audio_s": 0.14331698300520657,
+      "time_to_first_audio_s": 1.638802271001623,
+      "total_s": 1.9256725619998178
+     },
+     "llm_tokens": {
+      "prompt": 1844,
+      "completion": 38
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {
+    "51177": "2026-11-11"
+   },
+   "writes": 0,
+   "call_checks": {
+    "final_state": true,
+    "reply_any_in_call": false
+   },
+   "final_state_ok": false,
+   "rep": 0,
+   "attribution": {
+    "stage": "stt",
+    "turn": "final_state"
+   }
+  },
+  {
+   "id": "c06-caller-declines",
+   "lang": "hi",
+   "held_out": true,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "ऑर्डर छह आठ तीन चार शून्य की डिलीवरी पच्चीस नवंबर को कर दीजिए।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "ऑर्डर 680 जा शोने की दिली वी पर 10 नवंबर को कर दीजे.",
+     "reply": "ऑर्डर आईडी 5 अंकों की होती है, और आपने 3 अंक बताए। कृपया पूरा ऑर्डर नंबर दोबारा बता दीजिए।",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "680"
+       },
+       "result": {
+        "error": "rejected",
+        "message": "order ids have 5 digits, got 680; ask the caller to repeat the number",
+        "attempts": 0
+       },
+       "meta": null
+      }
+     ],
+     "checks": {
+      "forbid": true,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 1.0806774189986754,
+      "llm_first_token_s": 1.537638572997821,
+      "tts_first_audio_s": 0.22810849400411826,
+      "time_to_first_audio_s": 3.0072031509989756,
+      "total_s": 3.15958433799824
+     },
+     "llm_tokens": {
+      "prompt": 3699,
+      "completion": 102
+     },
+     "error": null,
+     "wer": 69.23,
+     "cer": 33.33,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    },
+    {
+     "turn": 1,
+     "reference": "नहीं, रहने दीजिए, मत बदलिए।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "नहीं, रहने दी देजे, मद पदलीए.",
+     "reply": "ठीक है, कोई बदलाव नहीं किया। अगर कभी ज़रूरत हो तो बताइएगा।",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.6906489950051764,
+      "llm_first_token_s": 0.8895397739979671,
+      "tts_first_audio_s": 0.1017179650007165,
+      "time_to_first_audio_s": 1.925053505001415,
+      "total_s": 2.0614443340018624
+     },
+     "llm_tokens": {
+      "prompt": 1893,
+      "completion": 40
+     },
+     "error": null,
+     "wer": 80.0,
+     "cer": 33.33,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {
+    "68340": "2026-11-16"
+   },
+   "writes": 0,
+   "call_checks": {
+    "final_state": true
+   },
+   "final_state_ok": true,
+   "rep": 0,
+   "attribution": {
+    "stage": "stt",
+    "turn": 0
+   }
+  },
+  {
+   "id": "c07-retries-en",
+   "lang": "en",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "Where is my order four four seven two nine?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "Where is my order 444729?",
+     "reply": "That order id has 6 digits, but order ids are 5 digits. Could you please repeat the number?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "444729"
+       },
+       "result": {
+        "error": "rejected",
+        "message": "order ids have 5 digits, got 444729; ask the caller to repeat the number",
+        "attempts": 0
+       },
+       "meta": null
+      }
+     ],
+     "checks": {
+      "tools": false,
+      "reply_any": false,
+      "reply_none": true,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.4365935059977346,
+      "llm_first_token_s": 1.7774936640053056,
+      "tts_first_audio_s": 0.18756251199374674,
+      "time_to_first_audio_s": 2.61066834799567,
+      "total_s": 2.7035465049993945
+     },
+     "llm_tokens": {
+      "prompt": 3651,
+      "completion": 63
+     },
+     "error": null,
+     "wer": 11.11,
+     "cer": 7.41,
+     "entities_heard": true,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    },
+    {
+     "turn": 1,
+     "reference": "Great, when does it arrive?",
+     "vad_no_speech": false,
+     "vad_split": true,
+     "transcript": "when does it arrive?",
+     "reply": "I still need the correct 5-digit order id to check that. Could you say the number again, or give me your 10-digit phone number and I'll look up your orders?",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.35459453299699817,
+      "llm_first_token_s": 0.6230223880047561,
+      "tts_first_audio_s": 0.16738341100426624,
+      "time_to_first_audio_s": 1.3191977530004806,
+      "total_s": 1.5384113649997744
+     },
+     "llm_tokens": {
+      "prompt": 1813,
+      "completion": 38
+     },
+     "error": null,
+     "wer": 20.0,
+     "cer": 24.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "cascade"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 0,
+   "attribution": {
+    "stage": "stt",
+    "turn": 0
+   }
+  },
+  {
+   "id": "c08-service-hangs",
+   "lang": "hi",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "मेरे ऑर्डर नौ शून्य दो पाँच एक का स्टेटस क्या है?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "मेरी ऑर्डर 9-10 ने 2, 5 एक कस्ट्रीटस क्या है.",
+     "reply": "माफ़ कीजिए, ऑर्डर सिस्टम अभी धीमा चल रहा है और ऑर्डर 90251 की जानकारी नहीं आ पाई। क्या मैं दोबारा कोशिश करूँ?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "90251"
+       },
+       "result": {
+        "error": "timeout",
+        "message": "no response in time (ReadTimeout)",
+        "attempts": 2
+       },
+       "meta": {
+        "attempts": 2,
+        "statuses": [
+         "timeout",
+         "timeout"
+        ],
+        "seconds": 5.0024,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_none": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.8775082840002142,
+      "llm_first_token_s": 6.3460237649997,
+      "tts_first_audio_s": 0.4722656689991709,
+      "time_to_first_audio_s": 8.015157297006226,
+      "total_s": 8.113470451004105
+     },
+     "llm_tokens": {
+      "prompt": 3683,
+      "completion": 109
+     },
+     "error": null,
+     "wer": 45.45,
+     "cer": 28.95,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "ठीक है, एक बार फिर से कोशिश कीजिए।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "एक वार फिर से कोशिश किदीं.",
+     "reply": "सिस्टम अभी भी जवाब नहीं दे रहा, दोबारा कोशिश की पर टाइमआउट हो गया। थोड़ी देर बाद फिर बता सकते हैं, या मैं आपके फ़ोन नंबर से ऑर्डर ढूँढने की कोशिश करूँ?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "90251"
+       },
+       "result": {
+        "error": "timeout",
+        "message": "no response in time (ReadTimeout)",
+        "attempts": 2
+       },
+       "meta": {
+        "attempts": 2,
+        "statuses": [
+         "timeout",
+         "timeout"
+        ],
+        "seconds": 5.003,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_none": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.6849154800001998,
+      "llm_first_token_s": 6.2873930300047505,
+      "tts_first_audio_s": 0.24960357800591737,
+      "time_to_first_audio_s": 7.517884455002786,
+      "total_s": 8.088731718999043
+     },
+     "llm_tokens": {
+      "prompt": 3857,
+      "completion": 138
+     },
+     "error": null,
+     "wer": 50.0,
+     "cer": 38.71,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 0,
+   "attribution": {
+    "stage": null,
+    "turn": null
+   }
+  },
+  {
+   "id": "c09-phone-lookup",
+   "lang": "en",
+   "held_out": true,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "I don't remember my order number. My phone number is nine one two three four five six seven eight zero.",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "I don't remember my order number. My phone number is 9123456780.",
+     "reply": "आपके नंबर पर दो ऑर्डर हैं। एक स्कूल बैग, ऑर्डर 36540, जो आज डिलीवरी के लिए निकल चुका है, और एक क्रिकेट बैट, ऑर्डर 72905, जिसकी डिलीवरी 19 नवंबर को है। किस ऑर्डर के बारे में जानना है?",
+     "tools": [
+      {
+       "name": "find_orders_by_phone",
+       "args": {
+        "phone": "9123456780"
+       },
+       "result": {
+        "phone": "9123456780",
+        "orders": [
+         {
+          "order_id": "36540",
+          "status": "out_for_delivery",
+          "item": "school bag",
+          "expected_delivery": "2026-11-14",
+          "customer": "Rahul"
+         },
+         {
+          "order_id": "72905",
+          "status": "placed",
+          "item": "cricket bat",
+          "expected_delivery": "2026-11-19",
+          "customer": "Rahul"
+         }
+        ]
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.0045,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": false,
+      "reply_lang": false
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.6071035679997294,
+      "llm_first_token_s": 2.0033629769968684,
+      "tts_first_audio_s": 0.11097685099957744,
+      "time_to_first_audio_s": 2.948234292001871,
+      "total_s": 3.943518852996931
+     },
+     "llm_tokens": {
+      "prompt": 3743,
+      "completion": 154
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": true,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "llm"
+    },
+    {
+     "turn": 1,
+     "reference": "When will the cricket bat arrive?",
+     "vad_no_speech": false,
+     "vad_split": true,
+     "transcript": "Meanwhile the cricket bat arrived.",
+     "reply": "अच्छी खबर है! क्रिकेट बैट वाला ऑर्डर 72905 अब डिलीवर हो चुका है। क्या आपको इसके बारे में कुछ और जानना है?",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": false,
+      "reply_lang": false
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.3776726439973572,
+      "llm_first_token_s": 0.6917880909968517,
+      "tts_first_audio_s": 0.09455777000403032,
+      "time_to_first_audio_s": 1.3406526819962892,
+      "total_s": 1.78815599099471
+     },
+     "llm_tokens": {
+      "prompt": 1911,
+      "completion": 61
+     },
+     "error": null,
+     "wer": 50.0,
+     "cer": 21.88,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "cascade"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 0,
+   "attribution": {
+    "stage": "llm",
+    "turn": 0
+   }
+  },
+  {
+   "id": "c10-discount-maths",
+   "lang": "hinglish",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "order तीन छह पाँच चार शून्य का status बताओ।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "और द तीन छह पाँ चार्च होने का स्थेतस बताओं।",
+     "reply": "माफ़ कीजिए, 23654 नंबर का कोई ऑर्डर नहीं मिला। क्या आप नंबर एक बार फिर बता सकते हैं, या अपना 10 अंकों का फ़ोन नंबर दें ताकि मैं आपके ऑर्डर देख लूँ?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "23654"
+       },
+       "result": {
+        "error": "not_found",
+        "message": "order 23654 not found",
+        "status": 404,
+        "attempts": 1
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         404
+        ],
+        "seconds": 0.0046,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": false,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.9118062639972777,
+      "llm_first_token_s": 1.7065878740031621,
+      "tts_first_audio_s": 0.25274412900034804,
+      "time_to_first_audio_s": 3.1045387420017505,
+      "total_s": 3.505067229998531
+     },
+     "llm_tokens": {
+      "prompt": 3681,
+      "completion": 132
+     },
+     "error": null,
+     "wer": 77.78,
+     "cer": 80.0,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    },
+    {
+     "turn": 1,
+     "reference": "अगर बारह सौ रुपये के bag पर पंद्रह प्रतिशत discount मिले तो कितना देना होगा?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "अगर 1200 रुपय की बाद पर 15 प्रतिशक डिसगांत मिले, तो कितना देना होगा.",
+     "reply": "15 प्रतिशत छूट के बाद आपको 1020 रुपये देने होंगे।",
+     "tools": [
+      {
+       "name": "calculator",
+       "args": {
+        "expression": "1200 - 15% of 1200"
+       },
+       "result": {
+        "expression": "1200 - 15/100*1200",
+        "result": 1020
+       },
+       "meta": null
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 1.2075910850035143,
+      "llm_first_token_s": 1.9051230849945568,
+      "tts_first_audio_s": 0.2408802089994424,
+      "time_to_first_audio_s": 3.5675013850050163,
+      "total_s": 3.5675450320050004
+     },
+     "llm_tokens": {
+      "prompt": 3948,
+      "completion": 73
+     },
+     "error": null,
+     "wer": 73.33,
+     "cer": 36.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": false,
+     "tts_roundtrip_text": "15 हा प्रत्शत शूट के बाद, आपको ¥120 रुपय देने होंगे।",
+     "passed": false,
+     "attribution": "cascade"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 0,
+   "attribution": {
+    "stage": "stt",
+    "turn": 0
+   }
+  },
+  {
+   "id": "c11-helpline-midcall",
+   "lang": "hi",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "मेरा ऑर्डर पाँच सात छह आठ तीन कहाँ है?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "मेरा ऑउडर 5, 7, 6, 8 टीम कहा है।",
+     "reply": "मैंने ऑर्डर 5, 7, 6, 8, 3 देखा है, जो एक टेबल लैंप है और अभी डिलीवरी के लिए निकल चुका है। इसकी डिलीवरी आज, 14 नवंबर को होनी है।",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "57683"
+       },
+       "result": {
+        "order_id": "57683",
+        "status": "out_for_delivery",
+        "item": "table lamp",
+        "expected_delivery": "2026-11-14",
+        "customer": "Vikram"
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.0027,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.7376159510022262,
+      "llm_first_token_s": 1.7597660039973562,
+      "tts_first_audio_s": 0.38081712699931813,
+      "time_to_first_audio_s": 3.2851943360001314,
+      "total_s": 3.4391527909974684
+     },
+     "llm_tokens": {
+      "prompt": 3701,
+      "completion": 123
+     },
+     "error": null,
+     "wer": 33.33,
+     "cer": 21.43,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "अच्छा, और ऑनलाइन धोखाधड़ी की शिकायत के लिए कौन सा नंबर है?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "अच्छा, और ऑनलाइन ध्रुखादरी की शिकार के लिए कोन्ता नंबर है?",
+     "reply": "ऑनलाइन धोखाधड़ी की शिकायत के लिए 1930 पर कॉल करें या cybercrime.gov.in पर शिकायत दर्ज करें। पैसे की ठगी होने पर जल्दी शिकायत करना बेहतर है।",
+     "tools": [
+      {
+       "name": "search_knowledge",
+       "args": {
+        "query": "ऑनलाइन धोखाधड़ी शिकायत हेल्पलाइन नंबर cyber fraud"
+       },
+       "result": {
+        "query": "ऑनलाइन धोखाधड़ी शिकायत हेल्पलाइन नंबर cyber fraud",
+        "results": [
+         {
+          "title": "Cyber crime helpline",
+          "text": "To report online financial fraud or cyber crime in India, call 1930 or file a complaint at cybercrime.gov.in.",
+          "score": 0.712
+         },
+         {
+          "title": "National emergency number 112",
+          "text": "112 is India's single national emergency number under the Emergency Response Support System. It connects to police, fire and ambulance services and works from any phone.",
+          "score": 0.575
+         }
+        ]
+       },
+       "meta": null
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 1.0315781620010966,
+      "llm_first_token_s": 1.9933209189985064,
+      "tts_first_audio_s": 0.41099827700236347,
+      "time_to_first_audio_s": 3.5905686609985423,
+      "total_s": 3.752766391997284
+     },
+     "llm_tokens": {
+      "prompt": 4065,
+      "completion": 144
+     },
+     "error": null,
+     "wer": 33.33,
+     "cer": 19.64,
+     "entities_heard": null,
+     "tts_roundtrip_ok": true,
+     "tts_roundtrip_text": "ऑन्नाइन धोखाद्वी की शिकायत के लिए 1,930 पर कॉल करें, या साबकामगव इन पर शिकायत दर्च करें, पैसे की ठदी होने पर जल्दी शिकायत करना बेहतर है।",
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 2,
+     "reference": "ठीक है, और मेरा ऑर्डर आज ही आएगा ना?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "और मिराउल्ड राजी आय का ना.",
+     "reply": "माफ़ कीजिए, मैं समझ नहीं पाया। क्या आप महिला हेल्पलाइन नंबर पूछ रहे हैं?",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.7654369590018177,
+      "llm_first_token_s": 0.7075769279981614,
+      "tts_first_audio_s": 0.12367466400610283,
+      "time_to_first_audio_s": 1.843143895996036,
+      "total_s": 1.9794252840001718
+     },
+     "llm_tokens": {
+      "prompt": 2019,
+      "completion": 48
+     },
+     "error": null,
+     "wer": 77.78,
+     "cer": 55.88,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 0,
+   "attribution": {
+    "stage": "stt",
+    "turn": 2
+   }
+  },
+  {
+   "id": "c12-scope-and-switch",
+   "lang": "hi+en",
+   "held_out": true,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "क्या तुम मेरे लिए ट्रेन की टिकट बुक कर सकते हो?",
+     "vad_no_speech": false,
+     "vad_split": true,
+     "transcript": "क्या तो मेरे लिए ट्रेन की टेकटबुक कर सकते हों?",
+     "reply": "माफ़ कीजिए, मैं ट्रेन की टिकट बुक नहीं कर सकता। मैं सिर्फ़ आपके ऑर्डर की जानकारी दे सकता हूँ और उनकी डिलीवरी की तारीख बदल सकता हूँ।",
+     "tools": [],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.8985754259992973,
+      "llm_first_token_s": 0.8921206890008762,
+      "tts_first_audio_s": 0.19524254000134533,
+      "time_to_first_audio_s": 2.194420760999492,
+      "total_s": 2.5595174029949703
+     },
+     "llm_tokens": {
+      "prompt": 1800,
+      "completion": 84
+     },
+     "error": null,
+     "wer": 36.36,
+     "cer": 10.87,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "Okay, then tell me the status of order eight three four one two.",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "Okay, then tell me the status of order 8341-2.",
+     "reply": "Order 83412 is placed, and it's a pair of headphones. The expected delivery date is 20 November.",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "83412"
+       },
+       "result": {
+        "order_id": "83412",
+        "status": "placed",
+        "item": "headphones",
+        "expected_delivery": "2026-11-20",
+        "customer": "Imran"
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.003,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.7163066610009992,
+      "llm_first_token_s": 1.6963687719980953,
+      "tts_first_audio_s": 0.21549349600536516,
+      "time_to_first_audio_s": 2.8718531980048283,
+      "total_s": 2.9864831380036776
+     },
+     "llm_tokens": {
+      "prompt": 3900,
+      "completion": 64
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": true,
+     "tts_roundtrip_ok": true,
+     "tts_roundtrip_text": "Order 83,412 is placed, and it's a pair of headphones, the expected delivery date is 20 November.",
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 0,
+   "attribution": {
+    "stage": null,
+    "turn": null
+   }
+  },
+  {
+   "id": "c01-status-hi",
+   "lang": "hi",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "नमस्ते, मुझे अपने ऑर्डर का स्टेटस जानना है।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "नमस्टे मुछे अपने ओडर का स्टेटिस जाना है.",
+     "reply": "नमस्ते! ज़रूर, मैं बता दूँगा। आपका ऑर्डर नंबर क्या है, 5 अंकों का?",
+     "tools": [],
+     "checks": {
+      "tools": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.7759325500010164,
+      "llm_first_token_s": 0.9037421850007377,
+      "tts_first_audio_s": 0.042403453997394536,
+      "time_to_first_audio_s": 1.795343704005063,
+      "total_s": 2.1271937990022707
+     },
+     "llm_tokens": {
+      "prompt": 1799,
+      "completion": 47
+     },
+     "error": null,
+     "wer": 62.5,
+     "cer": 17.07,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "मेरा ऑर्डर नंबर है चार आठ दो एक तीन।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "नेरा ऑडर नंबर है। 4-8-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-2",
+     "reply": "माफ़ कीजिए, ऑर्डर नंबर ठीक से समझ नहीं आया। ऑर्डर नंबर 5 अंकों का होता है, क्या आप उसे दोबारा बता सकते हैं?",
+     "tools": [],
+     "checks": {
+      "tools": false,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 7.676338956000109,
+      "llm_first_token_s": 0.9099025670002447,
+      "tts_first_audio_s": 0.1720884619935532,
+      "time_to_first_audio_s": 9.019151379994582,
+      "total_s": 9.257871169000282
+     },
+     "llm_tokens": {
+      "prompt": 2067,
+      "completion": 69
+     },
+     "error": null,
+     "wer": 1111.11,
+     "cer": 707.14,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    },
+    {
+     "turn": 2,
+     "reference": "यह कब तक पहुँच जाएगा?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "यह कब तक पहुंच आगा.",
+     "reply": "ऑर्डर नंबर के बिना मैं डिलीवरी की तारीख नहीं बता सकता। आप 5 अंकों का ऑर्डर नंबर बताइए, या अपना 10 अंकों का फ़ोन नंबर दीजिए, मैं उससे ऑर्डर ढूंढ लूँगा।",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.6075629040060448,
+      "llm_first_token_s": 0.7448562439967645,
+      "tts_first_audio_s": 0.21601476799696684,
+      "time_to_first_audio_s": 1.6902127569992444,
+      "total_s": 2.1302787240056205
+     },
+     "llm_tokens": {
+      "prompt": 2155,
+      "completion": 107
+     },
+     "error": null,
+     "wer": 40.0,
+     "cer": 20.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "cascade"
+    },
+    {
+     "turn": 3,
+     "reference": "ठीक है, धन्यवाद।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "चीके धानिवार।",
+     "reply": "माफ़ कीजिए, समझ नहीं आया। क्या आप अपना 10 अंकों का फ़ोन नंबर बता सकते हैं, ताकि मैं आपके ऑर्डर ढूंढ सकूँ?",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.5707387250004103,
+      "llm_first_token_s": 0.6966857150036958,
+      "tts_first_audio_s": 0.10746013300376944,
+      "time_to_first_audio_s": 1.558579145996191,
+      "total_s": 1.9489565339972614
+     },
+     "llm_tokens": {
+      "prompt": 2274,
+      "completion": 71
+     },
+     "error": null,
+     "wer": 100.0,
+     "cer": 57.14,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {
+    "48213": "2026-11-16"
+   },
+   "writes": 0,
+   "call_checks": {
+    "final_state": true
+   },
+   "final_state_ok": true,
+   "rep": 1,
+   "attribution": {
+    "stage": "stt",
+    "turn": 1
+   }
+  },
+  {
+   "id": "c02-status-en",
+   "lang": "en",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "Hi, can you tell me where my order is? The order number is six zero three one eight.",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "Hi, can you tell me where my order is? The order number is 60318.",
+     "reply": "I'll look that up for you.Your order for the mixer grinder has been shipped and should arrive on the 17th of November, which is Tuesday.",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "60318"
+       },
+       "result": {
+        "order_id": "60318",
+        "status": "shipped",
+        "item": "mixer grinder",
+        "expected_delivery": "2026-11-17",
+        "customer": "Meena"
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.0024,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.6958335800009081,
+      "llm_first_token_s": 0.48505637800553814,
+      "tts_first_audio_s": 0.3242846329958411,
+      "time_to_first_audio_s": 2.908024395001121,
+      "total_s": 2.908062749003875
+     },
+     "llm_tokens": {
+      "prompt": 3688,
+      "completion": 72
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": true,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "What did I order again?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "What did I order again?",
+     "reply": "You ordered a mixer grinder, order number 60318.",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.4095575029932661,
+      "llm_first_token_s": 0.4241156139978557,
+      "tts_first_audio_s": 0.20018759700178634,
+      "time_to_first_audio_s": 1.2188105779932812,
+      "total_s": 1.2188449559980654
+     },
+     "llm_tokens": {
+      "prompt": 1835,
+      "completion": 13
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 2,
+     "reference": "And when will it arrive?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "And when will it arrive?",
+     "reply": "It's expected to arrive on the 17th of November, Tuesday.",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.34781898799701594,
+      "llm_first_token_s": 0.7839523069997085,
+      "tts_first_audio_s": 0.176413267996395,
+      "time_to_first_audio_s": 1.454691869999806,
+      "total_s": 1.4547235209975042
+     },
+     "llm_tokens": {
+      "prompt": 1858,
+      "completion": 15
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": true,
+     "tts_roundtrip_text": "It's expected to arrive on 17th of November, Tuesday.",
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {
+    "60318": "2026-11-17"
+   },
+   "writes": 0,
+   "call_checks": {
+    "final_state": true
+   },
+   "final_state_ok": true,
+   "rep": 1,
+   "attribution": {
+    "stage": null,
+    "turn": null
+   }
+  },
+  {
+   "id": "c03-unknown-id",
+   "lang": "hi",
+   "held_out": true,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "मेरा ऑर्डर नंबर एक एक एक एक एक है, उसका स्टेटस बताइए।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "मेरा ऑर्डर नंबर “1111” है. उसका स्टीट्स, पताईए.",
+     "reply": "ऑर्डर नंबर 5 अंकों का होता है, और आपने 4 अंक बताए हैं। कृपया ऑर्डर नंबर फिर से बताइए, या अपना 10 अंकों का फ़ोन नंबर दीजिए ताकि मैं ऑर्डर ढूंढ सकूं।",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "1111"
+       },
+       "result": {
+        "error": "rejected",
+        "message": "order ids have 5 digits, got 1111; ask the caller to repeat the number",
+        "attempts": 0
+       },
+       "meta": null
+      }
+     ],
+     "checks": {
+      "tools": false,
+      "reply_any": true,
+      "reply_none": true,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.9955998959994758,
+      "llm_first_token_s": 2.0218740459968103,
+      "tts_first_audio_s": 0.24904690699622734,
+      "time_to_first_audio_s": 3.3574183189994073,
+      "total_s": 3.7524745120026637
+     },
+     "llm_tokens": {
+      "prompt": 3701,
+      "completion": 142
+     },
+     "error": null,
+     "wer": 25.0,
+     "cer": 13.04,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    },
+    {
+     "turn": 1,
+     "reference": "माफ़ कीजिए, सही नंबर है सात दो नौ शून्य पाँच।",
+     "vad_no_speech": false,
+     "vad_split": true,
+     "transcript": "माफ़ की दिए. सही नंबर है, साथ 2009-5.",
+     "reply": "ऑर्डर 20095 सिस्टम में नहीं मिला। कृपया नंबर एक बार फिर ध्यान से बताइए, या अपना 10 अंकों का फ़ोन नंबर दीजिए ताकि मैं उससे ऑर्डर देख सकूं।",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "20095"
+       },
+       "result": {
+        "error": "not_found",
+        "message": "order 20095 not found",
+        "status": 404,
+        "attempts": 1
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         404
+        ],
+        "seconds": 0.0052,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": false,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.7307881759988959,
+      "llm_first_token_s": 1.866281454997079,
+      "tts_first_audio_s": 0.1734817229953478,
+      "time_to_first_audio_s": 2.8241017469990766,
+      "total_s": 3.365560354999616
+     },
+     "llm_tokens": {
+      "prompt": 3959,
+      "completion": 127
+     },
+     "error": null,
+     "wer": 50.0,
+     "cer": 25.0,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "cascade"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 1,
+   "attribution": {
+    "stage": "stt",
+    "turn": 0
+   }
+  },
+  {
+   "id": "c04-reschedule-hx",
+   "lang": "hinglish",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "मेरे order चार आठ दो एक तीन की delivery मुझे आगे करवानी है।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "एक अउद-चार 8-2-1-3 के देले वही मुछे आगे करवानी है।",
+     "reply": "ऑर्डर 4-8-2-1-3 अभी शिप हो चुका है और इसकी डिलीवरी 16 नवंबर को है। आप इसे किस तारीख को शिफ्ट करना चाहते हैं?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "48213"
+       },
+       "result": {
+        "order_id": "48213",
+        "status": "shipped",
+        "item": "pressure cooker",
+        "expected_delivery": "2026-11-16",
+        "customer": "Asha"
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.0036,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "forbid": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.9364056990016252,
+      "llm_first_token_s": 1.7167250380007317,
+      "tts_first_audio_s": 0.35257130499667255,
+      "time_to_first_audio_s": 3.209991465002531,
+      "total_s": 3.3714400900062174
+     },
+     "llm_tokens": {
+      "prompt": 3711,
+      "completion": 106
+     },
+     "error": null,
+     "wer": 46.15,
+     "cer": 37.25,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "उसे बीस नवंबर को कर दो।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "उसे 20 नवंबर को कर दो।",
+     "reply": "ऑर्डर 4-8-2-1-3 की डिलीवरी अब 20 नवंबर की तारीख पर शिफ्ट हो गई है। और कुछ चाहिए?",
+     "tools": [
+      {
+       "name": "reschedule_delivery",
+       "args": {
+        "order_id": "48213",
+        "date": "2026-11-20"
+       },
+       "result": {
+        "order_id": "48213",
+        "status": "shipped",
+        "item": "pressure cooker",
+        "expected_delivery": "2026-11-20",
+        "customer": "Asha",
+        "rescheduled": true
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.0025,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "forbid": false,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.5859308389990474,
+      "llm_first_token_s": 1.5029595369996969,
+      "tts_first_audio_s": 0.3381013640027959,
+      "time_to_first_audio_s": 2.6421907680050936,
+      "total_s": 2.717171172000235
+     },
+     "llm_tokens": {
+      "prompt": 3907,
+      "completion": 116
+     },
+     "error": null,
+     "wer": 33.33,
+     "cer": 14.29,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "llm"
+    },
+    {
+     "turn": 2,
+     "reference": "हाँ, सही है।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "अँख सही हैं.",
+     "reply": "ठीक है, धन्यवाद! आपका दिन शुभ हो।",
+     "tools": [],
+     "checks": {
+      "tools": false,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.5061087869980838,
+      "llm_first_token_s": 0.9576535450032679,
+      "tts_first_audio_s": 0.07070064399886178,
+      "time_to_first_audio_s": 1.7579562500031898,
+      "total_s": 1.8376775009965058
+     },
+     "llm_tokens": {
+      "prompt": 1958,
+      "completion": 21
+     },
+     "error": null,
+     "wer": 66.67,
+     "cer": 40.0,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "cascade"
+    }
+   ],
+   "final_state": {
+    "48213": "2026-11-20"
+   },
+   "writes": 1,
+   "call_checks": {
+    "final_state": true
+   },
+   "final_state_ok": true,
+   "rep": 1,
+   "attribution": {
+    "stage": "llm",
+    "turn": 1
+   }
+  },
+  {
+   "id": "c05-delivered-en",
+   "lang": "en",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "I want to change the delivery date for order five one one seven seven to November twenty second.",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "I want to change the delivery date for Order 5111-777 to November 22nd.",
+     "reply": "I'll look up that order first.I couldn't find an order with the number 51117. Could you repeat the order number once? Or I can look up your orders by your 10-digit phone number instead.",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "51117"
+       },
+       "result": {
+        "error": "not_found",
+        "message": "order 51117 not found",
+        "status": 404,
+        "attempts": 1
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         404
+        ],
+        "seconds": 0.0053,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "forbid": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.6198050910024904,
+      "llm_first_token_s": 0.9065275469984044,
+      "tts_first_audio_s": 0.2993896219995804,
+      "time_to_first_audio_s": 3.2939250900017214,
+      "total_s": 3.552160689003358
+     },
+     "llm_tokens": {
+      "prompt": 3676,
+      "completion": 84
+     },
+     "error": null,
+     "wer": 22.22,
+     "cer": 18.75,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "Yes, that's right.",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "Yes, that's right.",
+     "reply": "Sorry, order 51117 still isn't showing up in the system. Could you give me your 10-digit phone number so I can find your orders that way?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "51117"
+       },
+       "result": {
+        "error": "not_found",
+        "message": "order 51117 not found",
+        "status": 404,
+        "attempts": 1
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         404
+        ],
+        "seconds": 0.0022,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.3847462639969308,
+      "llm_first_token_s": 1.4956645659985952,
+      "tts_first_audio_s": 0.23562353099987376,
+      "time_to_first_audio_s": 2.3067826659971615,
+      "total_s": 2.496690904998104
+     },
+     "llm_tokens": {
+      "prompt": 3777,
+      "completion": 74
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {
+    "51177": "2026-11-11"
+   },
+   "writes": 0,
+   "call_checks": {
+    "final_state": true,
+    "reply_any_in_call": false
+   },
+   "final_state_ok": false,
+   "rep": 1,
+   "attribution": {
+    "stage": "stt",
+    "turn": "final_state"
+   }
+  },
+  {
+   "id": "c06-caller-declines",
+   "lang": "hi",
+   "held_out": true,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "ऑर्डर छह आठ तीन चार शून्य की डिलीवरी पच्चीस नवंबर को कर दीजिए।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "ऑर्डर 680 जा शोने की दिली वी पर 10 नवंबर को कर दीजे.",
+     "reply": "ऑर्डर 00680 सिस्टम में नहीं मिला। क्या आप ऑर्डर आईडी फिर से बता सकते हैं, या अपना 10 अंकों का फ़ोन नंबर दें ताकि मैं ऑर्डर ढूंढ लूँ?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "00680"
+       },
+       "result": {
+        "error": "not_found",
+        "message": "order 00680 not found",
+        "status": 404,
+        "attempts": 1
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         404
+        ],
+        "seconds": 0.0039,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "forbid": true,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.9700027660001069,
+      "llm_first_token_s": 1.6333103889992344,
+      "tts_first_audio_s": 0.17443015300523257,
+      "time_to_first_audio_s": 2.8776073480039486,
+      "total_s": 3.320426366000902
+     },
+     "llm_tokens": {
+      "prompt": 3695,
+      "completion": 126
+     },
+     "error": null,
+     "wer": 69.23,
+     "cer": 33.33,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    },
+    {
+     "turn": 1,
+     "reference": "नहीं, रहने दीजिए, मत बदलिए।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "नहीं, रहने दी देजे, मद पदलीए.",
+     "reply": "ठीक है, कोई बदलाव नहीं किया। अगर फिर कभी ज़रूरत हो तो बताइए।",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.6754125879961066,
+      "llm_first_token_s": 0.43894637600169517,
+      "tts_first_audio_s": 0.11249336800392484,
+      "time_to_first_audio_s": 1.4195059769990621,
+      "total_s": 1.5496463359959307
+     },
+     "llm_tokens": {
+      "prompt": 1916,
+      "completion": 40
+     },
+     "error": null,
+     "wer": 80.0,
+     "cer": 33.33,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {
+    "68340": "2026-11-16"
+   },
+   "writes": 0,
+   "call_checks": {
+    "final_state": true
+   },
+   "final_state_ok": true,
+   "rep": 1,
+   "attribution": {
+    "stage": "stt",
+    "turn": 0
+   }
+  },
+  {
+   "id": "c07-retries-en",
+   "lang": "en",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "Where is my order four four seven two nine?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "Where is my order 444729?",
+     "reply": "Order IDs have 5 digits, so 444729 is too long. Could you please repeat the order number?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "444729"
+       },
+       "result": {
+        "error": "rejected",
+        "message": "order ids have 5 digits, got 444729; ask the caller to repeat the number",
+        "attempts": 0
+       },
+       "meta": null
+      }
+     ],
+     "checks": {
+      "tools": false,
+      "reply_any": false,
+      "reply_none": true,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.4458586950058816,
+      "llm_first_token_s": 1.5492517100065015,
+      "tts_first_audio_s": 0.25929124799586134,
+      "time_to_first_audio_s": 2.4693217940002796,
+      "total_s": 2.579761902001337
+     },
+     "llm_tokens": {
+      "prompt": 3651,
+      "completion": 63
+     },
+     "error": null,
+     "wer": 11.11,
+     "cer": 7.41,
+     "entities_heard": true,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    },
+    {
+     "turn": 1,
+     "reference": "Great, when does it arrive?",
+     "vad_no_speech": false,
+     "vad_split": true,
+     "transcript": "when does it arrive?",
+     "reply": "I still need the correct 5-digit order number to check that. Could you say it again, or give me your 10-digit phone number and I'll look up your orders.",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.43093664300249657,
+      "llm_first_token_s": 0.706394007000199,
+      "tts_first_audio_s": 0.17824887599999784,
+      "time_to_first_audio_s": 1.5560237570025492,
+      "total_s": 1.7834977860038634
+     },
+     "llm_tokens": {
+      "prompt": 1813,
+      "completion": 37
+     },
+     "error": null,
+     "wer": 20.0,
+     "cer": 24.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "cascade"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 1,
+   "attribution": {
+    "stage": "stt",
+    "turn": 0
+   }
+  },
+  {
+   "id": "c08-service-hangs",
+   "lang": "hi",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "मेरे ऑर्डर नौ शून्य दो पाँच एक का स्टेटस क्या है?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "मेरी ऑर्डर 9-10 ने 2, 5 एक कस्ट्रीटस क्या है.",
+     "reply": "माफ़ कीजिए, ऑर्डर सिस्टम अभी धीमा चल रहा है और जवाब नहीं आया। क्या मैं एक बार फिर कोशिश करूँ?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "90251"
+       },
+       "result": {
+        "error": "timeout",
+        "message": "no response in time (ReadTimeout)",
+        "attempts": 2
+       },
+       "meta": {
+        "attempts": 2,
+        "statuses": [
+         "timeout",
+         "timeout"
+        ],
+        "seconds": 5.0052,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_none": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.9477006359957159,
+      "llm_first_token_s": 7.305783370000427,
+      "tts_first_audio_s": 0.2643371120066149,
+      "time_to_first_audio_s": 8.739554782994674,
+      "total_s": 8.839735472996836
+     },
+     "llm_tokens": {
+      "prompt": 3683,
+      "completion": 99
+     },
+     "error": null,
+     "wer": 45.45,
+     "cer": 28.95,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "ठीक है, एक बार फिर से कोशिश कीजिए।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "एक वार फिर से कोशिश किदीं.",
+     "reply": "सिस्टम फिर भी जवाब नहीं दे रहा, अभी ऑर्डर की स्थिति नहीं बता पा रही। क्या आप अपना 10 अंकों का फ़ोन नंबर बताएँगे, ताकि मैं उससे ऑर्डर ढूँढने की कोशिश करूँ?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "91025"
+       },
+       "result": {
+        "error": "timeout",
+        "message": "no response in time (ReadTimeout)",
+        "attempts": 2
+       },
+       "meta": {
+        "attempts": 2,
+        "statuses": [
+         "timeout",
+         "timeout"
+        ],
+        "seconds": 5.0052,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": false,
+      "reply_none": true,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.5875834039979964,
+      "llm_first_token_s": 6.381445596001868,
+      "tts_first_audio_s": 0.249814235001395,
+      "time_to_first_audio_s": 7.491102268002578,
+      "total_s": 7.843114900999353
+     },
+     "llm_tokens": {
+      "prompt": 3837,
+      "completion": 145
+     },
+     "error": null,
+     "wer": 50.0,
+     "cer": 38.71,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 1,
+   "attribution": {
+    "stage": "stt",
+    "turn": 1
+   }
+  },
+  {
+   "id": "c09-phone-lookup",
+   "lang": "en",
+   "held_out": true,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "I don't remember my order number. My phone number is nine one two three four five six seven eight zero.",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "I don't remember my order number. My phone number is 9123456780.",
+     "reply": "आपके नंबर पर दो ऑर्डर हैं। एक स्कूल बैग, ऑर्डर 36540, जो आज डिलीवरी के लिए निकल चुका है, और दूसरा क्रिकेट बैट, ऑर्डर 72905, जिसकी डिलीवरी 19 नवंबर को है। किस ऑर्डर के बारे में जानना है?",
+     "tools": [
+      {
+       "name": "find_orders_by_phone",
+       "args": {
+        "phone": "9123456780"
+       },
+       "result": {
+        "phone": "9123456780",
+        "orders": [
+         {
+          "order_id": "36540",
+          "status": "out_for_delivery",
+          "item": "school bag",
+          "expected_delivery": "2026-11-14",
+          "customer": "Rahul"
+         },
+         {
+          "order_id": "72905",
+          "status": "placed",
+          "item": "cricket bat",
+          "expected_delivery": "2026-11-19",
+          "customer": "Rahul"
+         }
+        ]
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.003,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": false,
+      "reply_lang": false
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 1.397686607997457,
+      "llm_first_token_s": 2.3571871840031235,
+      "tts_first_audio_s": 0.09252584299974842,
+      "time_to_first_audio_s": 4.072734743996989,
+      "total_s": 5.117063444995438
+     },
+     "llm_tokens": {
+      "prompt": 3743,
+      "completion": 158
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": true,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "llm"
+    },
+    {
+     "turn": 1,
+     "reference": "When will the cricket bat arrive?",
+     "vad_no_speech": false,
+     "vad_split": true,
+     "transcript": "Meanwhile the cricket bat arrived.",
+     "reply": "अच्छी खबर है! क्रिकेट बैट वाला ऑर्डर 72905 आपको मिल गया, तो अब उसके लिए कुछ करने की ज़रूरत नहीं। क्या स्कूल बैग वाले ऑर्डर 36540 के बारे में कुछ पूछना है?",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": false,
+      "reply_lang": false
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.3750654809991829,
+      "llm_first_token_s": 0.5639404149987968,
+      "tts_first_audio_s": 0.0719794360047672,
+      "time_to_first_audio_s": 1.1477957429960952,
+      "total_s": 2.0080158729979303
+     },
+     "llm_tokens": {
+      "prompt": 1915,
+      "completion": 94
+     },
+     "error": null,
+     "wer": 50.0,
+     "cer": 21.88,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "cascade"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 1,
+   "attribution": {
+    "stage": "llm",
+    "turn": 0
+   }
+  },
+  {
+   "id": "c10-discount-maths",
+   "lang": "hinglish",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "order तीन छह पाँच चार शून्य का status बताओ।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "और द तीन छह पाँ चार्च होने का स्थेतस बताओं।",
+     "reply": "माफ़ कीजिए, मुझे 4 3 6 5 4 नंबर का कोई ऑर्डर नहीं मिला। क्या आप ऑर्डर आईडी एक बार फिर बता सकते हैं, या अपना 10 अंकों का फ़ोन नंबर दे दें ताकि मैं उससे ऑर्डर ढूँढ लूँ?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "43654"
+       },
+       "result": {
+        "error": "not_found",
+        "message": "order 43654 not found",
+        "status": 404,
+        "attempts": 1
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         404
+        ],
+        "seconds": 0.0025,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": false,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.8115699649933958,
+      "llm_first_token_s": 1.3335958609968657,
+      "tts_first_audio_s": 0.2553031040006317,
+      "time_to_first_audio_s": 2.689595249998092,
+      "total_s": 3.1778193409991218
+     },
+     "llm_tokens": {
+      "prompt": 3681,
+      "completion": 154
+     },
+     "error": null,
+     "wer": 77.78,
+     "cer": 80.0,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    },
+    {
+     "turn": 1,
+     "reference": "अगर बारह सौ रुपये के bag पर पंद्रह प्रतिशत discount मिले तो कितना देना होगा?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "अगर 1200 रुपय की बाद पर 15 प्रतिशक डिसगांत मिले, तो कितना देना होगा.",
+     "reply": "1200 रुपये पर 15 प्रतिशत छूट के बाद आपको 1020 रुपये देने होंगे।",
+     "tools": [
+      {
+       "name": "calculator",
+       "args": {
+        "expression": "1200 - 15% of 1200"
+       },
+       "result": {
+        "expression": "1200 - 15/100*1200",
+        "result": 1020
+       },
+       "meta": null
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 1.2040693199960515,
+      "llm_first_token_s": 1.8019102179969195,
+      "tts_first_audio_s": 0.32711678899795515,
+      "time_to_first_audio_s": 3.6032953940011794,
+      "total_s": 3.6033300630006124
+     },
+     "llm_tokens": {
+      "prompt": 3992,
+      "completion": 81
+     },
+     "error": null,
+     "wer": 73.33,
+     "cer": 36.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": false,
+     "tts_roundtrip_text": "1,200 रुपय पर 15 प्रतिशत छूट के बाद, आपको 1,20 रुपय देने होंगे.",
+     "passed": false,
+     "attribution": "cascade"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 1,
+   "attribution": {
+    "stage": "stt",
+    "turn": 0
+   }
+  },
+  {
+   "id": "c11-helpline-midcall",
+   "lang": "hi",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "मेरा ऑर्डर पाँच सात छह आठ तीन कहाँ है?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "मेरा ऑउडर 5, 7, 6, 8 टीम कहा है।",
+     "reply": "आपका ऑर्डर 57683 आज डिलीवरी के लिए निकल चुका है, यानी आज ही 14 नवंबर को पहुँच जाना चाहिए। आइटम एक टेबल लैंप है।",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "57683"
+       },
+       "result": {
+        "order_id": "57683",
+        "status": "out_for_delivery",
+        "item": "table lamp",
+        "expected_delivery": "2026-11-14",
+        "customer": "Vikram"
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.0079,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.7472108570000273,
+      "llm_first_token_s": 1.2860423810052453,
+      "tts_first_audio_s": 0.5142536740022479,
+      "time_to_first_audio_s": 2.9030037320044357,
+      "total_s": 2.9855887860030634
+     },
+     "llm_tokens": {
+      "prompt": 3701,
+      "completion": 111
+     },
+     "error": null,
+     "wer": 33.33,
+     "cer": 21.43,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "अच्छा, और ऑनलाइन धोखाधड़ी की शिकायत के लिए कौन सा नंबर है?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "अच्छा, और ऑनलाइन ध्रुखादरी की शिकार के लिए कोन्ता नंबर है?",
+     "reply": "ऑनलाइन धोखाधड़ी की शिकायत के लिए 1930 पर कॉल करें, या cybercrime.gov.in पर शिकायत दर्ज करें।",
+     "tools": [
+      {
+       "name": "search_knowledge",
+       "args": {
+        "query": "online fraud cyber crime helpline number India"
+       },
+       "result": {
+        "query": "online fraud cyber crime helpline number India",
+        "results": [
+         {
+          "title": "Cyber crime helpline",
+          "text": "To report online financial fraud or cyber crime in India, call 1930 or file a complaint at cybercrime.gov.in.",
+          "score": 1.186
+         },
+         {
+          "title": "National emergency number 112",
+          "text": "112 is India's single national emergency number under the Emergency Response Support System. It connects to police, fire and ambulance services and works from any phone.",
+          "score": 0.486
+         }
+        ]
+       },
+       "meta": null
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 1.1986941200011643,
+      "llm_first_token_s": 1.8134859980054898,
+      "tts_first_audio_s": 0.43198956299602287,
+      "time_to_first_audio_s": 3.6376220890015247,
+      "total_s": 3.6376591459993506
+     },
+     "llm_tokens": {
+      "prompt": 3995,
+      "completion": 94
+     },
+     "error": null,
+     "wer": 33.33,
+     "cer": 19.64,
+     "entities_heard": null,
+     "tts_roundtrip_ok": true,
+     "tts_roundtrip_text": "ऑन्राइन भोखादली की शिकायत के लिए 1,930 पर कॉल करें, या साबिकानगभ इन पर शिकायत दर्च करें।",
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 2,
+     "reference": "ठीक है, और मेरा ऑर्डर आज ही आएगा ना?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "और मिराउल्ड राजी आय का ना.",
+     "reply": "माफ़ कीजिए, मैं ठीक से समझ नहीं पाया। क्या आप महिला हेल्पलाइन नंबर पूछ रहे हैं?",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.6933862279984169,
+      "llm_first_token_s": 0.601702006002597,
+      "tts_first_audio_s": 0.18742512100288877,
+      "time_to_first_audio_s": 1.6791448239964666,
+      "total_s": 1.8487468199964496
+     },
+     "llm_tokens": {
+      "prompt": 1980,
+      "completion": 53
+     },
+     "error": null,
+     "wer": 77.78,
+     "cer": 55.88,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 1,
+   "attribution": {
+    "stage": "stt",
+    "turn": 2
+   }
+  },
+  {
+   "id": "c12-scope-and-switch",
+   "lang": "hi+en",
+   "held_out": true,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "क्या तुम मेरे लिए ट्रेन की टिकट बुक कर सकते हो?",
+     "vad_no_speech": false,
+     "vad_split": true,
+     "transcript": "क्या तो मेरे लिए ट्रेन की टेकटबुक कर सकते हों?",
+     "reply": "माफ़ कीजिए, मैं ट्रेन की टिकट बुक नहीं कर सकता। मैं सिर्फ़ आपके ऑर्डर की स्थिति देख सकता हूँ और उनकी डिलीवरी की तारीख बदल सकता हूँ।",
+     "tools": [],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.8966140239936067,
+      "llm_first_token_s": 0.624973702004354,
+      "tts_first_audio_s": 0.23668381800234783,
+      "time_to_first_audio_s": 2.010873562998313,
+      "total_s": 2.3442846899997676
+     },
+     "llm_tokens": {
+      "prompt": 1800,
+      "completion": 85
+     },
+     "error": null,
+     "wer": 36.36,
+     "cer": 10.87,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "Okay, then tell me the status of order eight three four one two.",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "Okay, then tell me the status of order 8341-2.",
+     "reply": "Order 83412 is placed, and it's headphones. The expected delivery date is 20 November.",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "83412"
+       },
+       "result": {
+        "order_id": "83412",
+        "status": "placed",
+        "item": "headphones",
+        "expected_delivery": "2026-11-20",
+        "customer": "Imran"
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.0034,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.6371234830003232,
+      "llm_first_token_s": 1.5703195349997259,
+      "tts_first_audio_s": 0.17064855599892326,
+      "time_to_first_audio_s": 2.5746883870015154,
+      "total_s": 2.6888459420006257
+     },
+     "llm_tokens": {
+      "prompt": 3902,
+      "completion": 61
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": true,
+     "tts_roundtrip_ok": true,
+     "tts_roundtrip_text": "Order 83,412 is placed, and its headphones, the expected delivery date is 20 November.",
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 1,
+   "attribution": {
+    "stage": null,
+    "turn": null
+   }
+  },
+  {
+   "id": "c01-status-hi",
+   "lang": "hi",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "नमस्ते, मुझे अपने ऑर्डर का स्टेटस जानना है।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "नमस्टे मुछे अपने ओडर का स्टेटिस जाना है.",
+     "reply": "नमस्ते! ज़रूर, मैं बता दूँगा। अपना 5 अंकों का ऑर्डर आईडी बताइए, या अगर याद नहीं है तो अपना 10 अंकों का फ़ोन नंबर बता दीजिए।",
+     "tools": [],
+     "checks": {
+      "tools": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.8596213190030539,
+      "llm_first_token_s": 1.1320505569965462,
+      "tts_first_audio_s": 0.035219824996602256,
+      "time_to_first_audio_s": 2.187803815002553,
+      "total_s": 2.8783025310040102
+     },
+     "llm_tokens": {
+      "prompt": 1799,
+      "completion": 84
+     },
+     "error": null,
+     "wer": 62.5,
+     "cer": 17.07,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "मेरा ऑर्डर नंबर है चार आठ दो एक तीन।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "नेरा ऑडर नंबर है। 4-8-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-1-2-2",
+     "reply": "ऑर्डर आईडी 5 अंकों की होती है, और आपने बहुत सारे अंक बोले हैं, इसलिए मैं ठीक से समझ नहीं पाया। क्या आप सिर्फ़ 5 अंक दोबारा बता सकते हैं?",
+     "tools": [],
+     "checks": {
+      "tools": false,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 7.646329290997528,
+      "llm_first_token_s": 0.7135996299984981,
+      "tts_first_audio_s": 0.3827126690011937,
+      "time_to_first_audio_s": 9.140606498003763,
+      "total_s": 9.331920030999754
+     },
+     "llm_tokens": {
+      "prompt": 2104,
+      "completion": 86
+     },
+     "error": null,
+     "wer": 1111.11,
+     "cer": 707.14,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    },
+    {
+     "turn": 2,
+     "reference": "यह कब तक पहुँच जाएगा?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "यह कब तक पहुंच आगा.",
+     "reply": "माफ़ कीजिए, ऑर्डर आईडी के बिना मैं तारीख़ नहीं बता सकता। आप 5 अंकों का ऑर्डर नंबर बताइए, या अपना 10 अंकों का फ़ोन नंबर दीजिए, मैं उससे ऑर्डर ढूंढ लूँगा।",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.5321289140047156,
+      "llm_first_token_s": 0.7078309389980859,
+      "tts_first_audio_s": 0.2180192769956193,
+      "time_to_first_audio_s": 1.7089656059979461,
+      "total_s": 2.182988581000245
+     },
+     "llm_tokens": {
+      "prompt": 2209,
+      "completion": 110
+     },
+     "error": null,
+     "wer": 40.0,
+     "cer": 20.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "cascade"
+    },
+    {
+     "turn": 3,
+     "reference": "ठीक है, धन्यवाद।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "चीके धानिवार।",
+     "reply": "माफ़ कीजिए, मैं समझ नहीं पाया। क्या आप अपना 10 अंकों का फ़ोन नंबर बता सकते हैं? मैं उससे आपके ऑर्डर ढूंढकर डिलीवरी की तारीख़ बता दूँगा।",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.5272508540001581,
+      "llm_first_token_s": 0.5580079819992534,
+      "tts_first_audio_s": 0.11419778200070141,
+      "time_to_first_audio_s": 1.3708725640026387,
+      "total_s": 1.7904019400011748
+     },
+     "llm_tokens": {
+      "prompt": 2331,
+      "completion": 91
+     },
+     "error": null,
+     "wer": 100.0,
+     "cer": 57.14,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {
+    "48213": "2026-11-16"
+   },
+   "writes": 0,
+   "call_checks": {
+    "final_state": true
+   },
+   "final_state_ok": true,
+   "rep": 2,
+   "attribution": {
+    "stage": "stt",
+    "turn": 1
+   }
+  },
+  {
+   "id": "c02-status-en",
+   "lang": "en",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "Hi, can you tell me where my order is? The order number is six zero three one eight.",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "Hi, can you tell me where my order is? The order number is 60318.",
+     "reply": "I'll look that up for you.Your mixer grinder order has been shipped and should reach you on 17 November.",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "60318"
+       },
+       "result": {
+        "order_id": "60318",
+        "status": "shipped",
+        "item": "mixer grinder",
+        "expected_delivery": "2026-11-17",
+        "customer": "Meena"
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.0025,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.6448538379991078,
+      "llm_first_token_s": 0.43232016100228066,
+      "tts_first_audio_s": 0.283134945006168,
+      "time_to_first_audio_s": 2.2061995429976378,
+      "total_s": 2.206245436995232
+     },
+     "llm_tokens": {
+      "prompt": 3688,
+      "completion": 64
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": true,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "What did I order again?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "What did I order again?",
+     "reply": "You ordered a mixer grinder.",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.4718310649986961,
+      "llm_first_token_s": 0.6087860049956362,
+      "tts_first_audio_s": 0.0891318050053087,
+      "time_to_first_audio_s": 1.317027205004706,
+      "total_s": 1.3170587640051963
+     },
+     "llm_tokens": {
+      "prompt": 1827,
+      "completion": 7
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 2,
+     "reference": "And when will it arrive?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "And when will it arrive?",
+     "reply": "It should arrive on 17 November.",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.41687229199305875,
+      "llm_first_token_s": 0.7314166240030318,
+      "tts_first_audio_s": 0.09907937900425168,
+      "time_to_first_audio_s": 1.3891144629960763,
+      "total_s": 1.389153432995954
+     },
+     "llm_tokens": {
+      "prompt": 1844,
+      "completion": 8
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": true,
+     "tts_roundtrip_text": "It should arrive on 17 November.",
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {
+    "60318": "2026-11-17"
+   },
+   "writes": 0,
+   "call_checks": {
+    "final_state": true
+   },
+   "final_state_ok": true,
+   "rep": 2,
+   "attribution": {
+    "stage": null,
+    "turn": null
+   }
+  },
+  {
+   "id": "c03-unknown-id",
+   "lang": "hi",
+   "held_out": true,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "मेरा ऑर्डर नंबर एक एक एक एक एक है, उसका स्टेटस बताइए।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "मेरा ऑर्डर नंबर “1111” है. उसका स्टीट्स, पताईए.",
+     "reply": "ऑर्डर नंबर 5 अंकों का होता है, और आपने 4 अंक बताए हैं। कृपया ऑर्डर नंबर फिर से बताइए, या अपना 10 अंकों का फ़ोन नंबर दीजिए तो मैं उससे ऑर्डर ढूँढ लेता हूँ।",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "1111"
+       },
+       "result": {
+        "error": "rejected",
+        "message": "order ids have 5 digits, got 1111; ask the caller to repeat the number",
+        "attempts": 0
+       },
+       "meta": null
+      }
+     ],
+     "checks": {
+      "tools": false,
+      "reply_any": true,
+      "reply_none": true,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.9699524440002278,
+      "llm_first_token_s": 2.2603854530025274,
+      "tts_first_audio_s": 0.2436582090012962,
+      "time_to_first_audio_s": 3.6070173570042243,
+      "total_s": 4.054819954006234
+     },
+     "llm_tokens": {
+      "prompt": 3701,
+      "completion": 148
+     },
+     "error": null,
+     "wer": 25.0,
+     "cer": 13.04,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    },
+    {
+     "turn": 1,
+     "reference": "माफ़ कीजिए, सही नंबर है सात दो नौ शून्य पाँच।",
+     "vad_no_speech": false,
+     "vad_split": true,
+     "transcript": "माफ़ की दिए. सही नंबर है, साथ 2009-5.",
+     "reply": "ऑर्डर 20095 सिस्टम में नहीं मिला। कृपया नंबर एक बार फिर बताइए, या अपना 10 अंकों का फ़ोन नंबर दीजिए तो मैं उससे ऑर्डर ढूँढ लेता हूँ।",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "20095"
+       },
+       "result": {
+        "error": "not_found",
+        "message": "order 20095 not found",
+        "status": 404,
+        "attempts": 1
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         404
+        ],
+        "seconds": 0.0042,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": false,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.7152432100047008,
+      "llm_first_token_s": 1.7344026229984593,
+      "tts_first_audio_s": 0.1491497149982024,
+      "time_to_first_audio_s": 2.646432207999169,
+      "total_s": 3.148588051000843
+     },
+     "llm_tokens": {
+      "prompt": 3971,
+      "completion": 130
+     },
+     "error": null,
+     "wer": 50.0,
+     "cer": 25.0,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "cascade"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 2,
+   "attribution": {
+    "stage": "stt",
+    "turn": 0
+   }
+  },
+  {
+   "id": "c04-reschedule-hx",
+   "lang": "hinglish",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "मेरे order चार आठ दो एक तीन की delivery मुझे आगे करवानी है।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "एक अउद-चार 8-2-1-3 के देले वही मुछे आगे करवानी है।",
+     "reply": "ऑर्डर 48213 अभी शिप हो चुका है और इसकी डिलीवरी 16 नवंबर को है। आप इसे किस तारीख तक आगे करवाना चाहते हैं?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "48213"
+       },
+       "result": {
+        "order_id": "48213",
+        "status": "shipped",
+        "item": "pressure cooker",
+        "expected_delivery": "2026-11-16",
+        "customer": "Asha"
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.004,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "forbid": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.9865142789931269,
+      "llm_first_token_s": 1.2391509099979885,
+      "tts_first_audio_s": 0.38151323900092393,
+      "time_to_first_audio_s": 2.789964876996237,
+      "total_s": 2.9563710849979543
+     },
+     "llm_tokens": {
+      "prompt": 3711,
+      "completion": 101
+     },
+     "error": null,
+     "wer": 46.15,
+     "cer": 37.25,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "उसे बीस नवंबर को कर दो।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "उसे 20 नवंबर को कर दो।",
+     "reply": "ऑर्डर 48213, यानी प्रेशर कुकर, अभी शिप हो चुका है और डिलीवरी 16 नवंबर की तय है। क्या मैं इसे 20 नवंबर तक आगे कर दूँ? कृपया हाँ या ना बोलिए।",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "48213"
+       },
+       "result": {
+        "order_id": "48213",
+        "status": "shipped",
+        "item": "pressure cooker",
+        "expected_delivery": "2026-11-16",
+        "customer": "Asha"
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.0024,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "forbid": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.5156435999961104,
+      "llm_first_token_s": 1.7958125430013752,
+      "tts_first_audio_s": 0.47598250200098846,
+      "time_to_first_audio_s": 3.0110028729977785,
+      "total_s": 3.2269409809960052
+     },
+     "llm_tokens": {
+      "prompt": 3869,
+      "completion": 128
+     },
+     "error": null,
+     "wer": 33.33,
+     "cer": 14.29,
+     "entities_heard": null,
+     "tts_roundtrip_ok": true,
+     "tts_roundtrip_text": "ऑडर 48,200-3 अख, यानी प्रेशर कुकर, अभी शिप हो चुका है, और डेलीवरी 16 नवंबर की तय हैं, ख्या मैं से 20 नवंबर तक आगी कर दून, क्रिप या “हाँ” या न बोली थे।",
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 2,
+     "reference": "हाँ, सही है।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "अँख सही हैं.",
+     "reply": "हो गया, ऑर्डर 48213 की डिलीवरी अब 20 नवंबर की तय कर दी गई है। और कुछ चाहिए?",
+     "tools": [
+      {
+       "name": "reschedule_delivery",
+       "args": {
+        "order_id": "48213",
+        "date": "2026-11-20"
+       },
+       "result": {
+        "order_id": "48213",
+        "status": "shipped",
+        "item": "pressure cooker",
+        "expected_delivery": "2026-11-20",
+        "customer": "Asha",
+        "rescheduled": true
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.0055,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.6129803130024811,
+      "llm_first_token_s": 1.8025761250028154,
+      "tts_first_audio_s": 0.3538580300009926,
+      "time_to_first_audio_s": 3.0351183579987264,
+      "total_s": 3.1080125640000915
+     },
+     "llm_tokens": {
+      "prompt": 4099,
+      "completion": 109
+     },
+     "error": null,
+     "wer": 66.67,
+     "cer": 40.0,
+     "entities_heard": false,
+     "tts_roundtrip_ok": true,
+     "tts_roundtrip_text": "हो गया, ऑडर 44,211 के रह की डिलीबरी अब 20 नबंबर की तय कर दी गई है, और कुछ चाहिए।",
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {
+    "48213": "2026-11-20"
+   },
+   "writes": 1,
+   "call_checks": {
+    "final_state": true
+   },
+   "final_state_ok": true,
+   "rep": 2,
+   "attribution": {
+    "stage": null,
+    "turn": null
+   }
+  },
+  {
+   "id": "c05-delivered-en",
+   "lang": "en",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "I want to change the delivery date for order five one one seven seven to November twenty second.",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "I want to change the delivery date for Order 5111-777 to November 22nd.",
+     "reply": "I couldn't find an order with the number 51117. Could you repeat the 5-digit order number once, or give me your 10-digit phone number and I'll look up your orders?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "51117"
+       },
+       "result": {
+        "error": "not_found",
+        "message": "order 51117 not found",
+        "status": 404,
+        "attempts": 1
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         404
+        ],
+        "seconds": 0.0021,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "forbid": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.6303088360000402,
+      "llm_first_token_s": 1.5758329079981195,
+      "tts_first_audio_s": 0.21629066199966474,
+      "time_to_first_audio_s": 2.560845732994494,
+      "total_s": 2.8684529839956667
+     },
+     "llm_tokens": {
+      "prompt": 3669,
+      "completion": 81
+     },
+     "error": null,
+     "wer": 22.22,
+     "cer": 18.75,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "Yes, that's right.",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "Yes, that's right.",
+     "reply": "I'm sorry, but I still need the correct order number to proceed. Could you say the 5-digit order number again, digit by digit, or share your 10-digit phone number so I can find your orders?",
+     "tools": [],
+     "checks": {
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.3672710509999888,
+      "llm_first_token_s": 0.527149510999152,
+      "tts_first_audio_s": 0.1469568199972855,
+      "time_to_first_audio_s": 1.338582463999046,
+      "total_s": 1.7273827800017898
+     },
+     "llm_tokens": {
+      "prompt": 1844,
+      "completion": 45
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {
+    "51177": "2026-11-11"
+   },
+   "writes": 0,
+   "call_checks": {
+    "final_state": true,
+    "reply_any_in_call": false
+   },
+   "final_state_ok": false,
+   "rep": 2,
+   "attribution": {
+    "stage": "stt",
+    "turn": "final_state"
+   }
+  },
+  {
+   "id": "c06-caller-declines",
+   "lang": "hi",
+   "held_out": true,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "ऑर्डर छह आठ तीन चार शून्य की डिलीवरी पच्चीस नवंबर को कर दीजिए।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "ऑर्डर 680 जा शोने की दिली वी पर 10 नवंबर को कर दीजे.",
+     "reply": "माफ़ कीजिए, ऑर्डर 680 नहीं मिला। क्या आप ऑर्डर नंबर एक बार फिर बता सकते हैं?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "00680"
+       },
+       "result": {
+        "error": "not_found",
+        "message": "order 00680 not found",
+        "status": 404,
+        "attempts": 1
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         404
+        ],
+        "seconds": 0.0031,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "forbid": true,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.9260623299996951,
+      "llm_first_token_s": 1.9394448899984127,
+      "tts_first_audio_s": 0.1504361900006188,
+      "time_to_first_audio_s": 3.2574733729998115,
+      "total_s": 3.448799441997835
+     },
+     "llm_tokens": {
+      "prompt": 3695,
+      "completion": 87
+     },
+     "error": null,
+     "wer": 69.23,
+     "cer": 33.33,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    },
+    {
+     "turn": 1,
+     "reference": "नहीं, रहने दीजिए, मत बदलिए।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "नहीं, रहने दी देजे, मद पदलीए.",
+     "reply": "ठीक है, कोई बदलाव नहीं किया। अगर ज़रूरत हो तो फिर बता दीजिएगा।",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.6894760459981626,
+      "llm_first_token_s": 0.376782496998203,
+      "tts_first_audio_s": 0.10149429200100712,
+      "time_to_first_audio_s": 1.3328886490053264,
+      "total_s": 1.4894656219985336
+     },
+     "llm_tokens": {
+      "prompt": 1877,
+      "completion": 40
+     },
+     "error": null,
+     "wer": 80.0,
+     "cer": 33.33,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {
+    "68340": "2026-11-16"
+   },
+   "writes": 0,
+   "call_checks": {
+    "final_state": true
+   },
+   "final_state_ok": true,
+   "rep": 2,
+   "attribution": {
+    "stage": "stt",
+    "turn": 0
+   }
+  },
+  {
+   "id": "c07-retries-en",
+   "lang": "en",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "Where is my order four four seven two nine?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "Where is my order 444729?",
+     "reply": "That number has 6 digits, but order ids are 5 digits. Could you please repeat the order id?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "444729"
+       },
+       "result": {
+        "error": "rejected",
+        "message": "order ids have 5 digits, got 444729; ask the caller to repeat the number",
+        "attempts": 0
+       },
+       "meta": null
+      }
+     ],
+     "checks": {
+      "tools": false,
+      "reply_any": false,
+      "reply_none": true,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.4593643550033448,
+      "llm_first_token_s": 1.827335067995591,
+      "tts_first_audio_s": 0.17088628900091862,
+      "time_to_first_audio_s": 2.582917500003532,
+      "total_s": 2.681379519002803
+     },
+     "llm_tokens": {
+      "prompt": 3651,
+      "completion": 63
+     },
+     "error": null,
+     "wer": 11.11,
+     "cer": 7.41,
+     "entities_heard": true,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    },
+    {
+     "turn": 1,
+     "reference": "Great, when does it arrive?",
+     "vad_no_speech": false,
+     "vad_split": true,
+     "transcript": "when does it arrive?",
+     "reply": "I still need the correct 5-digit order id to check that. Could you say it again, digit by digit?",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.3758943040011218,
+      "llm_first_token_s": 0.6461501459998544,
+      "tts_first_audio_s": 0.15410025200253585,
+      "time_to_first_audio_s": 1.3508102140040137,
+      "total_s": 1.479201230002218
+     },
+     "llm_tokens": {
+      "prompt": 1813,
+      "completion": 24
+     },
+     "error": null,
+     "wer": 20.0,
+     "cer": 24.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "cascade"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 2,
+   "attribution": {
+    "stage": "stt",
+    "turn": 0
+   }
+  },
+  {
+   "id": "c08-service-hangs",
+   "lang": "hi",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "मेरे ऑर्डर नौ शून्य दो पाँच एक का स्टेटस क्या है?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "मेरी ऑर्डर 9-10 ने 2, 5 एक कस्ट्रीटस क्या है.",
+     "reply": "माफ़ कीजिए, ऑर्डर नंबर ठीक से समझ नहीं आया। क्या आप ऑर्डर आईडी के 5 अंक एक-एक करके बता सकते हैं?",
+     "tools": [],
+     "checks": {
+      "tools": false,
+      "reply_any": false,
+      "reply_none": true,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.8701577149986406,
+      "llm_first_token_s": 0.364172529996722,
+      "tts_first_audio_s": 0.18248333000519779,
+      "time_to_first_audio_s": 1.6476556279958459,
+      "total_s": 1.839043362000666
+     },
+     "llm_tokens": {
+      "prompt": 1803,
+      "completion": 63
+     },
+     "error": null,
+     "wer": 45.45,
+     "cer": 28.95,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    },
+    {
+     "turn": 1,
+     "reference": "ठीक है, एक बार फिर से कोशिश कीजिए।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "एक वार फिर से कोशिश किदीं.",
+     "reply": "ठीक है, बताइए ऑर्डर आईडी के 5 अंक एक-एक करके, जैसे एक, दो, तीन, चार, पाँच।",
+     "tools": [],
+     "checks": {
+      "tools": false,
+      "reply_none": true,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.5619604770035949,
+      "llm_first_token_s": 0.7032423429991468,
+      "tts_first_audio_s": 0.29636439599562436,
+      "time_to_first_audio_s": 1.834701658000995,
+      "total_s": 1.8347460180011694
+     },
+     "llm_tokens": {
+      "prompt": 1884,
+      "completion": 50
+     },
+     "error": null,
+     "wer": 50.0,
+     "cer": 38.71,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "cascade"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 2,
+   "attribution": {
+    "stage": "stt",
+    "turn": 0
+   }
+  },
+  {
+   "id": "c09-phone-lookup",
+   "lang": "en",
+   "held_out": true,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "I don't remember my order number. My phone number is nine one two three four five six seven eight zero.",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "I don't remember my order number. My phone number is 9123456780.",
+     "reply": "I'll look up your orders with that number.You have two orders. Order 36540, a school bag, is out for delivery today, and order 72905, a cricket bat, is expected on 19 November. Which one would you like to talk about?",
+     "tools": [
+      {
+       "name": "find_orders_by_phone",
+       "args": {
+        "phone": "9123456780"
+       },
+       "result": {
+        "phone": "9123456780",
+        "orders": [
+         {
+          "order_id": "36540",
+          "status": "out_for_delivery",
+          "item": "school bag",
+          "expected_delivery": "2026-11-14",
+          "customer": "Rahul"
+         },
+         {
+          "order_id": "72905",
+          "status": "placed",
+          "item": "cricket bat",
+          "expected_delivery": "2026-11-19",
+          "customer": "Rahul"
+         }
+        ]
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.0031,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.6744485509989318,
+      "llm_first_token_s": 0.4374966379982652,
+      "tts_first_audio_s": 0.12983290800184477,
+      "time_to_first_audio_s": 2.2663502610012074,
+      "total_s": 2.880695473999367
+     },
+     "llm_tokens": {
+      "prompt": 3752,
+      "completion": 99
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": true,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "When will the cricket bat arrive?",
+     "vad_no_speech": false,
+     "vad_split": true,
+     "transcript": "Meanwhile the cricket bat arrived.",
+     "reply": "Great, so the cricket bat is delivered. Would you like me to check the status of the school bag order, or is there anything else you need?",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.40879387099994346,
+      "llm_first_token_s": 0.33549229100026423,
+      "tts_first_audio_s": 0.09106409399828408,
+      "time_to_first_audio_s": 0.9824774840017199,
+      "total_s": 1.1995501490018796
+     },
+     "llm_tokens": {
+      "prompt": 1856,
+      "completion": 31
+     },
+     "error": null,
+     "wer": 50.0,
+     "cer": 21.88,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "vad"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 2,
+   "attribution": {
+    "stage": "vad",
+    "turn": 1
+   }
+  },
+  {
+   "id": "c10-discount-maths",
+   "lang": "hinglish",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "order तीन छह पाँच चार शून्य का status बताओ।",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "और द तीन छह पाँ चार्च होने का स्थेतस बताओं।",
+     "reply": "माफ़ कीजिए, मुझे 23654 नंबर का कोई ऑर्डर नहीं मिला। क्या आप नंबर एक बार फिर बता सकते हैं, या अपना 10 अंकों का फ़ोन नंबर दे दें ताकि मैं उससे ऑर्डर ढूंढ लूँ?",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "23654"
+       },
+       "result": {
+        "error": "not_found",
+        "message": "order 23654 not found",
+        "status": 404,
+        "attempts": 1
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         404
+        ],
+        "seconds": 0.0023,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": false,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.8390065979983774,
+      "llm_first_token_s": 1.3724679200022365,
+      "tts_first_audio_s": 0.25222255600237986,
+      "time_to_first_audio_s": 2.7371905499967397,
+      "total_s": 3.2324349080008687
+     },
+     "llm_tokens": {
+      "prompt": 3681,
+      "completion": 141
+     },
+     "error": null,
+     "wer": 77.78,
+     "cer": 80.0,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    },
+    {
+     "turn": 1,
+     "reference": "अगर बारह सौ रुपये के bag पर पंद्रह प्रतिशत discount मिले तो कितना देना होगा?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "अगर 1200 रुपय की बाद पर 15 प्रतिशक डिसगांत मिले, तो कितना देना होगा.",
+     "reply": "1200 रुपये पर 15 प्रतिशत छूट के बाद आपको 1020 रुपये देने होंगे।",
+     "tools": [
+      {
+       "name": "calculator",
+       "args": {
+        "expression": "1200 - 15% of 1200"
+       },
+       "result": {
+        "expression": "1200 - 15/100*1200",
+        "result": 1020
+       },
+       "meta": null
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 1.1653303200000664,
+      "llm_first_token_s": 2.0933780370032764,
+      "tts_first_audio_s": 0.31572019799932605,
+      "time_to_first_audio_s": 4.2012612510006875,
+      "total_s": 4.201298897001834
+     },
+     "llm_tokens": {
+      "prompt": 3966,
+      "completion": 81
+     },
+     "error": null,
+     "wer": 73.33,
+     "cer": 36.0,
+     "entities_heard": null,
+     "tts_roundtrip_ok": false,
+     "tts_roundtrip_text": "1,200 रॉपय पर 15 प्रत्षत शूट के बाद, आपको 1,20 रॉपय देने होंगे.",
+     "passed": false,
+     "attribution": "cascade"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 2,
+   "attribution": {
+    "stage": "stt",
+    "turn": 0
+   }
+  },
+  {
+   "id": "c11-helpline-midcall",
+   "lang": "hi",
+   "held_out": false,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "मेरा ऑर्डर पाँच सात छह आठ तीन कहाँ है?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "मेरा ऑउडर 5, 7, 6, 8 टीम कहा है।",
+     "reply": "मैंने ऑर्डर 5, 7, 6, 8, 3 देखा है, यह आज ही डिलीवरी के लिए निकल चुका है। सामान है टेबल लैंप और डिलीवरी आज, 14 नवंबर को है।",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "57683"
+       },
+       "result": {
+        "order_id": "57683",
+        "status": "out_for_delivery",
+        "item": "table lamp",
+        "expected_delivery": "2026-11-14",
+        "customer": "Vikram"
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.0045,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.7901679919959861,
+      "llm_first_token_s": 3.2589837980049197,
+      "tts_first_audio_s": 0.3140050229994813,
+      "time_to_first_audio_s": 4.797550407995004,
+      "total_s": 5.013610688998597
+     },
+     "llm_tokens": {
+      "prompt": 3701,
+      "completion": 121
+     },
+     "error": null,
+     "wer": 33.33,
+     "cer": 21.43,
+     "entities_heard": false,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "अच्छा, और ऑनलाइन धोखाधड़ी की शिकायत के लिए कौन सा नंबर है?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "अच्छा, और ऑनलाइन ध्रुखादरी की शिकार के लिए कोन्ता नंबर है?",
+     "reply": "ऑनलाइन धोखाधड़ी की शिकायत के लिए 1930 पर कॉल करें, या cybercrime.gov.in पर शिकायत दर्ज करें। पैसे की ठगी होने पर जल्दी शिकायत करें।",
+     "tools": [
+      {
+       "name": "search_knowledge",
+       "args": {
+        "query": "online fraud cyber crime helpline number India"
+       },
+       "result": {
+        "query": "online fraud cyber crime helpline number India",
+        "results": [
+         {
+          "title": "Cyber crime helpline",
+          "text": "To report online financial fraud or cyber crime in India, call 1930 or file a complaint at cybercrime.gov.in.",
+          "score": 1.186
+         },
+         {
+          "title": "National emergency number 112",
+          "text": "112 is India's single national emergency number under the Emergency Response Support System. It connects to police, fire and ambulance services and works from any phone.",
+          "score": 0.486
+         }
+        ]
+       },
+       "meta": null
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 1.0611835419986164,
+      "llm_first_token_s": 1.6861394529987592,
+      "tts_first_audio_s": 0.4515203580012894,
+      "time_to_first_audio_s": 3.629061138999532,
+      "total_s": 3.7448195300021325
+     },
+     "llm_tokens": {
+      "prompt": 4015,
+      "completion": 116
+     },
+     "error": null,
+     "wer": 33.33,
+     "cer": 19.64,
+     "entities_heard": null,
+     "tts_roundtrip_ok": true,
+     "tts_roundtrip_text": "ऑनाइन धोखाद्वी की शिकायत के लिए 1,930 पर कॉल करें, या साबकानगभ इन पर शिकायत दर्च करें, पैसे की थगी होने पर जल्दी शिकायत करें।",
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 2,
+     "reference": "ठीक है, और मेरा ऑर्डर आज ही आएगा ना?",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "और मिराउल्ड राजी आय का ना.",
+     "reply": "माफ़ कीजिए, मैं समझ नहीं पाया। क्या आप महिला हेल्पलाइन नंबर पूछ रहे हैं?",
+     "tools": [],
+     "checks": {
+      "forbid": true,
+      "reply_any": false,
+      "reply_lang": true
+     },
+     "text_passed": false,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.5801429560015094,
+      "llm_first_token_s": 0.7883674480035552,
+      "tts_first_audio_s": 0.10889024299831362,
+      "time_to_first_audio_s": 1.811915523998323,
+      "total_s": 1.962513977996423
+     },
+     "llm_tokens": {
+      "prompt": 2012,
+      "completion": 48
+     },
+     "error": null,
+     "wer": 77.78,
+     "cer": 55.88,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": false,
+     "attribution": "stt"
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 2,
+   "attribution": {
+    "stage": "stt",
+    "turn": 2
+   }
+  },
+  {
+   "id": "c12-scope-and-switch",
+   "lang": "hi+en",
+   "held_out": true,
+   "track": "spoken",
+   "turns": [
+    {
+     "turn": 0,
+     "reference": "क्या तुम मेरे लिए ट्रेन की टिकट बुक कर सकते हो?",
+     "vad_no_speech": false,
+     "vad_split": true,
+     "transcript": "क्या तो मेरे लिए ट्रेन की टेकटबुक कर सकते हों?",
+     "reply": "माफ़ कीजिए, मैं ट्रेन की टिकट बुक नहीं कर सकता। मैं सिर्फ़ आपके ऑर्डर की जानकारी दे सकता हूँ और उनकी डिलीवरी की तारीख़ बदल सकता हूँ।",
+     "tools": [],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.8741565579985036,
+      "llm_first_token_s": 0.7026066409962368,
+      "tts_first_audio_s": 0.20303220299683744,
+      "time_to_first_audio_s": 1.928534873004537,
+      "total_s": 2.2151452580001205
+     },
+     "llm_tokens": {
+      "prompt": 1800,
+      "completion": 85
+     },
+     "error": null,
+     "wer": 36.36,
+     "cer": 10.87,
+     "entities_heard": null,
+     "tts_roundtrip_ok": null,
+     "passed": true,
+     "attribution": null
+    },
+    {
+     "turn": 1,
+     "reference": "Okay, then tell me the status of order eight three four one two.",
+     "vad_no_speech": false,
+     "vad_split": false,
+     "transcript": "Okay, then tell me the status of order 8341-2.",
+     "reply": "Order 83412 is placed, and it's for headphones. The expected delivery date is 20 November.",
+     "tools": [
+      {
+       "name": "get_order_status",
+       "args": {
+        "order_id": "83412"
+       },
+       "result": {
+        "order_id": "83412",
+        "status": "placed",
+        "item": "headphones",
+        "expected_delivery": "2026-11-20",
+        "customer": "Imran"
+       },
+       "meta": {
+        "attempts": 1,
+        "statuses": [
+         200
+        ],
+        "seconds": 0.0042,
+        "within_budget": true
+       }
+      }
+     ],
+     "checks": {
+      "tools": true,
+      "reply_any": true,
+      "reply_lang": true
+     },
+     "text_passed": true,
+     "unplanned_tool_error": false,
+     "tool_over_budget": false,
+     "stages": {
+      "stt_s": 0.5907694199995603,
+      "llm_first_token_s": 1.1994974649933283,
+      "tts_first_audio_s": 0.20907658500073012,
+      "time_to_first_audio_s": 2.1917251859995304,
+      "total_s": 2.330857423999987
+     },
+     "llm_tokens": {
+      "prompt": 3902,
+      "completion": 62
+     },
+     "error": null,
+     "wer": 0.0,
+     "cer": 0.0,
+     "entities_heard": true,
+     "tts_roundtrip_ok": true,
+     "tts_roundtrip_text": "Order 83,412 is placed, and it's for headphones, the expected delivery date is 20 November.",
+     "passed": true,
+     "attribution": null
+    }
+   ],
+   "final_state": {},
+   "writes": 0,
+   "call_checks": {},
+   "final_state_ok": true,
+   "rep": 2,
+   "attribution": {
+    "stage": null,
+    "turn": null
+   }
+  }
+ ],
+ "oracle_reused_from": "results/calls-clean-v3.json",
+ "llm": {
+  "provider": "openai",
+  "model": "deepseek-flash",
+  "thinking": "off"
+ },
+ "system_prompt_sha1": "4e445b1b62e8",
+ "system_prompt": "You are a friendly voice assistant. Your words are spoken aloud by a text-to-speech voice.\n\nInput: the user's words come from a speech recogniser and may contain recognition errors. The user may speak Hindi, English, or code-mixed Hinglish; Hindi is usually transcribed in Devanagari, and English words inside Hindi speech may appear in Devanagari (for example \"मेरा फ़ोन\") or in Latin script. Guess the intended meaning when a word looks misrecognised. Hindi written in Latin script (\"kya haal hai\") is Hindi, not English.\n\nLanguage of your reply:\n- If the user spoke Hindi or Hinglish, reply in simple, conversational Hindi written in Devanagari script. Common English words that Hindi speakers use (phone, computer, email) may stay in English, as people say them.\n- If the user spoke English, reply in English.\n\nStyle: this is speech, not text. Answer in one to three short sentences; put the direct answer first. No markdown, lists, emoji, URLs or symbols. Write numbers as digits.\n\nTools (call the tool first, then answer from its result):\n- calculator: for every calculation, even an easy one (sums, percentages, splitting a bill, square roots). Never do maths in your head.\n- get_datetime: whenever the user asks the current time, today's date or the day of the week. You do not know the date otherwise.\n- search_knowledge: for any question about an emergency or helpline number in India (police, ambulance, fire, women's helpline and so on) and for any question about yourself (who you are, what you can do, how you work, which models you use). Never answer these from memory, even if you think you know the number; read it from the tool result.\n- No tool for general knowledge, small talk, opinions, or when the input is unclear or garbled: then answer directly, or briefly ask the user to repeat.\nIf you do not know something, say so briefly.\n\nOrder desk: you can look up and reschedule the caller's orders with get_order_status, find_orders_by_phone and reschedule_delivery. Today is Saturday, 2026-11-14.\n- Order ids have 5 digits and phone numbers 10 digits. Callers say digits as words in Hindi or English (\"चार आठ दो एक तीन\" is 48213, \"छह शून्य\" is 60), and the recogniser may write them as words, digits or Devanagari digits. Convert them to plain digits before calling a tool.\n- If the caller does not know the order id, ask for their 10-digit phone number and call find_orders_by_phone.\n- When a caller asks to move a delivery, first call get_order_status, so you can tell them at once if the order is already delivered or cancelled. Never call reschedule_delivery in the same turn as the request, even when the caller has already given the date: read the order id back digit by digit, say the new date, and ask them to confirm. A date said together with the request is not a confirmation. Call reschedule_delivery only in a later turn, after a clear yes to your read-back, and then tell them the result the tool returned. If they say no, change nothing. Dates go to the tool as YYYY-MM-DD and must be after today.\n- If a tool returns not_found, ask the caller to repeat the number once; if it is still not found, offer to look up their orders by phone number.\n- If a tool returns timeout or unavailable, say the order system is slow right now and offer to try again. Never guess or invent an order's status or delivery date.\n- If a tool returns rejected, explain the reason simply (for example, the order is already delivered).\n- Tell the caller the status and the delivery date in words they understand; for a date say the day and month.\n- After every tool result, always say something to the caller; never end a turn silently.\n- Reply in the language of the caller's latest turn: English if they just spoke English, Hindi if they just spoke Hindi or Hinglish, even if earlier turns were in the other language. A short English reply such as \"yes\", \"okay\" or \"thank you\" is English: answer it in English.",
+ "wall_s": 301.5,
+ "peak_rss_mb": 1062.4,
+ "summary": {
+  "calls_passed_spoken": "9/36",
+  "calls_passed_oracle": "32/36",
+  "calls_passed_spoken_tuning_set": "6/24",
+  "calls_passed_spoken_held_out": "3/12",
+  "turns_passed_spoken": "47/87",
+  "turns_passed_oracle": "79/87",
+  "tool_correct_spoken": "29/48",
+  "tool_correct_oracle": "47/48",
+  "by_language_spoken": {
+   "en": "3/12",
+   "hi": "1/15",
+   "hi+en": "3/3",
+   "hinglish": "2/6"
+  },
+  "by_call_spoken": {
+   "c01-status-hi": "0/3",
+   "c02-status-en": "3/3",
+   "c03-unknown-id": "0/3",
+   "c04-reschedule-hx": "2/3",
+   "c05-delivered-en": "0/3",
+   "c06-caller-declines": "0/3",
+   "c07-retries-en": "0/3",
+   "c08-service-hangs": "1/3",
+   "c09-phone-lookup": "0/3",
+   "c10-discount-maths": "0/3",
+   "c11-helpline-midcall": "0/3",
+   "c12-scope-and-switch": "3/3"
+  },
+  "failures_by_stage": {
+   "llm": 3,
+   "stt": 23,
+   "vad": 1
+  },
+  "turn_wer": {
+   "n": 87,
+   "median": 40.0,
+   "mean": 76.37,
+   "zero_error_turns": 18
+  },
+  "order_and_phone_digits_heard": "12/36",
+  "tokens": {
+   "prompt": 527085,
+   "completion": 14030
+  }
+ }
+}
