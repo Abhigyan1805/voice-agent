@@ -12,10 +12,45 @@ End of speech to first reply audio, measured by wall clock with the audio fed in
 | DeepSeek flash, thinking off, original prompt | 56/56 | **4.17 s** | 9.44 s | 0.55 s | 1.97 s | 1.18 s | 0.26 s | 16/22 | 3/8 |
 | + tool section in the system prompt | 56/56 | **4.05 s** | 8.63 s | 0.55 s | 1.89 s | 1.25 s | 0.24 s | 22/22 | 8/8 |
 | + short STT window (end-of-turn sweep kept 544 ms) | 54/56 | **2.67 s** | 6.38 s | 0.55 s | 0.51 s | 1.19 s | 0.24 s | 22/22 | 8/8 |
+| Final code, shipped defaults (digit fix on, order tools off) | 56/56 | **2.65 s** | 6.24 s | 0.55 s | 0.51 s | 1.08 s | 0.24 s | 22/22 | 8/8 |
 
 Latency percentiles are over the turns without error. Errors are LLM requests that failed or hit the voice timeout (8 s without data); the agent speaks a short apology on those turns. + short STT window (end-of-turn sweep kept 544 ms): ReadTimeout: The read operation timed out, ConnectTimeout: timed out.
 
-Last row: STT window utterance + 5 s below 12 s (2 of 56 turns fell back to 30 s), VAD end-of-turn 544 ms, speculative STT at 160 ms (44 speculative decodes wasted). LLM tokens for the run: 80467 prompt, 4375 completion.
+Last row: STT window utterance + 5 s below 12 s (2 of 56 turns fell back to 30 s), VAD end-of-turn 544 ms, speculative STT at 160 ms (44 speculative decodes wasted). LLM tokens for the run: 82499 prompt, 4513 completion.
+
+### Final run on shipped defaults (order tools off)
+
+CPU: 11th Gen Intel(R) Core(TM) i5-11300H @ 3.10GHz (6 logical CPUs visible in WSL2), STT on 4 threads. LLM: None (0 turns), live calls, cache off. 56 turns (2 rounds over 28 prompts), 56 without errors. Audio fed in real time; speculative STT on. Machine load average during turns: median 1.6, p95 2.5 (other jobs share this machine). Peak RSS of the whole process: 1067 MB.
+
+| Stage | p50 | p95 | mean |
+|---|---:|---:|---:|
+| VAD, CPU per 32 ms frame | 0.603 ms | 0.659 ms | 0.601 ms |
+| End-of-turn wait (VAD hangover) | 0.55 s | 0.55 s | 0.54 s |
+| Speech-to-text, left on the critical path | 0.51 s | 4.55 s | 1.12 s |
+| Speech-to-text, full decode | 0.89 s | 4.93 s | 1.50 s |
+| LLM first token (incl. tool round trips) | 0.82 s | 1.70 s | 0.96 s |
+| LLM first complete sentence | 1.08 s | 1.98 s | 1.21 s |
+| TTS first sentence | 0.24 s | 0.49 s | 0.26 s |
+| **End of speech → first reply audio** | **2.65 s** | **6.24 s** | 3.14 s |
+
+By group (end of speech → first reply audio):
+
+| Turns | n | p50 | p95 |
+|---|---:|---:|---:|
+| All | 56 | 2.65 s | 6.24 s |
+| no tool call | 34 | 2.36 s | 6.52 s |
+| with tool call | 22 | 2.90 s | 5.38 s |
+| synthetic prompts | 40 | 2.42 s | 4.30 s |
+| FLEURS real speech | 16 | 3.91 s | 6.68 s |
+| Hindi | 34 | 3.02 s | 6.52 s |
+| Hinglish | 12 | 2.54 s | 5.54 s |
+| English | 10 | 1.89 s | 2.90 s |
+
+LLM first token, no tool call: p50 0.65 s / p95 0.90 s; with a tool call (two LLM requests): p50 1.42 s / p95 2.04 s.
+
+Speculative STT was used on 56/56 turns and took a median 0.383 s (min 0.365, max 0.386) of decode time off the critical path, measured within the same turn as full decode time minus the STT time left after the end of the turn. That is the 384 ms between the VAD's pause (160 ms) and end-of-turn (544 ms) events.
+
+Language ID (Hindi vs English, from the single encoder pass): English prompts 10/10, Hindi and Hinglish prompts 46/46. Expected tool used: calculator 8/8, date/time 6/6, knowledge base 8/8.
 
 ### Tool routing, text only
 
@@ -101,6 +136,17 @@ Worked failure examples (first failing turn of a call, one per stage, from the l
 - **stt** (`c03-unknown-id`, turn 2): caller said "माफ़ कीजिए, सही नंबर है सात दो नौ शून्य पाँच।"; recogniser heard "माफ़ किजे! सही नंबर है साथ दो नौश्य उन्य पाथ्स!"; tools: get_order_status(order_id=72959) -> not_found; reply "माफ़ कीजिए, 72959 भी सिस्टम में नहीं मिला। क्या आप अपना 10 अंकों का फ़ोन नंबर बता सकते हैं, मैं उससे ऑर्डर ढू…". Failed check: tools, reply_any.
 - **llm** (`c04-reschedule-hx`, turn 2): caller said "उसे बीस नवंबर को कर दो।"; recogniser heard "उसे 20 नवंबर को कर दो।"; tools: get_order_status(order_id=48813) -> not_found; reply "48813 नंबर से अभी भी कोई ऑर्डर नहीं मिल रहा, इसलिए मैं तारीख़ नहीं बदल सकता। आप अपना 10 अंकों का फ़ोन नंबर बत…". Failed check: reply_any.
 
+### Misheard digits: before and after the fix
+
+Same 12 calls and 3 repetitions, with a reactive simulated caller: when the agent reads back a wrong order id or phone number, or asks for it again, the caller repeats it slowly digit by digit (at most twice), and confirms a correct read-back. A turn passes with at most one repeat. "Before" is the v3 prompt with no number handling (`VOICE_AGENT_DIGIT_FIX=0`); "after" adds spoken-number normalisation of the transcript, a digit hint to the recogniser on the turn after the agent asks for a number, and a read-back-and-confirm rule in the prompt. Exact id on first try: the 5-digit id or 10-digit phone number appears as one digit string in what the LLM received from the caller's first attempt.
+
+| Run | Calls passed, spoken | Held-out calls, spoken | Calls passed, oracle | Exact id on first try | Right id reached the order tool | Id turns with 0 / 1 / 2 repeats | Failures by stage |
+|---|---:|---:|---:|---:|---:|---:|---|
+| before, clean | **13/36** | 4/12 | 32/36 | 15/39 | 21/39 | 28 / 8 / 3 | llm 4, stt 16, tts 3 |
+| after, clean | **19/36** | 5/12 | 31/36 | 15/39 | 25/39 | 24 / 13 / 2 | llm 2, stt 13, tts 2 |
+| before, telephone | **14/36** | 4/12 | 32/36 | 12/39 | 24/39 | 26 / 9 / 4 | llm 2, stt 19, tts 1 |
+| after, telephone | **16/36** | 3/12 | 31/36 | 15/39 | 25/39 | 28 / 7 / 4 | llm 3, stt 15, tts 2 |
+
 ### Phone audio: simulated telephone channel
 
 `scripts/eval_wer.py --conditions`: the same 100 FLEURS clips passed through a simulated channel (`src/voice_agent/degrade.py`): `tel` = 300-3400 Hz band-pass, 8 kHz, G.711 mu-law, back to 16 kHz; `opus8` = Opus at 8 kbit/s narrowband after that (no GSM/AMR encoder is available here); `babbleN` / `whiteN` = babble from 6 other FLEURS speakers or white noise at N dB SNR, added before the channel; `loss5` = 5 % of 20 ms frames dropped without concealment. Agent decoding (short window, language ID).
@@ -123,62 +169,30 @@ Call suite on the same channel (spoken track; the oracle-text track does not dep
 | tel | **13/36** | 56/87 | 33/48 | 25.0 % | 18/36 | llm 2, stt 20, tts 1 |
 | tel-babble15 | **9/36** | 47/87 | 29/48 | 40.0 % | 12/36 | llm 3, stt 23, vad 1 |
 
-### Misheard digits: before and after the fix
-
-Same 12 calls and 3 repetitions, with a reactive simulated caller: when the agent reads back a wrong order id or phone number, or asks for it again, the caller repeats it slowly digit by digit (at most twice), and confirms a correct read-back. A turn passes with at most one repeat. "Before" is the v3 prompt with no number handling (`VOICE_AGENT_DIGIT_FIX=0`); "after" adds spoken-number normalisation of the transcript, a digit hint to the recogniser on the turn after the agent asks for a number, and a read-back-and-confirm rule in the prompt. Exact id on first try: the 5-digit id or 10-digit phone number appears as one digit string in what the LLM received from the caller's first attempt.
-
-| Run | Calls passed, spoken | Held-out calls, spoken | Calls passed, oracle | Exact id on first try | Right id reached the order tool | Id turns with 0 / 1 / 2 repeats | Failures by stage |
-|---|---:|---:|---:|---:|---:|---:|---|
-| before, clean | **13/36** | 4/12 | 32/36 | 15/39 | 21/39 | 28 / 8 / 3 | llm 4, stt 16, tts 3 |
-| after, clean | **19/36** | 5/12 | 31/36 | 15/39 | 25/39 | 24 / 13 / 2 | llm 2, stt 13, tts 2 |
-| before, telephone | **14/36** | 4/12 | 32/36 | 12/39 | 24/39 | 26 / 9 / 4 | llm 2, stt 19, tts 1 |
-| after, telephone | **16/36** | 3/12 | 31/36 | 15/39 | 25/39 | 28 / 7 / 4 | llm 3, stt 15, tts 2 |
-
-## End-to-end latency
-
-CPU: 11th Gen Intel(R) Core(TM) i5-11300H @ 3.10GHz (6 logical CPUs visible in WSL2), STT on 4 threads. LLM: gemini-3.5-flash-lite (56 turns), live calls, cache off. 56 turns (2 rounds over 28 prompts), 56 without errors. Audio fed in real time; speculative STT on. Machine load average during turns: median 2.3, p95 4.0 (other jobs share this machine). Peak RSS of the whole process: 1095 MB.
-
-| Stage | p50 | p95 | mean |
-|---|---:|---:|---:|
-| VAD, CPU per 32 ms frame | 0.573 ms | 0.915 ms | 0.615 ms |
-| End-of-turn wait (VAD hangover) | 0.55 s | 0.55 s | 0.55 s |
-| Speech-to-text, left on the critical path | 2.24 s | 10.82 s | 3.59 s |
-| Speech-to-text, full decode | 2.63 s | 11.20 s | 3.98 s |
-| LLM first token (incl. tool round trips) | 2.99 s | 6.02 s | 3.15 s |
-| LLM first complete sentence | 3.20 s | 6.46 s | 3.45 s |
-| TTS first sentence | 0.28 s | 0.75 s | 0.36 s |
-| **End of speech → first reply audio** | **7.43 s** | **17.11 s** | 7.95 s |
-
-### By group (end of speech → first reply audio)
-
-| Turns | n | p50 | p95 |
-|---|---:|---:|---:|
-| All | 56 | 7.43 s | 17.11 s |
-| no tool call | 34 | 6.28 s | 16.29 s |
-| with tool call | 22 | 7.77 s | 17.47 s |
-| synthetic prompts | 40 | 6.54 s | 11.44 s |
-| FLEURS real speech | 16 | 8.71 s | 17.18 s |
-| Hindi | 34 | 8.12 s | 17.29 s |
-| Hinglish | 12 | 6.93 s | 10.23 s |
-| English | 10 | 6.28 s | 13.53 s |
-
-LLM first token, no tool call: p50 2.12 s / p95 4.88 s; with a tool call (two LLM requests): p50 4.69 s / p95 6.51 s.
-
-Speculative STT was used on 56/56 turns and took a median 0.384 s (min 0.377, max 0.389) of decode time off the critical path, measured within the same turn as full decode time minus the STT time left after the end of the turn. That is the 384 ms between the VAD's pause (160 ms) and end-of-turn (544 ms) events.
-
-Language ID (Hindi vs English, from the single encoder pass): English prompts 10/10, Hindi and Hinglish prompts 46/46. Expected tool used: calculator 8/8, date/time 6/6, knowledge base 8/8.
-
-## LLM provider comparison
+### LLM provider comparison (original code, original prompt)
 
 Same 56 turns, same recorded audio, same code and machine, one run per provider (back to back, so the free-tier service and the machine load differ between runs; treat gaps under about 0.5 s as noise).
 
 | LLM | Turns without error | LLM first token p50 / p95 | First sentence p50 / p95 | End of speech → first audio p50 / p95 | Tokens per turn (prompt / completion, mean) | Tool used as expected |
 |---|---:|---:|---:|---:|---:|---:|
-| Gemini 3.5 flash-lite (free tier) | 56/56 | 2.99 s / 6.02 s | 3.20 s / 6.46 s | 7.43 s / 17.11 s | not recorded | 22/22 |
+| Gemini 3.5 flash-lite (free tier), original code | 56/56 | 2.99 s / 6.02 s | 3.20 s / 6.46 s | 7.43 s / 17.11 s | not recorded | 22/22 |
 | DeepSeek flash, provider default (thinking on) | 51/56 | 2.11 s / 3.22 s | 2.34 s / 3.48 s | 5.90 s / 11.65 s | 1271 / 218 | 21/22 |
 | DeepSeek flash, thinking off | 56/56 | 0.88 s / 1.97 s | 1.18 s / 2.10 s | 4.17 s / 9.44 s | 1095 / 78 | 16/22 |
 
-Cost per turn: Gemini ran on the free tier, so USD 0. For DeepSeek the whole experiment (four partial or full runs, about 224 turns, about 210k prompt and 21k completion tokens) took the balance from USD 0.68 to USD 0.65, i.e. roughly USD 0.00013 per turn (0.0001 to 0.0002 given that the balance is shown to the cent). Under USD 0.05 was spent in total.
+### Text-to-speech
+
+| Voice | RTF | Mean synthesis per sentence | Round-trip WER | Round-trip CER |
+|---|---:|---:|---:|---:|
+| `hi_IN-priyamvada-medium` | 0.049 | 0.18 s | 30.8 % | 16.7 % |
+| `hi_IN-pratham-medium` | 0.052 | 0.16 s | 24.2 % | 15.0 % |
+| `hi_IN-rohan-medium` | 0.050 | 0.18 s | 28.6 % | 16.5 % |
+| `en_US-lessac-medium` | 0.061 | 0.15 s | 27.9 % | 22.5 % |
+
+Round trip: synthesise fixed sentences, transcribe them with the agent's own recogniser, score against the input text. It is a proxy for intelligibility that inherits the recogniser's errors.
+
+### LLM spend
+
+DeepSeek tokens recorded across 13 committed result files: 5,954,921 prompt and 184,053 completion (the largest share is the call suite, which replays whole conversations every turn). Per-file totals are in each file.
 
 ## Run-to-run variation
 
@@ -186,7 +200,7 @@ Three full runs of the same 56 turns on the same machine. The earlier two predat
 
 | Run | Load avg (median) | STT p50 | LLM first token p50 | E2E p50 | E2E p95 | Peak RSS |
 |---|---:|---:|---:|---:|---:|---:|
-| final (this code) | 2.3 | 2.24 s | 2.99 s | 7.43 s | 17.11 s | 1095 MB |
+| Gemini final run, original code | 2.3 | 2.24 s | 2.99 s | 7.43 s | 17.11 s | 1095 MB |
 | earlier, TTS memory arena on | 3.3 | 2.18 s | 1.64 s | 5.39 s | 11.04 s | 1542 MB |
 | earlier, arena on, load not logged (7-10 seen by hand) | – | 2.38 s | 2.38 s | 6.39 s | 19.36 s | 1478 MB |
 
@@ -213,14 +227,3 @@ Same prompts, 28 turns, run straight after the main benchmark (load average medi
 |---|---:|---:|---:|---:|---:|---:|
 | forced-hi | 27.38 % | 11.82 % | 0.294 | 3.35 s | 4.71 s | 0 |
 | auto | 27.38 % | 11.82 % | 0.306 | 3.45 s | 5.02 s | 0 |
-
-## Text-to-speech
-
-| Voice | RTF | Mean synthesis per sentence | Round-trip WER | Round-trip CER |
-|---|---:|---:|---:|---:|
-| `hi_IN-priyamvada-medium` | 0.049 | 0.18 s | 30.8 % | 16.7 % |
-| `hi_IN-pratham-medium` | 0.052 | 0.16 s | 24.2 % | 15.0 % |
-| `hi_IN-rohan-medium` | 0.050 | 0.18 s | 28.6 % | 16.5 % |
-| `en_US-lessac-medium` | 0.061 | 0.15 s | 27.9 % | 22.5 % |
-
-Round trip: synthesise fixed sentences, transcribe them with the agent's own recogniser, score against the input text. It is a proxy for intelligibility that inherits the recogniser's errors.
